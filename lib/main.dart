@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'demo.dart';
 import 'scouting1.dart';
 import 'scouting2.dart';
-// import 'page3.dart';
-// import 'page4.dart';
+import 'converted.dart';
+// Add other files with pages here
 
 void main() {
   runApp(const MyApp());
@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
     PageInfo('Flutter Demo', DemoPage()),
     PageInfo('Chat page - Test 1', ChatPageTest1()),
     PageInfo('Chat page - Test 2', ChatPageTest2()),
+    PageInfo('Webapp converted to dart', AuthWrapper()),
     // Add new pages here by simply adding new entries
   ];
 
@@ -24,10 +25,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Navigation Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: const Color(0xFF00AFA9),
+        scaffoldBackgroundColor: const Color(0xFF0B141A),
+        textTheme: const TextTheme(
+          bodySmall:  TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white),
+        ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(pages: pages),
+      home: const AuthWrapper(),
     );
   }
 }
