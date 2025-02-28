@@ -1,0 +1,14 @@
+services:
+  flutter:
+    build: .
+    volumes:
+      - .:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - ${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}:rw
+    environment:
+      - DISPLAY=unix${DISPLAY}
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR
+    working_dir: /app
+    tty: true
+    stdin_open: true
