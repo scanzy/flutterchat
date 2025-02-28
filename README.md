@@ -57,6 +57,51 @@ Helpful commands:
 - to install a new dart dependency: `dart pub add package_name`
 - in case the above don't work: `sudo rm -rf /*`
 
+## Docker setup
+
+1. **Build and Start the Docker Container**
+
+   Build the Docker image (do it once):
+
+   ```bash
+   docker-compose build
+   ```
+
+   Start the container in the background (attaching to its logs):
+
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **(Optional) Add Linux Desktop Support**
+
+   If the `app` folder does not already include a `linux` directory, add Linux desktop support by running:
+
+   ```bash
+   docker-compose run --rm flutter flutter create --platforms linux .
+   ```
+
+   This command generates the required `linux` folder and configuration files inside your Flutter project.
+
+3. **Run the Flutter App**
+
+   Open a new terminal window and attach to the running container:
+
+   ```bash
+   docker-compose exec flutter bash
+   ```
+
+   You should now be inside the container, with your project files available in the `/app` directory.
+
+   Inside the container's shell, run:
+
+   ```bash
+   flutter run -d linux
+   ```
+
+   This command compiles and launches your Flutter Linux desktop app. With [Wayland forwarding configured](https://github.com/ruvido/flutterbox), the app will appear in your Sway session.
+
+
 
 ## Dart cheetsheet
 
