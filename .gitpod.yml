@@ -7,6 +7,12 @@ tasks:
         rm -f /workspace/.template_init
         flutter create --project-name flutterchat .
       } fi
+
+      ### Setup flutter and packages
+      flutter upgrade
+      flutter pub get
+
+      ### Build for common targets
       flutter build -v linux
       flutter build -v web
 
