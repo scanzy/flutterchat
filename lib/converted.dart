@@ -1,5 +1,8 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 import 'pb_service.dart';
@@ -429,7 +432,7 @@ class _ChatScreenState extends State<ChatScreen> {
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 final isOwn = message.data['user'] == pb.userId;
-                final user = (message.expand['user'] as List<RecordModel>)[0];
+                final user = message.get<RecordModel>("expand.user");
                 
                 return MessageBubble(
                   message: message.data['message'] ?? '',
@@ -488,40 +491,96 @@ class MessageBubble extends StatelessWidget {
     required this.timestamp,
   });
 
+
   @override
   Widget build(BuildContext context) {
+    final color = _generateColor(username);
     return Align(
       alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         padding: const EdgeInsets.all(12),
-        constraints: const BoxConstraints(maxWidth: 300),
+        
+        // max message width: 90% of parent
+        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
         decoration: BoxDecoration(
+
+          // TODO: use theme colors
           color: isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isOwn) Text(
+
+            // Username with generated color
+            Text(
               username,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
+                color: isOwn ? Colors.white : color,
               ),
             ),
-            Text(message),
             const SizedBox(height: 4),
+
+            // Message text with URL detection
+            _parseLinks(message, Colors.white),
+            const SizedBox(height: 4),
+
+            // Timestamp
             Text(
-              '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}',
+              DateFormat('HH:mm').format(timestamp),
               style: const TextStyle(
                 fontSize: 10,
-                color: Colors.white54,
+                color: Colors.white54, // TODO: use theme colors
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+
+  // composes rich text, recognizing links
+  Widget _parseLinks(String text, Color color) {
+    final urlRegex = RegExp(r'(https?://[^\s]+)');
+    final spans = <TextSpan>[];
+
+    text.splitMapJoin(
+      urlRegex,
+      onMatch: (match) {
+        final url = match.group(0)!;
+        spans.add(TextSpan(
+          text: url,
+          style: const TextStyle(
+            color: Colors.blueAccent,
+            decoration: TextDecoration.underline,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () => launchUrl(Uri.parse(url)),
+        ));
+        return '';
+      },
+      onNonMatch: (text) {
+        spans.add(TextSpan(text: text, style: TextStyle(color: color)));
+        return '';
+      },
+    );
+
+    return RichText(text: TextSpan(children: spans));
+  }
+
+
+  // generates color from string
+  Color _generateColor(String seed) {
+    final hash = seed.hashCode;
+    return HSLColor.fromAHSL(
+      1.0,
+      (hash % 360).toDouble(),
+      0.7,
+      0.5,
+    ).toColor();
   }
 }
