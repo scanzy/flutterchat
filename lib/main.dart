@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterchat/pb_service.dart';
 import 'demo.dart';
 import 'scouting1.dart';
 import 'scouting2.dart';
@@ -13,7 +14,13 @@ import 'converted.dart';
 bool skipTestSelectionPage = true;
 
 
-void main() {
+// main entry point of the app
+void main() async {
+
+  // sets up pocket base service (auto-login)
+  await PocketBaseService().setup();
+
+  // starts the application
   runApp(const MyApp());
 }
 

@@ -1,9 +1,8 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import 'pb_service.dart';
 
 
 class AuthWrapper extends StatefulWidget {
@@ -14,7 +13,6 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  final pb = PocketBase('https://branco.realmen.it');
   bool _isLoading = true;
   bool _showLogin = true;
 
@@ -26,21 +24,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   Future<void> _checkAuth() async {
     try {
-
-      /*final prefs = await SharedPreferences.getInstance();
-      pb.subscribe = AuthStore()
-
-        save: (token) => prefs.setString('pb_auth', token),
-        initial: prefs.getString('pb_auth'),
-      );
-      */
-
-      if (pb.authStore.isValid) {
-        await pb.collection('users').authRefresh();
+      var pb = PocketBaseService();
+  
+      if (pb.client.authStore.isValid) {
+        await pb.client.collection('users').authRefresh();
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ChatScreen(pb: pb)),
+            MaterialPageRoute(builder: (context) => ChatScreen()),
           );
         }
         return;
@@ -56,7 +47,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
     return _isLoading
         ? const LoadingScreen()
         : AuthScreen(
-            pb: pb,
             showLogin: _showLogin,
             toggleForm: () => setState(() => _showLogin = !_showLogin),
           );
@@ -77,13 +67,11 @@ class LoadingScreen extends StatelessWidget {
 }
 
 class AuthScreen extends StatelessWidget {
-  final PocketBase pb;
   final bool showLogin;
   final VoidCallback toggleForm;
 
   const AuthScreen({
     super.key,
-    required this.pb,
     required this.showLogin,
     required this.toggleForm,
   });
@@ -95,8 +83,8 @@ class AuthScreen extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: showLogin 
-              ? LoginForm(pb: pb, toggleForm: toggleForm)
-              : SignupForm(pb: pb, toggleForm: toggleForm),
+              ? LoginForm (toggleForm: toggleForm)
+              : SignupForm(toggleForm: toggleForm),
         ),
       ),
     );
@@ -104,10 +92,9 @@ class AuthScreen extends StatelessWidget {
 }
 
 class LoginForm extends StatefulWidget {
-  final PocketBase pb;
   final VoidCallback toggleForm;
 
-  const LoginForm({super.key, required this.pb, required this.toggleForm});
+  const LoginForm({super.key, required this.toggleForm});
 
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -121,18 +108,15 @@ class _LoginFormState extends State<LoginForm> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await widget.pb.collection('users').authWithPassword(
+        await PocketBaseService().client.collection('users').authWithPassword(
           _emailController.text,
           _passwordController.text,
         );
         
-        //final storage = await SharedPreferences.getInstance();
-        //await storage.setString('pb_auth', widget.pb.authStore.exportToJsonString());
-
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ChatScreen(pb: widget.pb)),
+            MaterialPageRoute(builder: (context) => ChatScreen()),
           );
         }
       } catch (e) {
@@ -201,10 +185,9 @@ class _LoginFormState extends State<LoginForm> {
 }
 
 class SignupForm extends StatefulWidget {
-  final PocketBase pb;
   final VoidCallback toggleForm;
 
-  const SignupForm({super.key, required this.pb, required this.toggleForm});
+  const SignupForm({super.key, required this.toggleForm});
 
   @override
   _SignupFormState createState() => _SignupFormState();
@@ -227,25 +210,23 @@ class _SignupFormState extends State<SignupForm> {
       }
       
       try {
-        await widget.pb.collection('users').create(body: {
+        var pb = PocketBaseService();
+        await pb.client.collection('users').create(body: {
           'username': _usernameController.text,
           'email': _emailController.text,
           'password': _passwordController.text,
           'passwordConfirm': _confirmController.text,
         });
         
-        await widget.pb.collection('users').authWithPassword(
+        await pb.client.collection('users').authWithPassword(
           _emailController.text,
           _passwordController.text,
         );
 
-        //final storage = await SharedPreferences.getInstance();
-        //await storage.setString('pb_auth', widget.pb.authStore.exportToJsonString());
-
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ChatScreen(pb: widget.pb)),
+            MaterialPageRoute(builder: (context) => ChatScreen()),
           );
         }
       } catch (e) {
@@ -332,15 +313,14 @@ class _SignupFormState extends State<SignupForm> {
 }
 
 class ChatScreen extends StatefulWidget {
-  final PocketBase pb;
-
-  const ChatScreen({super.key, required this.pb});
+  const ChatScreen({super.key});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final PocketBaseService pb = PocketBaseService();
   final _messageController = TextEditingController();
   final List<RecordModel> _messages = [];
   late final UnsubscribeFunc _unsubscribe;
@@ -359,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadMessages() async {
-    final result = await widget.pb.collection('messages').getFullList(
+    final result = await pb.client.collection('messages').getFullList(
       sort: '+created',
       expand: 'user',
     );
@@ -367,7 +347,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _setupRealtime() async {
-    _unsubscribe = await widget.pb.collection('messages').subscribe('*', (e) async {
+    _unsubscribe = await pb.client.collection('messages').subscribe('*', (e) async {
       if (e.record == null) return;
 
       if (e.action == "delete") {
@@ -376,7 +356,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       try {
-        var msg = await widget.pb.collection('messages').getOne(e.record!.id, expand: 'user');
+        var msg = await pb.client.collection('messages').getOne(e.record!.id, expand: 'user');
         _handleMessage(msg, e.action);
       } catch (err) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -407,8 +387,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isNotEmpty) {
       try {
-        await widget.pb.collection('messages').create(body: {
-          'user': widget.pb.authStore.model.id,
+        await pb.client.collection('messages').create(body: {
+          'user': pb.userId,
           'message': _messageController.text.trim(),
         });
         _messageController.clear();
@@ -421,9 +401,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _logout() async {
-    final storage = await SharedPreferences.getInstance();
-    await storage.remove('pb_auth');
-    widget.pb.authStore.clear();
+    pb.logout();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const AuthWrapper()),
@@ -450,14 +428,14 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                final isOwn = message.data['user'] == widget.pb.authStore.model.id;
+                final isOwn = message.data['user'] == pb.userId;
                 final user = (message.expand['user'] as List<RecordModel>)[0];
                 
                 return MessageBubble(
                   message: message.data['message'] ?? '',
                   isOwn: isOwn,
                   username: user.data['username']?.toString() ?? 'Unknown',
-                  timestamp: DateTime.parse(message.created),
+                  timestamp: DateTime.parse(message.get<String>("created")),
                 );
               },
             ),
