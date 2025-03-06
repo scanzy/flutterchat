@@ -85,8 +85,8 @@ class AuthScreen extends StatelessWidget {
       body: Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: showLogin 
-              ? LoginForm (toggleForm: toggleForm)
+          child: showLogin
+              ? LoginForm(toggleForm: toggleForm)
               : SignupForm(toggleForm: toggleForm),
         ),
       ),
@@ -322,11 +322,19 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
+
 class _ChatScreenState extends State<ChatScreen> {
+  // server connection and realtime handler
   final PocketBaseService pb = PocketBaseService();
-  final _messageController = TextEditingController();
-  final List<RecordModel> _messages = [];
   late final UnsubscribeFunc _unsubscribe;
+
+  // message data and controller for list view
+  final _scrollController = ScrollController();
+  final List<RecordModel> _messages = [];
+
+  // controller for new message
+  final _messageController = TextEditingController();
+
 
   @override
   void initState() {
@@ -341,6 +349,8 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+
+  // loads previous messages
   Future<void> _loadMessages() async {
     final result = await pb.client.collection('messages').getFullList(
       sort: '+created',
@@ -349,6 +359,8 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _messages.addAll(result.reversed));
   }
 
+
+  // listens to new messages, or edits to existing messages
   Future<void> _setupRealtime() async {
     _unsubscribe = await pb.client.collection('messages').subscribe('*', (e) async {
       if (e.record == null) return;
@@ -369,37 +381,45 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+
+  // called on updates to some message
   void _handleMessage(RecordModel msg, String action) {
     switch (action) {
       case 'create':
         setState(() => _messages.insert(0, msg));
         break;
+      
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index != -1) {
           setState(() => _messages[index] = msg);
         }
         break;
+
       case 'delete':
         setState(() => _messages.removeWhere((m) => m.id == msg.id));
         break;
+      
       default:
     }
   }
 
+
+
+  // Sends a new message to the server
   Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isNotEmpty) {
-      try {
-        await pb.client.collection('messages').create(body: {
-          'user': pb.userId,
-          'message': _messageController.text.trim(),
-        });
-        _messageController.clear();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: ${e.toString()}')),
-        );
-      }
+    if (_messageController.text.trim().isEmpty) return;
+    
+    try {
+      await pb.client.collection('messages').create(body: {
+        'user': pb.userId,
+        'message': _messageController.text.trim(),
+      });
+      _messageController.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send message: ${e.toString()}')),
+      );
     }
   }
 
@@ -414,6 +434,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      // topbar with title and logout button
       appBar: AppBar(
         title: const Text('La forza del lupo è il Branco'),
         actions: [
@@ -423,8 +445,11 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+
       body: Column(
         children: [
+
+          // center area with messages
           Expanded(
             child: ListView.builder(
               reverse: true,
@@ -443,6 +468,8 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
+
+          // bottom bar with send message field
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -477,6 +504,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+
+// eidget for one message
 class MessageBubble extends StatelessWidget {
   final String message;
   final bool isOwn;
@@ -494,7 +523,10 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _generateColor(username);
+
+    // color for username (based on username)
+    final usernameColor = _generateColor(username);
+
     return Align(
       alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -503,9 +535,9 @@ class MessageBubble extends StatelessWidget {
         
         // max message width: 90% of parent
         constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
-        decoration: BoxDecoration(
 
-          // TODO: use theme colors
+        // TODO: use theme colors
+        decoration: BoxDecoration(
           color: isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -519,7 +551,7 @@ class MessageBubble extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: isOwn ? Colors.white : color,
+                color: isOwn ? Colors.white : usernameColor,
               ),
             ),
             const SizedBox(height: 4),
