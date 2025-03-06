@@ -5,16 +5,24 @@ import 'scouting2.dart';
 import 'converted.dart';
 // Add other files with pages here
 
+
+// Use this variable to select the homepage
+// false => show test selection buttons
+// true  => show login form (webapp converted)
+// after changing the variable, press R to perform hot restart 
+bool skipTestSelectionPage = true;
+
+
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   final List<PageInfo> pages = const [
-    PageInfo('Flutter Demo', DemoPage()),
+    PageInfo('Webapp converted to dart', AuthWrapper()),
     PageInfo('Chat page - Test 1', ChatPageTest1()),
     PageInfo('Chat page - Test 2', ChatPageTest2()),
-    PageInfo('Webapp converted to dart', AuthWrapper()),
+    PageInfo('Flutter Demo', DemoPage()),
     // Add new pages here by simply adding new entries
   ];
 
@@ -34,7 +42,7 @@ class MyApp extends StatelessWidget {
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const AuthWrapper(),
+      home: skipTestSelectionPage ? const AuthWrapper() : HomePage(pages: pages),
     );
   }
 }
