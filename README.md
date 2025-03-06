@@ -57,21 +57,16 @@ Helpful commands:
 - to install a new dart dependency: `dart pub add package_name`
 - in case the above don't work: `sudo rm -rf /*`
 
-## Docker setup
+## Local environment setup (docker)
+
+For an easy and quick access to a cloud-based development environment using GitPod, [click here](https://gitpod.io/?autostart=true#https://github.com/scanzy/flutterchat).<br>
+However you can use your own local environment using docker, following the steps below.
 
 1. **Build and Start the Docker Container**
 
-   Build the Docker image (do it once):
+   Build the Docker image (do it once): `docker-compose build`
 
-   ```bash
-   docker-compose build
-   ```
-
-   Start the container in the background (attaching to its logs):
-
-   ```bash
-   docker-compose up -d
-   ```
+   Start the container in the background (attaching to its logs): `docker-compose up -d`
 
 2. **(Optional) Add Linux Desktop Support**
 
@@ -85,19 +80,13 @@ Helpful commands:
 
 3. **Run the Flutter App**
 
-   Open a new terminal window and attach to the running container:
-
-   ```bash
-   docker-compose exec flutter bash
-   ```
+   Open a new terminal window and attach to the running container: `docker-compose exec flutter bash`
 
    You should now be inside the container, with your project files available in the `/app` directory.
 
-   Inside the container's shell, run:
+   Make sure flutter and its packages are up to date running `flutter upgrade && flutter pub get`
 
-   ```bash
-   flutter run -d linux
-   ```
+   Inside the container's shell, run: `flutter run -d linux`
 
    This command compiles and launches your Flutter Linux desktop app. With [Wayland forwarding configured](https://github.com/ruvido/flutterbox), the app will appear in your Sway session.
 
@@ -150,10 +139,10 @@ print(list); // Output: [1, 2, 3]
 
 
 // Functions with named parameters
-void greet({String name = 'Guest', int? age}) {
+void Greet({String name = 'Guest', int? age}) {
   print('Hello $name, age ${age ?? 'unknown'}');
 }
-greet(name: "Francesco", age: 18);
+Greet(name: "Francesco", age: 18);
 
 // Arrow functions
 int add(int a, int b) => a + b;
@@ -163,12 +152,12 @@ print(multiply(3, 4)); // Output: 12
 (String message) { print(message); };
 
 // Async/Await
-Future<String> fetchData() async {
+Future<String> FetchData() async {
   return await Future.delayed(Duration(seconds: 2), () => 'Data');
 }
 
 void main() async {
-  var data = await fetchData();
+  var data = await FetchData();
   print(data); // Output: Data
 }
 
@@ -180,11 +169,11 @@ class Person {
 
   Person(this.name, this.age); // Constructor
 
-  void greet() => print('Hello, $name');
+  void Greet() => print('Hello, $name');
 }
 
 var alice = Person('Alice', 30);
-alice.greet();
+alice.Greet();
 ```
 
 ## Flutter cheatsheet
@@ -219,7 +208,7 @@ class _MyAppState extends State<MyApp> {
   int _counter = 0;
 
   // Method to update the state, called by the button
-  void _incrementCounter() {
+  void _IncrementCounter() {
 
     // setState: Notifies Flutter to rebuild the UI
     // use an anonymus function without parameters
@@ -247,7 +236,7 @@ class _MyAppState extends State<MyApp> {
 
               // Button to increment the counter
               ElevatedButton(
-                onPressed: _incrementCounter, // Calls _incrementCounter on press
+                onPressed: _IncrementCounter, // Calls _incrementCounter on press
                 child: Text('Increment'),
               ),
             ],
