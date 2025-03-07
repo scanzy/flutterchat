@@ -8,8 +8,7 @@ tasks:
         flutter create --project-name flutterchat .
       } fi
 
-      ### Setup flutter and packages
-      flutter upgrade
+      ### Setup flutter packages
       flutter pub get
       flutter create --platforms linux .
 
