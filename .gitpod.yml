@@ -9,6 +9,7 @@ tasks:
       } fi
 
       ### Setup flutter packages
+      dart --disable-analytics
       flutter pub get
       flutter create --platforms linux .
 
