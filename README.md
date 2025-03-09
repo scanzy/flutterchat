@@ -92,6 +92,10 @@ final age = 30;     // Runtime constant
 const PI = 3.14;    // Compile-time constant
 dynamic value = 42; // Can change type
 
+// String interpolation (works with "" and '')
+print("Hello $name!"); // Output: Hello, Alice!
+print("Double age is ${age * 2}"); // Output: Double age is 60
+
 // Null Safety
 String? nullableName; // Nullable
 print(nullableName?.length); // Safe access
