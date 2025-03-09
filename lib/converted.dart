@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:scrollview_observer/scrollview_observer.dart';
 
 import 'pb_service.dart';
 
@@ -28,7 +29,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Future<void> _checkAuth() async {
     try {
       var pb = PocketBaseService();
-  
+
       if (pb.client.authStore.isValid) {
         await pb.client.collection('users').authRefresh();
         if (mounted) {
@@ -47,12 +48,12 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? const LoadingScreen()
-        : AuthScreen(
-            showLogin: _showLogin,
-            toggleForm: () => setState(() => _showLogin = !_showLogin),
-          );
+    if (_isLoading) return const LoadingScreen();
+
+    return AuthScreen(
+      showLogin: _showLogin,
+      toggleForm: () => setState(() => _showLogin = !_showLogin),
+    );
   }
 }
 
@@ -62,9 +63,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(color: Color(0xFF00AFA9)),
-      ),
+      body: Center(child: CircularProgressIndicator(color: Color(0xFF00AFA9))),
     );
   }
 }
@@ -111,11 +110,10 @@ class _LoginFormState extends State<LoginForm> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await PocketBaseService().client.collection('users').authWithPassword(
-          _emailController.text,
-          _passwordController.text,
-        );
-        
+        await PocketBaseService().client
+            .collection('users')
+            .authWithPassword(_emailController.text, _passwordController.text);
+
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -146,7 +144,10 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Welcome Back', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text(
+              'Welcome Back',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _emailController,
@@ -254,7 +255,10 @@ class _SignupFormState extends State<SignupForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Get Started', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text(
+              'Get Started',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _usernameController,
@@ -328,8 +332,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final PocketBaseService pb = PocketBaseService();
   late final UnsubscribeFunc _unsubscribe;
 
-  // message data and controller for list view
-  final _scrollController = ScrollController();
+  // message data and controllers for list view
+  final ScrollController _scrollController = ScrollController();
+  late ListObserverController _observerController;
   final List<RecordModel> _messages = [];
 
   // controller for new message
@@ -341,10 +346,16 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _loadMessages();
     _setupRealtime();
+
+    // configures scroller animation, disactivating position cache
+    // this ensures proper scroll jump when messages are edited or removed
+    _observerController = ListObserverController(controller: _scrollController)
+      ..cacheJumpIndexOffset = false;
   }
 
   @override
   void dispose() {
+    _observerController.controller?.dispose();
     _unsubscribe();
     super.dispose();
   }
@@ -352,10 +363,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // loads previous messages
   Future<void> _loadMessages() async {
-    final result = await pb.client.collection('messages').getFullList(
-      sort: '+created',
-      expand: 'user',
-    );
+    final result = await pb.client
+        .collection('messages')
+        .getFullList(sort: '+created', expand: 'user');
     setState(() => _messages.addAll(result.reversed));
   }
 
@@ -405,7 +415,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
 
-
   // Sends a new message to the server
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
@@ -417,11 +426,30 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       _messageController.clear();
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to send message: ${e.toString()}')),
       );
     }
   }
+
+
+  // scrolls view to message
+  Future<void> _scrollToMessage(String messageId) async {
+
+    // finds index of specified message
+    final index = _messages.indexWhere((m) => m.id == messageId);
+    if (index == -1) return;
+
+    // scrolls to specified message
+    _observerController.animateTo(
+      index: index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
 
   Future<void> _logout() async {
     pb.logout();
@@ -431,6 +459,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -439,10 +468,18 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('La forza del lupo è il Branco'),
         actions: [
-          IconButton(
-            icon: const Icon(FeatherIcons.logOut),
-            onPressed: _logout,
+          // test button to scroll
+          TextButton(
+            onPressed: () => _scrollToMessage("80my166t2465hf9"),
+            child: const Text("Scroll to \"Gasp\""),
           ),
+          TextButton(
+            onPressed: () => _scrollToMessage("5mn4ozdmry3z1hq"),
+            child: const Text("Scroll to \"daje\""),
+          ),
+
+          // logout button
+          IconButton(icon: const Icon(FeatherIcons.logOut), onPressed: _logout),
         ],
       ),
 
@@ -451,21 +488,25 @@ class _ChatScreenState extends State<ChatScreen> {
 
           // center area with messages
           Expanded(
-            child: ListView.builder(
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                final isOwn = message.data['user'] == pb.userId;
-                final user = message.get<RecordModel>("expand.user");
-                
-                return MessageBubble(
-                  message: message.data['message'] ?? '',
-                  isOwn: isOwn,
-                  username: user.data['username']?.toString() ?? 'Unknown',
-                  timestamp: DateTime.parse(message.get<String>("created")),
-                );
-              },
+            child: ListViewObserver(
+              controller: _observerController,
+              child: ListView.builder(
+                reverse: true,
+                controller: _scrollController,
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  final isOwn = message.data['user'] == pb.userId;
+                  final user = message.get<RecordModel>("expand.user");
+
+                  return MessageBubble(
+                    message: message.data['message'] ?? '',
+                    isOwn: isOwn,
+                    username: user.data['username']?.toString() ?? 'Unknown',
+                    timestamp: DateTime.parse(message.get<String>("created")),
+                  );
+                },
+              ),
             ),
           ),
 
@@ -505,7 +546,7 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 
-// eidget for one message
+// widget for one message
 class MessageBubble extends StatelessWidget {
   final String message;
   final bool isOwn;
@@ -608,11 +649,6 @@ class MessageBubble extends StatelessWidget {
   // generates color from string
   Color _generateColor(String seed) {
     final hash = seed.hashCode;
-    return HSLColor.fromAHSL(
-      1.0,
-      (hash % 360).toDouble(),
-      0.7,
-      0.5,
-    ).toColor();
+    return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
   }
 }
