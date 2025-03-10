@@ -335,6 +335,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // message data and controllers for list view
   final ScrollController _scrollController = ScrollController();
   late ListObserverController _observerController;
+  late ChatScrollObserver _chatObserver;
   final List<RecordModel> _messages = [];
 
   // controller for new message
@@ -351,6 +352,16 @@ class _ChatScreenState extends State<ChatScreen> {
     // this ensures proper scroll jump when messages are edited or removed
     _observerController = ListObserverController(controller: _scrollController)
       ..cacheJumpIndexOffset = false;
+
+    // provides smart scrolling behaviour for messages
+    _chatObserver = ChatScrollObserver(_observerController)
+
+      // min scroll offset to disable auto-scroll on new messages
+      ..fixedPositionOffset = 5
+
+      // not clear why... but this is needed to make smart scroll work...
+      ..toRebuildScrollViewCallback = () { setState(() {}); };
+
   }
 
   @override
@@ -396,7 +407,12 @@ class _ChatScreenState extends State<ChatScreen> {
   void _handleMessage(RecordModel msg, String action) {
     switch (action) {
       case 'create':
-        setState(() => _messages.insert(0, msg));
+        _chatObserver.standby(); // smart scrolling
+        setState(() {
+        
+          // adds the new messages to the list
+          _messages.insert(0, msg);
+        });
         break;
       
       case 'update':
@@ -406,6 +422,7 @@ class _ChatScreenState extends State<ChatScreen> {
         break;
 
       case 'delete':
+        _chatObserver.standby(isRemove: true); // locks message scrolling
         setState(() => _messages.removeWhere((m) => m.id == msg.id));
         break;
       
@@ -488,16 +505,38 @@ class _ChatScreenState extends State<ChatScreen> {
 
           // center area with messages
           Expanded(
-            child: ListViewObserver(
-              controller: _observerController,
-              child: ListView.builder(
-                reverse: true,
-                controller: _scrollController,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  final isOwn = message.data['user'] == pb.userId;
-                  final user = message.get<RecordModel>("expand.user");
+            child: Stack(
+              children: [
+                _buildMessagesList(),
+
+              ],
+            ),
+          ),
+
+          // bottom bar with send message field
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _buildBottomBar(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // scrollable list of messages
+  Widget _buildMessagesList() {
+    return ListViewObserver(
+      controller: _observerController,
+      child: ListView.builder(
+        reverse: true,
+        controller: _scrollController,
+        physics: ChatObserverClampingScrollPhysics(observer: _chatObserver),
+        shrinkWrap: _chatObserver.isShrinkWrap,
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final message = _messages[index];
+          final isOwn = message.data['user'] == pb.userId;
+          final user = message.get<RecordModel>("expand.user");
 
           return MessageBubble(
             message: message.data['message'] ?? '',
