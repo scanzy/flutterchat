@@ -337,6 +337,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late ListObserverController _observerController;
   late ChatScrollObserver _chatObserver;
   final List<RecordModel> _messages = [];
+  bool viewingLastMsg = false;
+  int newMessages = 0; // messages arrived when viewing old ones
 
   // controller for new message
   final _messageController = TextEditingController();
@@ -412,6 +414,9 @@ class _ChatScreenState extends State<ChatScreen> {
         
           // adds the new messages to the list
           _messages.insert(0, msg);
+
+          // updates count if needed
+          if (!viewingLastMsg) newMessages++; 
         });
         break;
       
@@ -456,9 +461,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // finds index of specified message
     final index = _messages.indexWhere((m) => m.id == messageId);
+    
+    // scrolls to specified message
+    _scrollToMessageIndex(index);
+  }
+
+  // scrolls view to message with index
+  void _scrollToMessageIndex(int index) {
     if (index == -1) return;
 
-    // scrolls to specified message
     _observerController.animateTo(
       index: index,
       duration: const Duration(milliseconds: 300),
@@ -509,6 +520,13 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 _buildMessagesList(),
 
+                // button to jump to last message
+                if (!viewingLastMsg)
+                  Positioned(
+                    bottom: 20,
+                    right: 20,
+                    child: _buildJumpToLastMessageBtn(),
+                  ),
               ],
             ),
           ),
@@ -523,10 +541,51 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+
+  // composes the plural of a word, depending on the count
+  // examples: 0 messages, 1 message, 2 messages, 3 messages, ...
+  String plural(String word, int count) => count == 1 ? word : "${word}s";
+
+
+  // jump to last message button
+  Widget _buildJumpToLastMessageBtn() {
+    if (newMessages > 0) {
+      return FloatingActionButton.extended(
+        onPressed: () { _scrollToMessageIndex(0); },
+        // count of messages arrived when viewing old ones
+        label: Text("$newMessages new ${plural('message', newMessages)}"),
+        backgroundColor: const Color(0xFF1F2C34),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.arrow_downward),
+      );
+    }
+
+    return FloatingActionButton(
+      onPressed: () { _scrollToMessageIndex(0); },
+      backgroundColor: const Color(0xFF1F2C34),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.arrow_downward),
+    );
+  }
+
+
   // scrollable list of messages
   Widget _buildMessagesList() {
     return ListViewObserver(
       controller: _observerController,
+
+      // called when scrolling
+      onObserve: (resultModel) {
+        setState(() {
+          
+          // detects if we are viewing old messages or not
+          viewingLastMsg = _scrollController.offset <= _chatObserver.fixedPositionOffset;
+
+          // decreases new messages counter, when scrolling to them in list view
+          final index = resultModel.firstChild?.index;
+          if (index != null) if (index < newMessages) newMessages = index;
+        });
+      },
       child: ListView.builder(
         reverse: true,
         controller: _scrollController,
