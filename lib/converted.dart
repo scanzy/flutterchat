@@ -401,9 +401,8 @@ class _ChatScreenState extends State<ChatScreen> {
       
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
-        if (index != -1) {
-          setState(() => _messages[index] = msg);
-        }
+        if (index == -1) return;
+        setState(() => _messages[index] = msg);
         break;
 
       case 'delete':
@@ -436,7 +435,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   // scrolls view to message
-  Future<void> _scrollToMessage(String messageId) async {
+  void _scrollToMessage(String messageId) {
 
     // finds index of specified message
     final index = _messages.indexWhere((m) => m.id == messageId);
@@ -468,6 +467,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('La forza del lupo è il Branco'),
         actions: [
+
           // test button to scroll
           TextButton(
             onPressed: () => _scrollToMessage("80my166t2465hf9"),
@@ -499,48 +499,47 @@ class _ChatScreenState extends State<ChatScreen> {
                   final isOwn = message.data['user'] == pb.userId;
                   final user = message.get<RecordModel>("expand.user");
 
-                  return MessageBubble(
-                    message: message.data['message'] ?? '',
-                    isOwn: isOwn,
-                    username: user.data['username']?.toString() ?? 'Unknown',
-                    timestamp: DateTime.parse(message.get<String>("created")),
-                  );
-                },
+          return MessageBubble(
+            message: message.data['message'] ?? '',
+            isOwn: isOwn,
+            username: user.data['username']?.toString() ?? 'Unknown',
+            timestamp: DateTime.parse(message.get<String>("created")),
+          );
+        },
+      ),
+    );
+  }
+
+
+  // displays bottom bar with new message field
+  Widget _buildBottomBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _messageController,
+            decoration: InputDecoration(
+              hintText: 'Message...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              filled: true,
+              fillColor: const Color(0xFF1F2C34),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
               ),
             ),
+            maxLines: null,
+            onSubmitted: (_) => _sendMessage(),
           ),
-
-          // bottom bar with send message field
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFF1F2C34),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    maxLines: null,
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(FeatherIcons.send),
-                  color: const Color(0xFF00AFA9),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          icon: const Icon(FeatherIcons.send),
+          color: const Color(0xFF00AFA9),
+          onPressed: _sendMessage,
+        ),
+      ],
     );
   }
 }
@@ -625,15 +624,17 @@ class MessageBubble extends StatelessWidget {
       urlRegex,
       onMatch: (match) {
         final url = match.group(0)!;
-        spans.add(TextSpan(
-          text: url,
-          style: const TextStyle(
-            color: Colors.blueAccent,
-            decoration: TextDecoration.underline,
+        spans.add(
+          TextSpan(
+            text: url,
+            style: const TextStyle(
+              color: Colors.blueAccent,
+              decoration: TextDecoration.underline,
+            ),
+            recognizer:
+                TapGestureRecognizer()..onTap = () => launchUrl(Uri.parse(url)),
           ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () => launchUrl(Uri.parse(url)),
-        ));
+        );
         return '';
       },
       onNonMatch: (text) {
