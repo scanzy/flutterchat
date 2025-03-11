@@ -86,25 +86,58 @@ You should now be inside the container, with your project files available in the
    flutter upgrade && flutter pub get
    ```
 
-5. Generate the required Linux files for Flutter \*:
+Note: steps marked with (\*) perform the initial setup, so they can be skipped when using an existing environment.
+
+### Linux app
+
+Generate the required Linux files for Flutter \*:
    ```bash
    flutter create --platforms linux .
    ```
 
-6. Build the app for the Linux platform:
+Build the app for the Linux platform:
    ```bash
    flutter build linux
    ```
 
-7. Start the app:
+Start the app:
    ```bash
    flutter run -d linux
    ```
 
-
 This command compiles and launches your Flutter Linux desktop app. With [Wayland forwarding configured](https://github.com/ruvido/flutterbox), the app will appear in your Sway session.
 
-Note: steps marked with (\*) perform the initial setup, so they can be skipped when using an existing environment.
+### Web app
+
+Enable web platform support (* one-time setup):
+```bash
+flutter create --platforms web .
+```
+
+Build the app for the web platform:
+```bash
+flutter build web
+```
+
+Test locally using a web server:
+```bash
+cd build/web
+python3 -m http.server 8080
+```
+Then open `http://localhost:8080` in your browser.
+
+---
+
+### Deployment
+Built files are in `build/web/` - deploy this directory to any static hosting service:
+- GitHub Pages
+- Firebase Hosting
+- Netlify
+- Vercel
+```
+
+**Note:** The Docker environment already contains all web build tools - no additional setup needed.  
+Steps marked with (*) are one-time configuration.
 
 ## Dart cheetsheet
 
