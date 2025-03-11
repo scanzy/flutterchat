@@ -63,20 +63,27 @@ Helpful commands:
 For an easy and quick access to a cloud-based development environment using GitPod, [click here](https://gitpod.io/?autostart=true#https://github.com/scanzy/flutterchat).`<br>`
 However you can use your own local environment using docker, following the steps below.
 
-1. Build the Docker image (*): `docker-compose build`
-2. Start the container in the background, attaching to its logs: `docker-compose up -d`
-3. Open a new terminal and attach to the container: `docker-compose exec flutter bash`
+1. Start the container in the background, attaching a new terminal to it. The first time this will take a bit to build the docker image. After running the command, you should be inside the container, with your project files available in the `/app` directory.
 
-You should now be inside the container, with your project files available in the `/app` directory.
+```bash
+docker-compose up -d && docker-compose exec flutter bash
+```
 
-4. Make sure flutter and its packages are up to date (*): `flutter upgrade && flutter pub get`
-5. Generate the required linux files for flutter (*): `flutter create --platforms linux .`
-6. Build the app for linux platform (*): `flutter build linux`
-7. Start the app: `flutter run -d linux`
+2. Make sure flutter and its packages are up to date, and generate the required files. This step can be skipped if using an existing environment.
+
+```bash
+dart --disable-analytics && flutter pub get && flutter create --platforms linux .
+```
+
+3. Start the app! Using Linux as build target (recommended).
+
+```bash
+flutter run -d linux
+```
 
 This command compiles and launches your Flutter Linux desktop app. With [Wayland forwarding configured](https://github.com/ruvido/flutterbox), the app will appear in your Sway session.
 
-Note: steps marked with (*) perform the initial setup, so they can be skipped when using an existing environment.
+
 
 ## Dart cheetsheet
 
