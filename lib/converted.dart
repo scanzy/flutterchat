@@ -594,17 +594,29 @@ class _ChatScreenState extends State<ChatScreen> {
         itemCount: _messages.length,
         itemBuilder: (context, index) {
           final message = _messages[index];
-          final isOwn = message.data['user'] == pb.userId;
-          final user = message.get<RecordModel>("expand.user");
 
-          return MessageBubble(
-            message: message.data['message'] ?? '',
-            isOwn: isOwn,
-            username: user.data['username']?.toString() ?? 'Unknown',
-            timestamp: DateTime.parse(message.get<String>("created")),
-          );
+          return Column(children: [
+
+
+            // displays message
+            _buildMessage(message),
+          ]);
         },
       ),
+    );
+  }
+
+
+  // displays message
+  Widget _buildMessage(RecordModel message) {
+    final isOwn = message.data['user'] == pb.userId;
+    final user = message.get<RecordModel>("expand.user");
+
+    return MessageBubble(
+      message: message.data['message'] ?? '',
+      isOwn: isOwn,
+      username: user.data['username']?.toString() ?? 'Unknown',
+      timestamp: DateTime.parse(message.get<String>("created")),
     );
   }
 
