@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutterchat/pb_service.dart';
-import 'demo.dart';
-import 'scouting2.dart';
+
 import 'converted.dart';
+import 'scouting2.dart';
 // Add other files with pages here
 
 
@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
   final List<PageInfo> pages = [
     PageInfo('Webapp converted to dart', AuthWrapper()),
     PageInfo('Chat page - Test 2', ChatPageTest2()),
-    PageInfo('Flutter Demo', DemoPage()),
     // Add new pages here by simply adding new entries
   ];
 
