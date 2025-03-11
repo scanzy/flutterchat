@@ -1,3 +1,4 @@
+import 'package:flutterchat/main.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -85,8 +86,8 @@ class AuthScreen extends StatelessWidget {
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: showLogin
-              ? LoginForm(toggleForm: toggleForm)
-              : SignupForm(toggleForm: toggleForm),
+                  ? LoginForm(toggleForm: toggleForm)
+                  : SignupForm(toggleForm: toggleForm),
         ),
       ),
     );
@@ -216,11 +217,12 @@ class _SignupFormState extends State<SignupForm> {
       try {
         var pb = PocketBaseService();
         await pb.client.collection('users').create(body: {
-          'username': _usernameController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
-          'passwordConfirm': _confirmController.text,
-        });
+                'username': _usernameController.text,
+                'email': _emailController.text,
+                'password': _passwordController.text,
+                'passwordConfirm': _confirmController.text,
+              },
+            );
 
         await pb.client.collection('users').authWithPassword(
           _emailController.text,
@@ -421,9 +423,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       await pb.client.collection('messages').create(body: {
-        'user': pb.userId,
-        'message': _messageController.text.trim(),
-      });
+              'user': pb.userId,
+              'message': _messageController.text.trim(),
+            },
+          );
       _messageController.clear();
     } catch (e) {
       if (!mounted) return;
@@ -669,11 +672,11 @@ class _MessageBubbleState extends State<MessageBubble> {
       onMatch: (match) {
         final url = match.group(0)!;
         spans.add(TextSpan(
-          text: url,
-          style: const TextStyle(
-            color: Colors.blueAccent,
-            decoration: TextDecoration.underline,
-          ),
+            text: url,
+            style: const TextStyle(
+              color: Colors.blueAccent,
+              decoration: TextDecoration.underline,
+            ),
           recognizer: TapGestureRecognizer()
             ..onTap = () => launchUrl(Uri.parse(url)),
         ));
@@ -735,8 +738,61 @@ class _MessageBubbleState extends State<MessageBubble> {
   }
 
   //when edit message is choosen
-  void _handleEdit() async {}
+  void _handleEdit() async {
+    final newContent = await showDialog<String>(
+      context: context,
+      builder: (context) => EditMessageDialog(initialText: widget.message),
+    );
 
-  //when reply to message is choosen 
+    if (newContent != null) {
+      try {
+        await PocketBaseService().updateMessage(widget.messageId, newContent);
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Edit failed: ${e.toString()}')));
+      }
+    }
+  }
+
+  //when reply to message is choosen
   void _handleReply() async {}
+}
+
+//a little dialog box to edit the original message
+class EditMessageDialog extends StatelessWidget {
+  final String initialText;
+
+  const EditMessageDialog({super.key, required this.initialText});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = TextEditingController(text: initialText);
+
+    return AlertDialog(
+      backgroundColor: const Color(0xFF1F2C34),
+      title: const Text('Edit Message'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        maxLines: 3,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, controller.text),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AFA9),
+          ),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
 }

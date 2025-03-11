@@ -48,4 +48,12 @@ class PocketBaseService {
     _pb.authStore.clear();
     await _pb.collection('users').authRefresh();
   }
+
+
+  Future<void> updateMessage(String messageId, String newContent) async {
+    await client.collection('messages').update(
+      messageId,
+      body: {'message': newContent},
+    );
+  }
 }
