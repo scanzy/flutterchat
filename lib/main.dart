@@ -1,3 +1,4 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterchat/pb_service.dart';
 
@@ -18,6 +19,9 @@ void main() async {
 
   // sets up pocket base service (auto-login)
   await PocketBaseService().setup();
+
+  // provides italian localization for date and time
+  initializeDateFormatting("it");
 
   // starts the application
   runApp(MyApp());

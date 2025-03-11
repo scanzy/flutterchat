@@ -592,16 +592,68 @@ class _ChatScreenState extends State<ChatScreen> {
         physics: ChatObserverClampingScrollPhysics(observer: _chatObserver),
         shrinkWrap: _chatObserver.isShrinkWrap,
         itemCount: _messages.length,
+
+        // displays a message, and its other extras
         itemBuilder: (context, index) {
+          
+          // gets message and its date
           final message = _messages[index];
+          final date = getMessageDate(message);
+
+          // gets previous message and its date
+          final prevMessage = _messages.elementAtOrNull(index + 1);
+          final prevMessageDate = getMessageDateOrNull(prevMessage);
 
           return Column(children: [
 
+            // displays date title over message, if first of the day
+            if (date != prevMessageDate) _buildDateTitle(date),
 
             // displays message
             _buildMessage(message),
           ]);
         },
+      ),
+    );
+  }
+
+
+  // TODO: move to message bubble
+  // gets the date of a message
+  DateTime getMessageDate(RecordModel message) {
+    final timestamp = DateTime.parse(message.get<String>("created"));
+    return DateTime(timestamp.year, timestamp.month, timestamp.day);
+  }
+
+  DateTime? getMessageDateOrNull(RecordModel? message) {
+    if (message == null) return null;
+    return getMessageDate(message);
+  }
+
+
+  // displays date title
+  Widget _buildDateTitle(DateTime date) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF1F2C34),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Text(
+              DateFormat.yMMMMd(
+                // "it-IT", // optional, italian translation
+              ).format(date),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+          ),
+          ),
+        ),
       ),
     );
   }
