@@ -793,14 +793,13 @@ class _MessageBubbleState extends State<MessageBubble> {
     final usernameColor = _generateColor(widget.username);
 
     return MouseRegion(
-      //when hover the MessageBubble it shows the interaction menu
-      onEnter: (_) {
-        _isDesktop ? setState(() => _showActions = true) : null;
-      },
+      //when not hovering the MessageBubble it hides the interaction menu
       onExit: (_) {
         _isDesktop ? setState(() => _showActions = false) : null;
       },
       child: GestureDetector(
+        onSecondaryTap: _isDesktop
+        ? () => setState(() => _showActions = !_showActions) : null,
         onTap: () {
           if (!_isDesktop) {
             setState(() => _showActions = !_showActions);
@@ -820,7 +819,7 @@ class _MessageBubbleState extends State<MessageBubble> {
 
                 // TODO: use theme colors
                 decoration: BoxDecoration(
-                color: widget.isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
+                  color: widget.isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
