@@ -212,7 +212,7 @@ class _SignupFormState extends State<SignupForm> {
         );
         return;
       }
-      
+
       try {
         var pb = PocketBaseService();
         await pb.client.collection('users').create(body: {
@@ -221,7 +221,7 @@ class _SignupFormState extends State<SignupForm> {
           'password': _passwordController.text,
           'passwordConfirm': _confirmController.text,
         });
-        
+
         await pb.client.collection('users').authWithPassword(
           _emailController.text,
           _passwordController.text,
@@ -398,7 +398,7 @@ class _ChatScreenState extends State<ChatScreen> {
       case 'create':
         setState(() => _messages.insert(0, msg));
         break;
-      
+
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index != -1) {
@@ -409,7 +409,7 @@ class _ChatScreenState extends State<ChatScreen> {
       case 'delete':
         setState(() => _messages.removeWhere((m) => m.id == msg.id));
         break;
-      
+
       default:
     }
   }
@@ -418,7 +418,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // Sends a new message to the server
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
-    
+
     try {
       await pb.client.collection('messages').create(body: {
         'user': pb.userId,
@@ -504,6 +504,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     isOwn: isOwn,
                     username: user.data['username']?.toString() ?? 'Unknown',
                     timestamp: DateTime.parse(message.get<String>("created")),
+                    messageId: message.id,
                   );
                 },
               ),
@@ -547,11 +548,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
 // widget for one message
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
   final String message;
   final bool isOwn;
   final String username;
   final DateTime timestamp;
+  final String messageId;
+  //the widget is stateful and related to the ID
+  //since every MessageBubble will have its own behaviour
 
   const MessageBubble({
     super.key,
@@ -559,56 +563,95 @@ class MessageBubble extends StatelessWidget {
     required this.isOwn,
     required this.username,
     required this.timestamp,
+    required this.messageId,
   });
 
+  @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
+  bool _showActions = false;
+  late bool _isDesktop;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Detect platform when dependencies changes
+    _isDesktop = Theme.of(context).platform != TargetPlatform.android &&
+        Theme.of(context).platform != TargetPlatform.iOS;
+  }
 
   @override
   Widget build(BuildContext context) {
 
     // color for username (based on username)
-    final usernameColor = _generateColor(username);
+    final usernameColor = _generateColor(widget.username);
 
-    return Align(
-      alignment: isOwn ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.all(12),
-        
-        // max message width: 90% of parent
-        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
-
-        // TODO: use theme colors
-        decoration: BoxDecoration(
-          color: isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return MouseRegion(
+      //when hover the MessageBubble it shows the interaction menu
+      onEnter: (_) {
+        _isDesktop ? setState(() => _showActions = true) : null;
+      },
+      onExit: (_) {
+        _isDesktop ? setState(() => _showActions = false) : null;
+      },
+      child: GestureDetector(
+        onTap: () {
+          if (!_isDesktop) {
+            setState(() => _showActions = !_showActions);
+          }
+        },
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
+            Align(
+              alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                padding: const EdgeInsets.all(12),
 
-            // Username with generated color
-            Text(
-              username,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: isOwn ? Colors.white : usernameColor,
+                // max message width: 90% of parent
+                constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
+
+                // TODO: use theme colors
+                decoration: BoxDecoration(
+                color: widget.isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    // Username with generated color
+                    Text(
+                      widget.username,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: widget.isOwn ? Colors.white : usernameColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Message text with URL detection
+                    _parseLinks(widget.message, Colors.white),
+                    const SizedBox(height: 4),
+
+                    // Timestamp
+                    Text(
+                      DateFormat('HH:mm').format(widget.timestamp),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.white54, // TODO: use theme colors
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 4),
-
-            // Message text with URL detection
-            _parseLinks(message, Colors.white),
-            const SizedBox(height: 4),
-
-            // Timestamp
-            Text(
-              DateFormat('HH:mm').format(timestamp),
-              style: const TextStyle(
-                fontSize: 10,
-                color: Colors.white54, // TODO: use theme colors
-              ),
-            ),
+            // Context menu overlay
+            if (_showActions) _buildContextMenu(),
           ],
         ),
       ),
@@ -651,4 +694,49 @@ class MessageBubble extends StatelessWidget {
     final hash = seed.hashCode;
     return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
   }
+
+  //interaction menu
+  Widget _buildContextMenu() {
+    return Positioned(
+      top: 0,
+      //handle the position depending on the MessageBubble
+      right: widget.isOwn ? 20 : null,
+      left: widget.isOwn ? null : 20,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A3942),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(FeatherIcons.cornerUpLeft, size: 18),
+              color: Colors.white70,
+              onPressed: () => _handleReply(),
+            ),
+            if (widget.isOwn)
+              IconButton(
+                icon: const Icon(FeatherIcons.edit, size: 18),
+                color: Colors.white70,
+                onPressed: () => _handleEdit(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //when edit message is choosen
+  void _handleEdit() async {}
+
+  //when reply to message is choosen 
+  void _handleReply() async {}
 }
