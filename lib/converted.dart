@@ -332,15 +332,24 @@ class _ChatScreenState extends State<ChatScreen> {
   final PocketBaseService pb = PocketBaseService();
   late final UnsubscribeFunc _unsubscribe;
 
-  // message data and controllers for list view
+  // controllers for message list view
   final ScrollController _scrollController = ScrollController();
   late ListObserverController _observerController;
   late ChatScrollObserver _chatObserver;
-  final List<RecordModel> _messages = [];
-  bool viewingLastMsg = false;
-  int newMessages = 0; // messages arrived when viewing old ones
 
-  // controller for new message
+  // loaded messages
+  // TODO: use device cache
+  final List<RecordModel> _messages = [];
+
+  // messages arrived when viewing old ones
+  int newMessages = 0;
+  bool viewingLastMsg = false;
+  
+  // messages arrived when chat not shown
+  // TODO: load from pocketbase on app open
+  int unreadMessages = 3;
+
+  // controller for new message field
   final _messageController = TextEditingController();
 
 
@@ -415,8 +424,8 @@ class _ChatScreenState extends State<ChatScreen> {
           // adds the new messages to the list
           _messages.insert(0, msg);
 
-          // updates count if needed
-          if (!viewingLastMsg) newMessages++; 
+          // updates count of new messages if needed
+          if (!viewingLastMsg) newMessages++;
         });
         break;
       
@@ -445,7 +454,16 @@ class _ChatScreenState extends State<ChatScreen> {
         'user': pb.userId,
         'message': _messageController.text.trim(),
       });
+
+      // empties the new message field
       _messageController.clear();
+
+      // scrolls to bottom, assuming that all messages have been read
+      _scrollToMessageIndex(0);
+      setState(() { unreadMessages = 0; });
+
+      // TODO: clear unread messages on server
+
     } catch (e) {
       if (!mounted) return;
 
@@ -606,6 +624,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
           return Column(children: [
 
+            // displays "unread messages" title over message
+            if (index == unreadMessages - 1) _buildUnreadMessageTitle(unreadMessages),
+
             // displays date title over message, if first of the day
             if (date != prevMessageDate) _buildDateTitle(date),
 
@@ -652,6 +673,25 @@ class _ChatScreenState extends State<ChatScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
           ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  // displays title "unread messages"
+  Widget _buildUnreadMessageTitle(int count) {
+    return Container(
+      color: const Color(0xFF007B73),
+      padding: EdgeInsets.symmetric(vertical: 12),
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Center(
+        child: Text(
+          "$count unread ${plural('message', count)}",
+          style: TextStyle(
+            // color: Colors.grey[600],
+            //fontSize: 12,
           ),
         ),
       ),
