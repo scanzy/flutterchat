@@ -1,39 +1,34 @@
 image:
   file: .gitpod.Dockerfile
 tasks:
-  - name: Build for linux development
+  - name: Run project
     init: |
-      if test ! -e "pubspec.yaml"; then {
-        rm -f /workspace/.template_init
-        flutter create --project-name flutterchat .
-      } fi
-
       ### Setup flutter packages
       dart --disable-analytics
       flutter pub get
       flutter create --platforms linux .
 
       ### Build for common targets
-      flutter build -v linux
+      # flutter build -v linux
       # flutter build -v web
 
       ### If you want to build for android, consider uncommenting the below lines
       # flutter build -v bundle
       # flutter build -v appbundle
       # flutter build -v apk
-
-      ### This line is necessary for the below `- name: Run project` to await before proceeding to `flutter run` when prebuilds are not effective
-      # We could use `gp sync-[done|await] <id>` but that won't work between `init` and `command`
-      touch /workspace/.template_init
-
-  - name: Run project
+    
     command: |
-      printf "\033[3J\033c\033[3J" && if test ! -e /workspace/.template_init; then {
-        printf 'info[gitpod]: %s\n' "Waiting for the flutter build process to complete ..."
-        until test -e /workspace/.template_init; do
-          sleep 0.5
-        done
-      } fi
+      ### Tries build
+      flutter build -v linux || (
+
+        ### Retries install on error
+        dart --disable-analytics
+        flutter pub get
+        flutter create --platforms linux .
+        flutter build -v linux
+      )
+
+      ### Starts application
       flutter run -d linux
 
 ports:
