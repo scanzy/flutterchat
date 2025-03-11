@@ -79,8 +79,6 @@ However you can use your own local environment using docker, following the steps
    docker-compose exec flutter bash
    ```
 
-You should now be inside the container, with your project files available in the `/app` directory.
-
 4. Make sure Flutter and its packages are up to date \*:
    ```bash
    flutter upgrade && flutter pub get
@@ -92,12 +90,7 @@ Note: steps marked with (\*) perform the initial setup, so they can be skipped w
 
 Generate the required Linux files for Flutter \*:
    ```bash
-   flutter create --platforms linux .
-   ```
-
-Build the app for the Linux platform:
-   ```bash
-   flutter build linux
+   flutter create --platforms linux . && flutter build linux
    ```
 
 Start the app:
@@ -109,17 +102,12 @@ This command compiles and launches your Flutter Linux desktop app. With [Wayland
 
 ### Web app
 
-Enable web platform support (* one-time setup):
+Generate the required Web files for Flutter \*:
 ```bash
-flutter create --platforms web .
+flutter create --platforms web . && flutter build web
 ```
 
-Build the app for the web platform:
-```bash
-flutter build web
-```
-
-Test locally using a web server:
+Test locally using a web server, on your local console:
 ```bash
 cd build/web
 python3 -m http.server 8080
@@ -138,6 +126,7 @@ Built files are in `build/web/` - deploy this directory to any static hosting se
 
 **Note:** The Docker environment already contains all web build tools - no additional setup needed.  
 Steps marked with (*) are one-time configuration.
+
 
 ## Dart cheetsheet
 

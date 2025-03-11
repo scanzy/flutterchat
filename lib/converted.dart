@@ -334,12 +334,24 @@ class _ChatScreenState extends State<ChatScreen> {
   final PocketBaseService pb = PocketBaseService();
   late final UnsubscribeFunc _unsubscribe;
 
-  // message data and controllers for list view
+  // controllers for message list view
   final ScrollController _scrollController = ScrollController();
   late ListObserverController _observerController;
+  late ChatScrollObserver _chatObserver;
+
+  // loaded messages
+  // TODO: use device cache
   final List<RecordModel> _messages = [];
 
-  // controller for new message
+  // messages arrived when viewing old ones
+  int newMessages = 0;
+  bool viewingLastMsg = false;
+  
+  // messages arrived when chat not shown
+  // TODO: load from pocketbase on app open
+  int unreadMessages = 3;
+
+  // controller for new message field
   final _messageController = TextEditingController();
 
 
@@ -353,6 +365,16 @@ class _ChatScreenState extends State<ChatScreen> {
     // this ensures proper scroll jump when messages are edited or removed
     _observerController = ListObserverController(controller: _scrollController)
       ..cacheJumpIndexOffset = false;
+
+    // provides smart scrolling behaviour for messages
+    _chatObserver = ChatScrollObserver(_observerController)
+
+      // min scroll offset to disable auto-scroll on new messages
+      ..fixedPositionOffset = 5
+
+      // not clear why... but this is needed to make smart scroll work...
+      ..toRebuildScrollViewCallback = () { setState(() {}); };
+
   }
 
   @override
@@ -398,17 +420,25 @@ class _ChatScreenState extends State<ChatScreen> {
   void _handleMessage(RecordModel msg, String action) {
     switch (action) {
       case 'create':
-        setState(() => _messages.insert(0, msg));
+        _chatObserver.standby(); // smart scrolling
+        setState(() {
+        
+          // adds the new messages to the list
+          _messages.insert(0, msg);
+
+          // updates count of new messages if needed
+          if (!viewingLastMsg) newMessages++;
+        });
         break;
 
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
-        if (index != -1) {
-          setState(() => _messages[index] = msg);
-        }
+        if (index == -1) return;
+        setState(() => _messages[index] = msg);
         break;
 
       case 'delete':
+        _chatObserver.standby(isRemove: true); // locks message scrolling
         setState(() => _messages.removeWhere((m) => m.id == msg.id));
         break;
 
@@ -423,11 +453,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       await pb.client.collection('messages').create(body: {
-              'user': pb.userId,
-              'message': _messageController.text.trim(),
-            },
-          );
+        'user': pb.userId,
+        'message': _messageController.text.trim(),
+      });
+
+      // empties the new message field
       _messageController.clear();
+
+      // scrolls to bottom, assuming that all messages have been read
+      _scrollToMessageIndex(0);
+      setState(() { unreadMessages = 0; });
+
+      // TODO: clear unread messages on server
+
     } catch (e) {
       if (!mounted) return;
 
@@ -439,13 +477,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   // scrolls view to message
-  Future<void> _scrollToMessage(String messageId) async {
+  void _scrollToMessage(String messageId) {
 
     // finds index of specified message
     final index = _messages.indexWhere((m) => m.id == messageId);
+    
+    // scrolls to specified message
+    _scrollToMessageIndex(index);
+  }
+
+  // scrolls view to message with index
+  void _scrollToMessageIndex(int index) {
     if (index == -1) return;
 
-    // scrolls to specified message
     _observerController.animateTo(
       index: index,
       duration: const Duration(milliseconds: 300),
@@ -471,6 +515,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('La forza del lupo è il Branco'),
         actions: [
+
           // test button to scroll
           TextButton(
             onPressed: () => _scrollToMessage("80my166t2465hf9"),
@@ -491,60 +536,216 @@ class _ChatScreenState extends State<ChatScreen> {
 
           // center area with messages
           Expanded(
-            child: ListViewObserver(
-              controller: _observerController,
-              child: ListView.builder(
-                reverse: true,
-                controller: _scrollController,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  final isOwn = message.data['user'] == pb.userId;
-                  final user = message.get<RecordModel>("expand.user");
+            child: Stack(
+              children: [
+                _buildMessagesList(),
 
-                  return MessageBubble(
-                    message: message.data['message'] ?? '',
-                    isOwn: isOwn,
-                    username: user.data['username']?.toString() ?? 'Unknown',
-                    timestamp: DateTime.parse(message.get<String>("created")),
-                    messageId: message.id,
-                  );
-                },
-              ),
+
+                // button to jump to last message
+                if (!viewingLastMsg)
+                  Positioned(
+                    bottom: 20,
+                    right: 20,
+                    child: _buildJumpToLastMessageBtn(),
+                  ),
+              ],
             ),
           ),
 
           // bottom bar with send message field
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFF1F2C34),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    maxLines: null,
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(FeatherIcons.send),
-                  color: const Color(0xFF00AFA9),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
+            child: _buildBottomBar(),
           ),
         ],
       ),
+    );
+  }
+
+
+  // composes the plural of a word, depending on the count
+  // examples: 0 messages, 1 message, 2 messages, 3 messages, ...
+  String plural(String word, int count) => count == 1 ? word : "${word}s";
+
+
+  // jump to last message button
+  Widget _buildJumpToLastMessageBtn() {
+    if (newMessages > 0) {
+      return FloatingActionButton.extended(
+        onPressed: () { _scrollToMessageIndex(0); },
+        // count of messages arrived when viewing old ones
+        label: Text("$newMessages new ${plural('message', newMessages)}"),
+        backgroundColor: const Color(0xFF1F2C34),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.arrow_downward),
+      );
+    }
+
+    return FloatingActionButton(
+      onPressed: () { _scrollToMessageIndex(0); },
+      backgroundColor: const Color(0xFF1F2C34),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.arrow_downward),
+    );
+  }
+
+
+  // scrollable list of messages
+  Widget _buildMessagesList() {
+    return ListViewObserver(
+      controller: _observerController,
+
+      // called when scrolling
+      onObserve: (resultModel) {
+        setState(() {
+          
+          // detects if we are viewing old messages or not
+          viewingLastMsg = _scrollController.offset <= _chatObserver.fixedPositionOffset;
+
+          // decreases new messages counter, when scrolling to them in list view
+          final index = resultModel.firstChild?.index;
+          if (index != null) if (index < newMessages) newMessages = index;
+        });
+      },
+      child: ListView.builder(
+        reverse: true,
+        controller: _scrollController,
+        physics: ChatObserverClampingScrollPhysics(observer: _chatObserver),
+        shrinkWrap: _chatObserver.isShrinkWrap,
+        itemCount: _messages.length,
+
+        // displays a message, and its other extras
+        itemBuilder: (context, index) {
+          
+          // gets message and its date
+          final message = _messages[index];
+          final date = getMessageDate(message);
+
+          // gets previous message and its date
+          final prevMessage = _messages.elementAtOrNull(index + 1);
+          final prevMessageDate = getMessageDateOrNull(prevMessage);
+
+          return Column(children: [
+
+            // displays "unread messages" title over message
+            if (index == unreadMessages - 1) _buildUnreadMessageTitle(unreadMessages),
+
+            // displays date title over message, if first of the day
+            if (date != prevMessageDate) _buildDateTitle(date),
+
+            // displays message
+            _buildMessage(message),
+          ]);
+        },
+      ),
+    );
+  }
+
+
+  // TODO: move to message bubble
+  // gets the date of a message
+  DateTime getMessageDate(RecordModel message) {
+    final timestamp = DateTime.parse(message.get<String>("created"));
+    return DateTime(timestamp.year, timestamp.month, timestamp.day);
+  }
+
+  DateTime? getMessageDateOrNull(RecordModel? message) {
+    if (message == null) return null;
+    return getMessageDate(message);
+  }
+
+
+  // displays date title
+  Widget _buildDateTitle(DateTime date) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF1F2C34),
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Text(
+              DateFormat.yMMMMd(
+                // "it-IT", // optional, italian translation
+              ).format(date),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+          ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  // displays title "unread messages"
+  Widget _buildUnreadMessageTitle(int count) {
+    return Container(
+      color: const Color(0xFF007B73),
+      padding: EdgeInsets.symmetric(vertical: 12),
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Center(
+        child: Text(
+          "$count unread ${plural('message', count)}",
+          style: TextStyle(
+            // color: Colors.grey[600],
+            //fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  // displays message
+  Widget _buildMessage(RecordModel message) {
+    final isOwn = message.data['user'] == pb.userId;
+    final user = message.get<RecordModel>("expand.user");
+
+    return MessageBubble(
+      message: message.data['message'] ?? '',
+      isOwn: isOwn,
+      username: user.data['username']?.toString() ?? 'Unknown',
+      timestamp: DateTime.parse(message.get<String>("created")),
+      messageId: message.id,
+    );
+  }
+
+
+  // displays bottom bar with new message field
+  Widget _buildBottomBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _messageController,
+            decoration: InputDecoration(
+              hintText: 'Message...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              filled: true,
+              fillColor: const Color(0xFF1F2C34),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            maxLines: null,
+            onSubmitted: (_) => _sendMessage(),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(FeatherIcons.send),
+          color: const Color(0xFF00AFA9),
+          onPressed: _sendMessage,
+        ),
+      ],
     );
   }
 }
