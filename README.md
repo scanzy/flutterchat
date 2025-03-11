@@ -60,7 +60,7 @@ Helpful commands:
 
 ## Development environment setup
 
-For an easy and quick access to a cloud-based development environment using GitPod, [click here](https://gitpod.io/?autostart=true#https://github.com/scanzy/flutterchat).`<br>`
+For an easy and quick access to a cloud-based development environment using GitPod, [click here](https://gitpod.io/?autostart=true#https://github.com/scanzy/flutterchat).
 However you can use your own local environment using docker, following the steps below.
 
 
