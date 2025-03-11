@@ -1,9 +1,11 @@
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterchat/pb_service.dart';
 
-import 'converted.dart';
-import 'scouting2.dart';
+import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/misc.dart';
+
+import 'package:flutterchat/user/auth.dart';
+import 'package:flutterchat/scouting2.dart';
 // Add other files with pages here
 
 
@@ -29,7 +31,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final List<PageInfo> pages = [
-    PageInfo('Webapp converted to dart', AuthWrapper()),
+    PageInfo('Webapp converted to dart', AuthScreen()),
     PageInfo('Chat page - Test 2', ChatPageTest2()),
     // Add new pages here by simply adding new entries
   ];
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: skipTestSelectionPage ? const AuthWrapper() : HomePage(pages: pages),
+      home: skipTestSelectionPage ? const AuthScreen() : HomePage(pages: pages),
     );
   }
 }
@@ -90,12 +92,9 @@ class HomePage extends StatelessWidget {
   Widget _buildPageButton(BuildContext context, PageInfo pageInfo) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
-      onPressed: () => _navigateToPage(context, pageInfo.page),
+      onPressed: () => navigateToPage(context, pageInfo.page),
       child: Text('Go to ${pageInfo.title}'),
     );
   }
 
-  void _navigateToPage(BuildContext context, Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-  }
 }

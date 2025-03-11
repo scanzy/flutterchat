@@ -6,10 +6,10 @@ class ChatPageTest2 extends StatefulWidget {
   const ChatPageTest2({super.key});
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  ChatScreenState createState() => ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatPageTest2> {
+class ChatScreenState extends State<ChatPageTest2> {
   final List<Message> messages = [
     Message(
       username: 'Alice',
