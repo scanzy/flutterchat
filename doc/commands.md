@@ -55,24 +55,16 @@ This command compiles and launches your Flutter Linux desktop app. With [Wayland
 ### Web app
 
 Generate the required Web files for Flutter \*:
+
     ```bash
     flutter create --platforms web . && flutter build web
     ```
 
     Test locally using a web server, on your local console:
+
     ```bash
     cd build/web
     python3 -m http.server 8080
     ```
 
 Then open `http://localhost:8080` in your browser.
-
----
-
-### Deployment
-
-Built files are in `build/web/` - deploy this directory to any static hosting service:
-- GitHub Pages
-- Firebase Hosting
-- Netlify
-- Vercel
