@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:pocketbase/pocketbase.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';

@@ -3,29 +3,30 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/chat/input.dart';
+import 'package:flutterchat/user/profile.dart';
 
 
 // widget for one message
 class MessageBubble extends StatefulWidget {
+  final String messageId;
   final String message;
   final bool isOwn;
+  final String userId;
   final String username;
   final DateTime timestamp;
-  final String messageId;
-  //the widget is stateful and related to the ID
-  //since every MessageBubble will have its own behaviour
 
   const MessageBubble({
     super.key,
+    required this.messageId,
     required this.message,
     required this.isOwn,
+    required this.userId,
     required this.username,
     required this.timestamp,
-    required this.messageId,
   });
 
   @override
@@ -38,11 +39,12 @@ class MessageBubble extends StatefulWidget {
     final user = message.get<RecordModel>("expand.user");
 
     return MessageBubble(
+      messageId: message.id,
       message: message.data['message'] ?? '',
       isOwn: isOwn,
+      userId: user.id,
       username: user.data['username']?.toString() ?? 'Unknown',
       timestamp: DateTime.parse(message.get<String>("created")),
-      messageId: message.id,
     );
   }
 }
@@ -77,6 +79,7 @@ class MessageBubbleState extends State<MessageBubble> {
       child: GestureDetector(
         onSecondaryTap: _isDesktop ? () => setState(toggleShowActions) : null,
         onLongPress:   !_isDesktop ? () => setState(toggleShowActions) : null,
+
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -125,7 +128,8 @@ class MessageBubbleState extends State<MessageBubble> {
                 ),
               ),
             ),
-            // Context menu overlay
+
+            // shows context menu overlay
             if (_showActions) _buildContextMenu(),
           ],
         ),
@@ -177,48 +181,33 @@ class MessageBubbleState extends State<MessageBubble> {
     return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
   }
 
-  //interaction menu
+
+  // context menu for messages
   Widget _buildContextMenu() {
     return Positioned(
       top: 0,
-      //handle the position depending on the MessageBubble
+      // handle the position depending on the MessageBubble
       right: widget.isOwn ? 20 : null,
       left: widget.isOwn ? null : 20,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A3942),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+      child: ActionButtonsMenu(actions: [
+        ActionButton(icon: Icons.reply, onPressed: _handleReply),
+        if (widget.isOwn)
+          ActionButton(icon: Icons.edit, onPressed: _handleEdit),
+        ActionButton(icon: Icons.push_pin, onPressed: _handlePin),
+        ActionButton(
+          icon: Icons.person,
+          onPressed: () => navigateToPage(
+            context, ProfileScreen(userId: widget.userId)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(FeatherIcons.cornerUpLeft, size: 18),
-              color: Colors.white70,
-              onPressed: () => _handleReply(),
-            ),
-            if (widget.isOwn)
-              IconButton(
-                icon: const Icon(FeatherIcons.edit, size: 18),
-                color: Colors.white70,
-                onPressed: () => _handleEdit(),
-              ),
-          ],
-        ),
-      ),
+        if (widget.isOwn)
+          ActionButton(icon: Icons.delete, onPressed: _handleDelete),
+      ]),
     );
   }
 
 
   // called when edit action is selected
-  void _handleEdit() async {
+  Future<void> _handleEdit() async {
 
     // asks for edited message (with dialog)
     final newContent = await showDialog<String>(
@@ -239,9 +228,65 @@ class MessageBubbleState extends State<MessageBubble> {
 
 
   // called when reply to message is selected
-  void _handleReply() async {
+  Future<void> _handleReply() async {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Not implemented')));
   }
 
+
+  // called when pin message is selected
+  Future<void> _handlePin() async {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Not implemented')));
+  }
+
+
+  // called when delete to message is selected
+  Future<void> _handleDelete() async {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Not implemented')));
+  }
+}
+
+
+// single option for context menu
+class ActionButton {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  const ActionButton({required this.icon, this.onPressed});
+}
+
+
+// menu with action buttons
+class ActionButtonsMenu extends StatelessWidget {
+  final List<ActionButton> actions;
+  const ActionButtonsMenu({super.key, required this.actions});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A3942),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: actions.map((action) =>
+          IconButton(
+            icon: Icon(action.icon, size: 18),
+            color: Colors.white70,
+            onPressed: action.onPressed,
+          )
+        ).toList()
+      ),
+    );
+  }
 }
