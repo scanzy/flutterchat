@@ -29,6 +29,8 @@ class Message {
     isOwn    = userId == PocketBaseService().userId;
     created  = DateTime.parse(record.get<String>("created"));
   }
+
+  DateTime get date => DateTime(created.year, created.month, created.day);
 }
 
 

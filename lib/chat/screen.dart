@@ -252,12 +252,12 @@ class ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           
           // gets message and its date
-          final message = _messages[index];
-          final date = getMessageDate(message);
+          final message = Message(_messages[index]);
+          final date = message.date;
 
-          // gets previous message and its date
-          final prevMessage = _messages.elementAtOrNull(index + 1);
-          final prevMessageDate = getMessageDateOrNull(prevMessage);
+          // gets previous message and checks if has different date
+          final prev = _messages.elementAtOrNull(index + 1);
+          final firstOfDay = (prev == null) || (Message(prev).date != date);
 
           return Column(children: [
 
@@ -266,28 +266,15 @@ class ChatScreenState extends State<ChatScreen> {
               UnreadMessagesTitle(count: unreadMessages),
 
             // displays date title over message, if first of the day
-            if (date != prevMessageDate)
+            if (firstOfDay)
               DateTitle(date: date),
 
             // displays message
-            MessageBubble.fromRecord(message),
+            MessageBubble(msg: message),
           ]);
         },
       ),
     );
-  }
-
-
-  // TODO: move to message bubble
-  // gets the date of a message
-  DateTime getMessageDate(RecordModel message) {
-    final timestamp = DateTime.parse(message.get<String>("created"));
-    return DateTime(timestamp.year, timestamp.month, timestamp.day);
-  }
-
-  DateTime? getMessageDateOrNull(RecordModel? message) {
-    if (message == null) return null;
-    return getMessageDate(message);
   }
 
 }
