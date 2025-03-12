@@ -52,6 +52,9 @@ class MessageBubble extends StatefulWidget {
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
   DateTime get created  => msg.created;
+
+  // checkx if current user is admin (and can delete/pin messages)
+  bool get isAdmin => PocketBaseService().isAdmin;
 }
 
 
@@ -172,11 +175,12 @@ class MessageBubbleState extends State<MessageBubble> {
             onPressed: _handleEdit,
           ),
 
-        ActionButton(
-          text: "Pin",
-          icon: Icons.push_pin,
-          onPressed: _handlePin,
-        ),
+        if (widget.isAdmin)
+          ActionButton(
+            text: "Pin",
+            icon: Icons.push_pin,
+            onPressed: _handlePin,
+          ),
         
         ActionButton(
           text: "Show profile",
@@ -185,7 +189,7 @@ class MessageBubbleState extends State<MessageBubble> {
             context, ProfileScreen(userId: widget.userId)),
         ),
 
-        if (widget.isOwn)
+        if (widget.isOwn || widget.isAdmin)
           ActionButton(
             text: "Delete",
             icon: Icons.delete,
@@ -233,8 +237,16 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // called when delete to message is selected
   Future<void> _handleDelete() async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Not implemented')));
+    // TODO: ask confirmation (with dialog)
+
+    try {
+      await PocketBaseService().deleteMessage(widget.messageId);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Delete failed: ${e.toString()}')));
+    }
   }
 }
 

@@ -25,6 +25,9 @@ class PocketBaseService {
   bool          get isLoggedIn  => _pb.authStore.isValid;
   RecordModel?  get currentUser => _pb.authStore.record;
   String?       get userId      => _pb.authStore.record?.id;
+
+  // checks if the current user is admin
+  bool get isAdmin => _pb.authStore.record?.getBoolValue("admin") ?? false;
   
 
   // initializes the auth store, reading from SharedPrefs
