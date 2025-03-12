@@ -10,7 +10,7 @@ Documentation:
 - `README.md` (this file) for contributing guidelines and code style
 - [doc/commands.md](doc/commands.md) with useful commands to setup dev env, build and deploy app
 - [doc/pocketbase.md](doc/pocketbase.md) with pocketbase database structure description
-- [doc/cheatsheet.md](doc/cheatsheet.md]) with useful code examples for dart and flutter
+- [doc/cheatsheet.md](doc/cheatsheet.md) with useful code examples for dart and flutter
 
 User:
 - `user/auth.dart` for user authorization and loading screen
