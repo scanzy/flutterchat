@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterchat/room/list.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/chat/screen.dart';
@@ -35,7 +36,7 @@ class AuthScreenState extends State<AuthScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ChatScreen()),
+            MaterialPageRoute(builder: (context) => RoomsListScreen()),
           );
         }
         return;
