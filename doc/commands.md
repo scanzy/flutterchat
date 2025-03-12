@@ -40,14 +40,14 @@ Note: steps marked with (\*) perform the initial setup, so they can be skipped w
 ### Linux app
 
 Generate the required Linux files for Flutter \*:
-   ```bash
-   flutter create --platforms linux . && flutter build linux
-   ```
+```bash
+flutter create --platforms linux . && flutter build linux
+```
 
 Start the app:
-   ```bash
-   flutter run -d linux
-   ```
+```bash
+flutter run -d linux
+```
 
 This command compiles and launches your Flutter Linux desktop app. With [Wayland forwarding configured](https://github.com/ruvido/flutterbox), the app will appear in your Sway session.
 
@@ -56,15 +56,15 @@ This command compiles and launches your Flutter Linux desktop app. With [Wayland
 
 Generate the required Web files for Flutter \*:
 
-    ```bash
-    flutter create --platforms web . && flutter build web
-    ```
+```bash
+flutter create --platforms web . && flutter build web
+```
 
-    Test locally using a web server, on your local console:
+Test locally using a web server, on your local console:
 
-    ```bash
-    cd build/web
-    python3 -m http.server 8080
-    ```
+```bash
+cd build/web
+python3 -m http.server 8080
+```
 
 Then open `http://localhost:8080` in your browser.
