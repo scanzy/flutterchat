@@ -2,7 +2,6 @@ import 'package:intl/intl.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
@@ -75,7 +74,7 @@ class MessageBubbleState extends State<MessageBubble> {
   Widget build(BuildContext context) {
 
     // color for username (based on username)
-    final usernameColor = _generateColor(widget.username);
+    final usernameColor = generateColor(widget.username);
 
     return MouseRegion(
       // shows contect menu when long-tapping or right-click the MessageBubble
@@ -124,7 +123,7 @@ class MessageBubbleState extends State<MessageBubble> {
                     const SizedBox(height: 4),
 
                     // Message text with URL detection
-                    _parseLinks(widget.text, Colors.white),
+                    parseLinks(widget.text, Colors.white),
                     const SizedBox(height: 4),
 
                     // Timestamp
@@ -146,50 +145,6 @@ class MessageBubbleState extends State<MessageBubble> {
         ),
       ),
     );
-  }
-
-
-  // composes rich text, recognizing links and formatting them
-  Widget _parseLinks(String text, Color color) {
-    final urlRegex = RegExp(r'(https?://[^\s]+)');
-    final spans = <TextSpan>[];
-
-    text.splitMapJoin(
-      urlRegex,
-
-      // formats links properly
-      onMatch: (match) {
-        final url = match.group(0)!;
-        spans.add(TextSpan(
-            text: url,
-            style: const TextStyle(
-              color: Colors.blueAccent,
-              decoration: TextDecoration.underline,
-            ),
-
-          // opens link in browser on tap
-          recognizer: TapGestureRecognizer()
-            ..onTap = () => launchUrl(Uri.parse(url)),
-        ));
-        return '';
-      },
-
-      // leaves other text untouched
-      onNonMatch: (text) {
-        spans.add(TextSpan(text: text, style: TextStyle(color: color)));
-        return '';
-      },
-    );
-
-    // composes text joining processed chuncks
-    return RichText(text: TextSpan(children: spans));
-  }
-
-
-  // generates color from string
-  Color _generateColor(String seed) {
-    final hash = seed.hashCode;
-    return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
   }
 
 
