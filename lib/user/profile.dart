@@ -3,8 +3,10 @@ import 'package:pocketbase/pocketbase.dart';
 
 
 class ProfileScreen extends StatelessWidget {
-  final RecordModel user;
-  const ProfileScreen({super.key, required this.user});
+  final String userId;
+  const ProfileScreen({super.key, required this.userId});
+
+  // TODO: load user data from pocketbase
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: Text("Username: ${user.get<String>("username")}"),
+      body: Text("User id: $userId"),
     );
   }
 }

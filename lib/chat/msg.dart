@@ -102,12 +102,19 @@ class MessageBubbleState extends State<MessageBubble> {
                   children: [
 
                     // Username with generated color
-                    Text(
-                      widget.username,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: widget.isOwn ? Colors.white : usernameColor,
+                    RichText(
+                      text: TextSpan(
+                        text: widget.username,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: widget.isOwn ? Colors.white : usernameColor,
+                        ),
+
+                        // opens profile page on username click
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () { navigateToPage(
+                            context, ProfileScreen(userId: widget.userId)); },
                       ),
                     ),
                     const SizedBox(height: 4),
