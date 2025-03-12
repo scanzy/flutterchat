@@ -158,17 +158,39 @@ class MessageBubbleState extends State<MessageBubble> {
       right: widget.isOwn ? 20 : null,
       left:  widget.isOwn ? null : 20,
       child: ActionButtonsMenu(actions: [
-        ActionButton(icon: Icons.reply, onPressed: _handleReply),
-        if (widget.isOwn)
-          ActionButton(icon: Icons.edit, onPressed: _handleEdit),
-        ActionButton(icon: Icons.push_pin, onPressed: _handlePin),
+
         ActionButton(
+          text: "Reply",
+          icon: Icons.reply,
+          onPressed: _handleReply,
+        ),
+
+        if (widget.isOwn)
+          ActionButton(
+            text: "Edit",
+            icon: Icons.edit,
+            onPressed: _handleEdit,
+          ),
+
+        ActionButton(
+          text: "Pin",
+          icon: Icons.push_pin,
+          onPressed: _handlePin,
+        ),
+        
+        ActionButton(
+          text: "Show profile",
           icon: Icons.person,
           onPressed: () => navigateToPage(
             context, ProfileScreen(userId: widget.userId)),
         ),
+
         if (widget.isOwn)
-          ActionButton(icon: Icons.delete, onPressed: _handleDelete),
+          ActionButton(
+            text: "Delete",
+            icon: Icons.delete,
+            onPressed: _handleDelete
+          ),
       ]),
     );
   }
@@ -219,9 +241,15 @@ class MessageBubbleState extends State<MessageBubble> {
 
 // single option for context menu
 class ActionButton {
+  final String text;
   final IconData icon;
   final VoidCallback? onPressed;
-  const ActionButton({required this.icon, this.onPressed});
+
+  const ActionButton({
+    required this.text,
+    required this.icon,
+    this.onPressed,
+  });
 }
 
 
@@ -248,11 +276,14 @@ class ActionButtonsMenu extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         children: actions.map((action) =>
-          IconButton(
-            icon: Icon(action.icon, size: 18),
-            color: Colors.white70,
-            onPressed: action.onPressed,
-          )
+          Tooltip(
+            message: action.text,
+            child: IconButton(
+              icon: Icon(action.icon, size: 18),
+              color: Colors.white70,
+              onPressed: action.onPressed,
+            ),
+          ),
         ).toList()
       ),
     );
