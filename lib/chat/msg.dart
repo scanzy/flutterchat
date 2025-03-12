@@ -10,43 +10,47 @@ import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/user/profile.dart';
 
 
+// object for messages
+class Message {
+  late final String id;
+  late final String text;
+  late final String userId;
+  late final String username;
+  late final bool   isOwn;
+  late final DateTime created;
+
+  // gets data from message record
+  Message(RecordModel record) {
+    final user = record.get<RecordModel>("expand.user");
+
+    id       = record.id;
+    text     = record.get<String?>('message') ?? '';
+    userId   = user.id;
+    username = user.get<String?>('username') ?? 'Unknown';
+    isOwn    = userId == PocketBaseService().userId;
+    created  = DateTime.parse(record.get<String>("created"));
+  }
+}
+
+
 // widget for one message
 class MessageBubble extends StatefulWidget {
-  final String messageId;
-  final String message;
-  final bool isOwn;
-  final String userId;
-  final String username;
-  final DateTime timestamp;
-
-  const MessageBubble({
-    super.key,
-    required this.messageId,
-    required this.message,
-    required this.isOwn,
-    required this.userId,
-    required this.username,
-    required this.timestamp,
-  });
+  final Message msg;
+  const MessageBubble({super.key, required this.msg});
 
   @override
   State<MessageBubble> createState() => MessageBubbleState();
 
-
-  // displays message
-  static MessageBubble fromModel(RecordModel message) {
-    final isOwn = message.data['user'] == PocketBaseService().userId;
-    final user = message.get<RecordModel>("expand.user");
-
-    return MessageBubble(
-      messageId: message.id,
-      message: message.data['message'] ?? '',
-      isOwn: isOwn,
-      userId: user.id,
-      username: user.data['username']?.toString() ?? 'Unknown',
-      timestamp: DateTime.parse(message.get<String>("created")),
-    );
+  static MessageBubble fromRecord(RecordModel record) {
+    return MessageBubble(msg: Message(record));
   }
+
+  String get messageId  => msg.id;
+  String get text       => msg.text;
+  String get userId     => msg.userId;
+  String get username   => msg.username;
+  bool   get isOwn      => msg.isOwn;
+  DateTime get created  => msg.created;
 }
 
 
@@ -62,8 +66,8 @@ class MessageBubbleState extends State<MessageBubble> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Detect platform when dependencies changes
-    _isDesktop = Theme.of(context).platform != TargetPlatform.android &&
-        Theme.of(context).platform != TargetPlatform.iOS;
+    _isDesktop = ![TargetPlatform.iOS, TargetPlatform.android]
+      .contains(Theme.of(context).platform);
   }
 
 
@@ -120,12 +124,12 @@ class MessageBubbleState extends State<MessageBubble> {
                     const SizedBox(height: 4),
 
                     // Message text with URL detection
-                    _parseLinks(widget.message, Colors.white),
+                    _parseLinks(widget.text, Colors.white),
                     const SizedBox(height: 4),
 
                     // Timestamp
                     Text(
-                      DateFormat('HH:mm').format(widget.timestamp),
+                      DateFormat('HH:mm').format(widget.created),
                       style: const TextStyle(
                         fontSize: 10,
                         color: Colors.white54, // TODO: use theme colors
@@ -195,7 +199,7 @@ class MessageBubbleState extends State<MessageBubble> {
       top: 0,
       // handle the position depending on the MessageBubble
       right: widget.isOwn ? 20 : null,
-      left: widget.isOwn ? null : 20,
+      left:  widget.isOwn ? null : 20,
       child: ActionButtonsMenu(actions: [
         ActionButton(icon: Icons.reply, onPressed: _handleReply),
         if (widget.isOwn)
@@ -219,7 +223,7 @@ class MessageBubbleState extends State<MessageBubble> {
     // asks for edited message (with dialog)
     final newContent = await showDialog<String>(
       context: context,
-      builder: (context) => EditMessageDialog(initialText: widget.message),
+      builder: (context) => EditMessageDialog(initialText: widget.text),
     );
     if (newContent == null) return;
 

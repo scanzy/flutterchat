@@ -270,7 +270,7 @@ class ChatScreenState extends State<ChatScreen> {
               DateTitle(date: date),
 
             // displays message
-            MessageBubble.fromModel(message),
+            MessageBubble.fromRecord(message),
           ]);
         },
       ),
