@@ -1,13 +1,14 @@
 # flutterchat
 
-Official chat app for Realmen Branco.<br/>
+Official chat app for Realmen Community.<br/>
 Main objective: provide a cross-platform self-hosted working alternative to Telegram or Keet, for a realmen chat experience.
 
 
 ## Code organization
 
 Documentation:
-- `README.md` (this file) for contributing guidelines and code style
+- `README.md` (this file) with contributing guidelines and code style
+- [doc/description.md](doc/description.md) with the description of the app and its functionalities
 - [doc/commands.md](doc/commands.md) with useful commands to setup dev env, build and deploy app
 - [doc/pocketbase.md](doc/pocketbase.md) with pocketbase database structure description
 - [doc/cheatsheet.md](doc/cheatsheet.md) with useful code examples for dart and flutter
