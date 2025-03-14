@@ -158,7 +158,11 @@ class MessageBubbleState extends State<MessageBubble> {
       // handle the position depending on the MessageBubble
       right: widget.isOwn ? 20 : null,
       left:  widget.isOwn ? null : 20,
-      child: ActionButtonsMenu(actions: [
+      child: ActionButtonsMenu(
+
+        // hides menu on selection
+        onSelection: () { setState(() { _showActions = false; }); },
+        actions: [
 
         ActionButton(
           text: "Reply",
@@ -266,7 +270,13 @@ class ActionButton {
 // menu with action buttons
 class ActionButtonsMenu extends StatelessWidget {
   final List<ActionButton> actions;
-  const ActionButtonsMenu({super.key, required this.actions});
+  final VoidCallback? onSelection;
+
+  const ActionButtonsMenu({
+    super.key,
+    required this.actions,
+    this.onSelection,
+  });
 
 
   @override
@@ -284,8 +294,11 @@ class ActionButtonsMenu extends StatelessWidget {
             message: action.text,
             child: IconButton(
               icon: Icon(action.icon, size: 18),
-              color: Colors.white70,
-              onPressed: action.onPressed,
+              style: AppStyles.btnNormal(context),
+              onPressed: () {
+                onSelection!();
+                action.onPressed!();
+              },
             ),
           ),
         ).toList()
