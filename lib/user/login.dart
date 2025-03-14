@@ -7,7 +7,6 @@ import 'package:flutterchat/utils/form.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback toggleForm;
-
   const LoginForm({super.key, required this.toggleForm});
 
   @override
@@ -15,32 +14,36 @@ class LoginForm extends StatefulWidget {
 }
 
 class LoginFormState extends State<LoginForm> {
+
+  // controllers for fields
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        await PocketBaseService().client
-            .collection('users')
-            .authWithPassword(_emailController.text, _passwordController.text);
 
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ChatScreen()),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed: ${e.toString()}')),
-          );
-        }
+  Future<void> _handleLogin() async {
+    if (! _formKey.currentState!.validate()) return;
+
+    try {
+      await PocketBaseService().client
+        .collection('users')
+        .authWithPassword(_emailController.text, _passwordController.text);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${e.toString()}')),
+        );
       }
     }
   }
+
 
   // login form
   @override
