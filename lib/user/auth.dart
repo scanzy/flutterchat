@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutterchat/room/list.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
-import 'package:flutterchat/chat/screen.dart';
+import 'package:flutterchat/utils/style.dart';
+
 import 'package:flutterchat/user/login.dart';
 import 'package:flutterchat/user/signup.dart';
 
@@ -51,8 +52,12 @@ class AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF00AFA9))),
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.accent(context),
+          )
+        ),
       );
     }
 

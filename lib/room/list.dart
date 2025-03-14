@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/chat/screen.dart';
 import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
 
 
 class Room {
@@ -89,38 +90,24 @@ class RoomsListScreen extends StatelessWidget {
       leading: CircleAvatar(child: Text("R")),
       title: Row(
         children: [
-          Text(
-            room.name,
-            style: TextStyle(color: Colors.white),
-          ),
+          Text(room.name),
           SizedBox(width: 10),
           Badge(
             label: Text(room.type),
-            textColor: Colors.black,
-            backgroundColor: Colors.grey,
+            textColor: AppColors.normal(context),
+            backgroundColor: AppColors.text(context),
           ),
         ],
       ),
       subtitle: Text(
         room.lastMsgPreview,
-        style: TextStyle(color: Colors.grey)
+        style: AppStyles.textFaded(context),
       ),
       trailing: Container(
         width: 25,
         height: 25,
-        decoration: BoxDecoration(
-          color:  Color(0xFF007B73),
-          shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              "${room.unreadMessages}",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
-            ),
-          ),
+        decoration: AppStyles.boxAccent(context),
+        child: Center(child: Text("${room.unreadMessages}")),
       ),
       onTap: () => navigateToPage(context, ChatScreen())
     );
