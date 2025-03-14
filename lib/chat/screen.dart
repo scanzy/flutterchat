@@ -1,12 +1,14 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutterchat/room/details.dart';
-import 'package:flutterchat/utils/misc.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
+
 import 'package:flutterchat/user/auth.dart';
+import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/msg.dart';
 import 'package:flutterchat/chat/extras.dart';
@@ -164,19 +166,22 @@ class ChatScreenState extends State<ChatScreen> {
 
       // topbar with title and logout button
       appBar: AppBar(
-        title: TextButton(
-          onPressed: () => navigateToPage(context, RoomDetailsScreen()),
-          child: const Text('La forza del lupo è il Branco'),
+        title: GestureDetector(
+          onTap: () => navigateToPage(context, RoomDetailsScreen()),
+          child: Text('La forza del lupo è il Branco'),
         ),
         actions: [
 
           // test button to scroll
-          TextButton(
+          ElevatedButton(
             onPressed: () => _scrollToMessage("80my166t2465hf9"),
+            style: AppStyles.btnAccent(context),
             child: const Text("Scroll to \"Gasp\""),
           ),
-          TextButton(
+          SizedBox(width: 8, height: 8),
+          ElevatedButton(
             onPressed: () => _scrollToMessage("5mn4ozdmry3z1hq"),
+            style: AppStyles.btnAccent(context),
             child: const Text("Scroll to \"daje\""),
           ),
 
@@ -209,8 +214,12 @@ class ChatScreenState extends State<ChatScreen> {
           ),
 
           // bottom bar with send message field
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.normal(context),
+              boxShadow: AppStyles.shadow(context),
+            ),
             child: ChatInputBar(onMessageSent: () {
 
               // scrolls to bottom, assuming that user read all new messages

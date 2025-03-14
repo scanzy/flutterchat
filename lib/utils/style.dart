@@ -4,8 +4,14 @@ import "package:flutter/material.dart";
 // To create normal boxes:
 //    Container(..., decoration: AppStyles.boxNormal(context))
 
-// To create important boxes:
+// To create accent boxes:
 //    Container(..., decoration: AppStyles.boxAccent(context))
+
+// To add a shadow
+//    Container(...,
+//      decoration: BoxDecoration(..., 
+//        boxShadow: AppStyles.shadow(context)
+//    )),
 
 // To create faded text:
 //    Text(..., style: AppStyles.textFaded(context))
@@ -13,8 +19,14 @@ import "package:flutter/material.dart";
 // To create normal buttons:
 //    ElevatedButton(..., style: AppStyles.btnNormal(context))
 
-// To create important buttons:
+// To create accent buttons:
 //    ElevatedButton(..., style: AppStyles.btnAccent(context))
+
+// To create wide buttons:
+//    ElevatedButton(..., style: AppStyles.btnWide(context))
+
+// To create wide accent buttons:
+//    ElevatedButton(..., style: AppStyles.btnSubmit(context))
 
 // To add also custom styles:
 //    MyWidget(..., style: AppStyles.<something>.merge(<otherstyle>))
@@ -77,7 +89,12 @@ class AppStyles {
       backgroundColor: color,
       minimumSize: wide ? const Size(double.infinity, 50) : null,
     );
-  } 
+  }
+
+  // standard shadow
+  static List<BoxShadow> shadow(BuildContext context) {
+    return [BoxShadow(color: AppColors.background(context), blurRadius: 8)];
+  }
 }
 
 

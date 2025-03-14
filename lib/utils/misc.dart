@@ -22,7 +22,7 @@ void navigateToPage(BuildContext context, Widget page) {
 
 
 // composes rich text, recognizing links and formatting them
-Widget parseLinks(String text, Color color) {
+Widget parseLinks(String text, {Color? color}) {
   final urlRegex = RegExp(r'(https?://[^\s]+)');
   final spans = <TextSpan>[];
 

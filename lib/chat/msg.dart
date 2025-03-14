@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/user/profile.dart';
 
@@ -79,7 +80,12 @@ class MessageBubbleState extends State<MessageBubble> {
   Widget build(BuildContext context) {
 
     // color for username (based on username)
-    final usernameColor = generateColor(widget.username);
+    final usernameColor = widget.isOwn ?
+      AppColors.text(context) : generateColor(widget.username);
+
+    // style for message bubble
+    final bubbleStyle = widget.isOwn ?
+      AppStyles.boxAccent(context) : AppStyles.boxNormal(context);
 
     return MouseRegion(
       // shows contect menu when long-tapping or right-click the MessageBubble
@@ -94,17 +100,13 @@ class MessageBubbleState extends State<MessageBubble> {
             Align(
               alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                decoration: bubbleStyle,
+                margin:  const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 padding: const EdgeInsets.all(12),
 
                 // max message width: 90% of parent
                 constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
 
-                // TODO: use theme colors
-                decoration: BoxDecoration(
-                color: widget.isOwn ? const Color(0xFF007B73) : const Color(0xFF1F2C34),
-                  borderRadius: BorderRadius.circular(16),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -114,9 +116,8 @@ class MessageBubbleState extends State<MessageBubble> {
                       text: TextSpan(
                         text: widget.username,
                         style: TextStyle(
+                          color: usernameColor,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: widget.isOwn ? Colors.white : usernameColor,
                         ),
 
                         // opens profile page on username click
@@ -125,19 +126,16 @@ class MessageBubbleState extends State<MessageBubble> {
                             context, ProfileScreen(userId: widget.userId)); },
                       ),
                     ),
-                    const SizedBox(height: 4),
 
                     // Message text with URL detection
-                    parseLinks(widget.text, Colors.white),
+                    const SizedBox(height: 4),
+                    parseLinks(widget.text),
                     const SizedBox(height: 4),
 
                     // Timestamp
                     Text(
                       DateFormat('HH:mm').format(widget.created),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.white54, // TODO: use theme colors
-                      ),
+                      style: AppStyles.textFaded(context),
                     ),
                   ],
                 ),
@@ -275,15 +273,9 @@ class ActionButtonsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF2A3942),
+        color: AppColors.normal(context),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppStyles.shadow(context),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(

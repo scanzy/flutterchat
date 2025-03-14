@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/style.dart';
 
 
 // bottom input bar of the chat
@@ -26,6 +27,8 @@ class ChatInputBarState extends State<ChatInputBar> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
           child: TextField(
@@ -36,7 +39,6 @@ class ChatInputBarState extends State<ChatInputBar> {
                 borderRadius: BorderRadius.circular(24),
               ),
               filled: true,
-              fillColor: const Color(0xFF1F2C34),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
@@ -47,8 +49,9 @@ class ChatInputBarState extends State<ChatInputBar> {
           ),
         ),
         IconButton(
+          iconSize: 32,
           icon: const Icon(Icons.send),
-          color: const Color(0xFF00AFA9),
+          style: AppStyles.btnAccent(context),
           onPressed: _sendMessage,
         ),
       ],
@@ -85,7 +88,6 @@ class ChatInputBarState extends State<ChatInputBar> {
 }
 
 
-
 // a little dialog box to edit the original message
 class EditMessageDialog extends StatelessWidget {
   final String initialText;
@@ -97,7 +99,6 @@ class EditMessageDialog extends StatelessWidget {
     final controller = TextEditingController(text: initialText);
 
     return AlertDialog(
-      backgroundColor: const Color(0xFF1F2C34),
       title: const Text('Edit Message'),
       content: TextField(
         controller: controller,
@@ -110,13 +111,12 @@ class EditMessageDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
+          style: AppStyles.btnNormal(context),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, controller.text),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AFA9),
-          ),
+          style: AppStyles.btnAccent(context),
           child: const Text('Save'),
         ),
       ],
