@@ -5,6 +5,7 @@ import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 
 import 'package:flutterchat/user/auth.dart';
+import 'package:flutterchat/palette.dart';
 import 'package:flutterchat/scouting2.dart';
 // Add other files with pages here
 
@@ -31,8 +32,9 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final List<PageInfo> pages = [
-    PageInfo('Webapp converted to dart', AuthScreen()),
-    PageInfo('Chat page - Test 2', ChatPageTest2()),
+    PageInfo('Full app',    AuthScreen()),
+    PageInfo('App colors',  PalettePage()),
+    PageInfo('Chat test 2', ChatPageTest2()),
     // Add new pages here by simply adding new entries
   ];
 
