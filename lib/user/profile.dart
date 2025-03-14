@@ -14,7 +14,9 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: Text("User id: $userId"),
+      body: Center(
+        child: Text("User id: $userId"),
+      ),
     );
   }
 }
