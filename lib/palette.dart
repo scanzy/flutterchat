@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
-
+import 'package:flutterchat/utils/style.dart';
 
 
 // screen to show theme colors
 class PalettePage extends StatelessWidget {
-  PalettePage({super.key});
+  const PalettePage({super.key});
 
 
   // colored circle with text
@@ -26,11 +26,10 @@ class PalettePage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     // loads colors from theme
-    final colorScheme = Theme.of(context).colorScheme;
     final Map<String, Color> colors = {
-      "Normal":  colorScheme.primary,
-      "Accent":  colorScheme.secondary,
-      "Surface": colorScheme.surface,
+      "Normal":     AppColors.normal(context),
+      "Accent":     AppColors.accent(context),
+      "Background": AppColors.background(context),
     };
 
     return Scaffold(

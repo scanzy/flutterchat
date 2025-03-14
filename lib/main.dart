@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class PageInfo {
   final String title;
   final Widget page;
@@ -58,6 +59,8 @@ class PageInfo {
   const PageInfo(this.title, this.page);
 }
 
+
+// page picker
 class HomePage extends StatelessWidget {
   final List<PageInfo> pages;
 
@@ -83,9 +86,13 @@ class HomePage extends StatelessWidget {
     );
   }
 
+
+  // button to go to linked page
   Widget _buildPageButton(BuildContext context, PageInfo pageInfo) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
+      style: AppStyles.btnAccent(context).merge(
+        ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
+      ),
       onPressed: () => navigateToPage(context, pageInfo.page),
       child: Text('Go to ${pageInfo.title}'),
     );
