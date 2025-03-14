@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/form.dart';
 import 'package:flutterchat/chat/screen.dart';
 
 
@@ -57,80 +59,65 @@ class SignupFormState extends State<SignupForm> {
     }
   }
 
+
+  // signup form
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      width: 400,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F2C34),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Get Started',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                filled: true,
-                fillColor: const Color(0xFF0B141A),
-              ),
-              validator: (value) => value!.isEmpty ? 'Enter username' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                filled: true,
-                fillColor: const Color(0xFF0B141A),
-              ),
-              validator: (value) => value!.contains('@') ? null : 'Invalid email',
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                filled: true,
-                fillColor: const Color(0xFF0B141A),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _confirmController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Confirm Password',
-                filled: true,
-                fillColor: const Color(0xFF0B141A),
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _handleSignup,
-              child: const Text('Create Account'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AFA9),
-                minimumSize: const Size(double.infinity, 48),
-              ),
-            ),
-            TextButton(
-              onPressed: widget.toggleForm,
-              child: const Text('Already have an account? Sign in'),
-            ),
-          ],
+    return FormWidget(
+      formKey: _formKey,
+      title: 'Get Started',
+      fields:  [
+            
+        // username field
+        TextFormField(
+          controller: _usernameController,
+          decoration: InputDecoration(
+            labelText: 'Username',
+            filled: true,
+          ),
+          validator: (value) => value!.isEmpty ? 'Enter username' : null,
         ),
-      ),
+
+        // email field
+        TextFormField(
+          controller: _emailController,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            filled: true,
+          ),
+          validator: (value) => value!.contains('@') ? null : 'Invalid email',
+        ),
+
+        // password field
+        TextFormField(
+          controller: _passwordController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            filled: true,
+          ),
+        ),
+
+        // confirm password field
+        TextFormField(
+          controller: _confirmController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            filled: true,
+          ),
+        ),
+
+        // TODO: add personal info (maybe in other page)
+      ],
+
+      // sing up button
+      submitText: 'Create Account',
+      onSubmit: _handleSignup,
+
+      // log in hint
+      onHintClick: widget.toggleForm,
+      hintText: "Already have an account? Sign in",
     );
   }
 }
