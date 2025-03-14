@@ -30,7 +30,8 @@ Chat:
 - `chat/extras.dart` for various widgets like `DateTitle`, `UnreadMessageTitle`, `MessagePreview`
 
 Other:
-- `util/constants.dart` for app configuration, like theme styles, server urls
+- `util/constants.dart` for app configuration, like locale and server urls
+- `util/style.dart` for app theme colors and style
 - `util/pb_service.dart` for pocketbase related functions 
 - `util/misc.dart` for other utilities like `navigateToPage`
 - `main.dart` for entrypoint and test selection

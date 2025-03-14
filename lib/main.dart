@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
 
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/palette.dart';
@@ -43,17 +44,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Navigation Demo',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF00AFA9),
-        scaffoldBackgroundColor: const Color(0xFF0B141A),
-        textTheme: const TextTheme(
-          bodySmall:  TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white),
-          bodyLarge:  TextStyle(color: Colors.white),
-        ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: appTheme,
       home: skipTestSelectionPage ? const AuthScreen() : HomePage(pages: pages),
     );
   }
