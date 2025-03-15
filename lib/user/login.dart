@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutterchat/chat/screen.dart';
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/form.dart';
 
@@ -29,18 +30,9 @@ class LoginFormState extends State<LoginForm> {
         .collection('users')
         .authWithPassword(_emailController.text, _passwordController.text);
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ChatScreen()),
-        );
-      }
+      if (mounted) navigateToPage(context, ChatScreen(), replace: true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: ${e.toString()}')),
-        );
-      }
+      if (mounted) snackBarText(context, 'Login failed: ${e.toString()}');
     }
   }
 

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutterchat/room/list.dart';
 
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
 
 import 'package:flutterchat/user/login.dart';
 import 'package:flutterchat/user/signup.dart';
+import 'package:flutterchat/room/list.dart';
 
 
 class AuthScreen extends StatefulWidget {
@@ -34,16 +35,11 @@ class AuthScreenState extends State<AuthScreen> {
 
       if (pb.client.authStore.isValid) {
         await pb.client.collection('users').authRefresh();
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => RoomsListScreen()),
-          );
-        }
+        if (mounted) navigateToPage(context, RoomsListScreen(), replace: true);
         return;
       }
     } catch (e) {
-      print('Auth check error: $e');
+      if (mounted) snackBarText(context, 'Auth check error: ${e.toString()}');
     }
     if (mounted) setState(() => _isLoading = false);
   }

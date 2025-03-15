@@ -8,16 +8,21 @@ import 'package:url_launcher/url_launcher.dart';
 String plural(String word, int count) => count == 1 ? word : "${word}s";
 
 
+// goes to the specified page
+// replace: false => goes to page, come back if "back" pressed
+// replace: true  => goes to page without coming back to the old page
+void navigateToPage(BuildContext context, Widget page, {bool replace = false}) {
+  final func = replace ? Navigator.pushReplacement : Navigator.push;
+  func(context, MaterialPageRoute(builder: (context) => page));
+}
+
+
+// formatting helpers
+
 // generates color from string
 Color generateColor(String seed) {
   final hash = seed.hashCode;
   return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
-}
-
-
-// goes to the specified page
-void navigateToPage(BuildContext context, Widget page) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => page));
 }
 
 
@@ -56,3 +61,18 @@ Widget parseLinks(String text, {Color? color}) {
   // composes text joining processed chuncks
   return RichText(text: TextSpan(children: spans));
 }
+
+
+// snack bar helpers
+
+// shows something in a snack bar (temporary bottom bar)
+void snackBar(BuildContext context, Widget child) =>
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: child));
+
+// shows a text in a snack bar
+void snackBarText(BuildContext context, String text) =>
+  snackBar(context, Text(text));
+
+// shows not implemented in a snack bar
+void notImplemented(BuildContext context) =>
+  snackBarText(context, "Not implemented");

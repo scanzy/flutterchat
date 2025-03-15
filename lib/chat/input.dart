@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
 
@@ -80,9 +81,7 @@ class ChatInputBarState extends State<ChatInputBar> {
       if (!mounted) return;
 
       // displays error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: ${e.toString()}')),
-      );
+      snackBarText(context, 'Failed to send message: ${e.toString()}');
     }
   }
 }

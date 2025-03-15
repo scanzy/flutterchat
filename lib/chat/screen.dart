@@ -153,10 +153,7 @@ class ChatScreenState extends State<ChatScreen> {
   // logs user out, returning to login page
   Future<void> _logout() async {
     pb.logout();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthScreen()),
-    );
+    navigateToPage(context, const AuthScreen(), replace: true);
   }
 
 

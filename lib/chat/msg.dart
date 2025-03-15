@@ -215,26 +215,17 @@ class MessageBubbleState extends State<MessageBubble> {
     try {
       await PocketBaseService().updateMessage(widget.messageId, newContent);
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Edit failed: ${e.toString()}')));
+      if (mounted) snackBarText(context, 'Edit failed: ${e.toString()}');
     }
   }
 
 
   // called when reply to message is selected
-  Future<void> _handleReply() async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Not implemented')));
-  }
+  Future<void> _handleReply() async => notImplemented(context);
 
 
   // called when pin message is selected
-  Future<void> _handlePin() async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Not implemented')));
-  }
+  Future<void> _handlePin() async => notImplemented(context);
 
 
   // called when delete to message is selected
@@ -244,10 +235,7 @@ class MessageBubbleState extends State<MessageBubble> {
     try {
       await PocketBaseService().deleteMessage(widget.messageId);
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Delete failed: ${e.toString()}')));
+      if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
     }
   }
 }
