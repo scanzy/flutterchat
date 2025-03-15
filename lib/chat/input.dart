@@ -31,13 +31,27 @@ class ChatInputBarState extends State<ChatInputBar> {
       spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+
+        // attach button
+        IconButton(
+          iconSize: 32,
+          onPressed: () => notImplemented(context),
+          icon: Icon(Icons.attach_file),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: AppColors.faded(context),
+          ),
+        ),
+
+        // message input
         Expanded(
           child: TextField(
             controller: _messageController,
             decoration: InputDecoration(
-              hintText: 'Message...',
+              hintText: 'Message',
+              hintStyle: AppStyles.textFaded(context),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide.none,
               ),
               filled: true,
               contentPadding: const EdgeInsets.symmetric(
@@ -45,10 +59,12 @@ class ChatInputBarState extends State<ChatInputBar> {
                 vertical: 12,
               ),
             ),
-            maxLines: null,
+            maxLines: null, // multiline
             onSubmitted: (_) => _sendMessage(),
           ),
         ),
+
+        // send message icon
         IconButton(
           iconSize: 32,
           icon: const Icon(Icons.send),
