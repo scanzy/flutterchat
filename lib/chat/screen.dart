@@ -150,13 +150,6 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
 
-  // logs user out, returning to login page
-  Future<void> _logout() async {
-    pb.logout();
-    navigateToPage(context, const AuthScreen(), replace: true);
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,8 +175,11 @@ class ChatScreenState extends State<ChatScreen> {
             child: const Text("Scroll to \"daje\""),
           ),
 
-          // logout button
-          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
+          // search button
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => notImplemented(context),
+          ),
         ],
       ),
 
