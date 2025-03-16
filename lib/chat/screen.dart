@@ -7,10 +7,10 @@ import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
-import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/msg.dart';
+import 'package:flutterchat/chat/preview.dart';
 import 'package:flutterchat/chat/extras.dart';
 
 
@@ -46,6 +46,9 @@ class ChatScreenState extends State<ChatScreen> {
   // TODO: load from pocketbase on app open
   int unreadMessages = 3;
 
+  // message pinned at top, if any
+  Message? pinnedMessage;
+
 
   @override
   void initState() {
@@ -79,12 +82,26 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
 
-  // loads messages and shoes them in the list view
+  // loads messages and shows them in the list view
   Future<void> _loadMessages() async {
     final messages = await pb.loadMessages();
     if (!mounted) return;
-    setState(() => _messages.addAll(messages.reversed));
-  } 
+    setState(() {
+      _messages.addAll(messages.reversed);
+      searchPinnedMessage();
+    });
+  }
+
+
+  // searches most recent pinned message, to show it on top of chat
+  void searchPinnedMessage() {
+    for (var msg in _messages) {
+      if (msg.get<bool?>("pinned") == true) {
+        pinnedMessage = Message(msg);
+        break;
+      }   
+    }
+  }
 
 
   // sets up actions when something occurs with messages
@@ -114,7 +131,11 @@ class ChatScreenState extends State<ChatScreen> {
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index == -1) return;
-        setState(() => _messages[index] = msg);
+        setState(() {
+          _messages[index] = msg;
+          searchPinnedMessage();
+        });
+          
         break;
 
       case 'delete':
@@ -123,6 +144,18 @@ class ChatScreenState extends State<ChatScreen> {
         break;
 
       default:
+    }
+  }
+
+
+  // called when pin message action is selected
+  Future<void> _handlePin(Message message, {bool unPin = false}) async {
+    try {
+      // toggles pinned state
+      await PocketBaseService().pinMessage(message.id, !unPin);
+      if (mounted) setState(searchPinnedMessage);
+    } catch (e) {
+      if (mounted) snackBarText(context, 'Pin/unpin failed: ${e.toString()}');
     }
   }
 
@@ -186,6 +219,9 @@ class ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
 
+          // bar just below top bar (or message edit bar), for message reply
+          if (pinnedMessage != null) _buildPinnedMessageBar(),
+
           // center area with messages
           Expanded(
             child: Stack(
@@ -222,6 +258,21 @@ class ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+    );
+  }
+
+
+  // top bar to show pinned message
+  Widget _buildPinnedMessageBar() {
+    return MessagePreviewBar(
+      // leadingIcon: Icons.push_pin,
+      preview: MessagePreview(
+        title: "Pinned message by ${pinnedMessage?.username}",
+        message: pinnedMessage as Message,
+        onPressed: () { _scrollToMessage(pinnedMessage); },
+      ),
+      onCancel: PocketBaseService().isAdmin ? // only admins can pin/unpin
+        () { _handlePin(pinnedMessage as Message, unPin: true); } : null,
     );
   }
 
@@ -272,7 +323,12 @@ class ChatScreenState extends State<ChatScreen> {
               DateTitle(date: date),
 
             // displays message
-            MessageBubble(msg: message),
+            MessageBubble(
+              msg: message,
+              handlePin:   () => _handlePin(message, unPin: message.pinned),
+              handleEdit:  () => _handleEdit(message),
+              handleReply: () => _handleReply(message),
+            ),
           ]);
         },
       ),

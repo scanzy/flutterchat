@@ -74,11 +74,18 @@ class PocketBaseService {
   }
 
 
-  // updates existing message
+  // updates existing message text
   Future<void> updateMessage(String messageId, String newContent) async {
     await _pb.collection('messages').update(
-      messageId,
-      body: {'message': newContent},
+      messageId, body: {'message': newContent},
+    );
+  }
+
+
+  // pins/unpins existing message
+  Future<void> pinMessage(String messageId, bool pinned) async {
+    await _pb.collection('messages').update(
+      messageId, body: {'pinned': pinned},
     );
   }
 
