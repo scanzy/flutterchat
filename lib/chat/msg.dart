@@ -228,6 +228,7 @@ class MessageBubbleState extends State<MessageBubble> {
   }
 
 
+  // NOTE: not used anymore
   // called when edit action is selected
   Future<void> _handleEdit() async {
 

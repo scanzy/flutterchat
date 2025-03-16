@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutterchat/utils/misc.dart';
-import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/chat/msg.dart';
 
 
-// bottom input bar of the chat
+// bottom input bar of the chat, used for both new and edit message
 class ChatInputBar extends StatefulWidget {
-  final VoidCallback onMessageSent;
+  final Message? editingMessage;
+  final ValueSetter<String> onSubmit;
 
   const ChatInputBar({
     super.key,
-    required this.onMessageSent,
+    required this.editingMessage,
+    required this.onSubmit,
   });
+
+  // is the user editing a message?
+  bool get isEditing => editingMessage != null;
 
   @override
   State<ChatInputBar> createState() => ChatInputBarState();
@@ -20,13 +26,23 @@ class ChatInputBar extends StatefulWidget {
 
 class ChatInputBarState extends State<ChatInputBar> {
 
-  // controller for new message field
-  final _messageController = TextEditingController();
+  // controllers for new message/edit message field
+  // we use 2 controllers so that the 2 actions are independent
+  // this ensures don't loose new message draft, while editing another message
+  final _newMessageController  = TextEditingController();
+  final _editMessageController = TextEditingController();
+
+  TextEditingController get _currentController =>
+    widget.isEditing ? _editMessageController : _newMessageController;
 
 
   // displays bottom bar with new message field
   @override
   Widget build(BuildContext context) {
+
+    // prepares the edit field, filling the original message to edit
+    _editMessageController.text = widget.editingMessage?.text ?? "";
+
     return Row(
       spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -45,7 +61,7 @@ class ChatInputBarState extends State<ChatInputBar> {
         // message input
         Expanded(
           child: TextField(
-            controller: _messageController,
+            controller: _currentController,
             decoration: InputDecoration(
               hintText: 'Message',
               hintStyle: AppStyles.textFaded(context),
@@ -59,49 +75,33 @@ class ChatInputBarState extends State<ChatInputBar> {
                 vertical: 12,
               ),
             ),
-            maxLines: null, // multiline
-            onSubmitted: (_) => _sendMessage(),
+            minLines: 1, // default height: single line
+            maxLines: 8, // expands to multiline, without exaggeration
+            onSubmitted: _onSubmit,
           ),
         ),
 
-        // send message icon
+        // send message (or confirm edit) icon
         IconButton(
           iconSize: 32,
-          icon: const Icon(Icons.send),
           style: AppStyles.btnAccent(context),
-          onPressed: _sendMessage,
+          icon: Icon(widget.isEditing ? Icons.done : Icons.send),
+          onPressed: () => _onSubmit(_currentController.text),
         ),
       ],
     );
   }
 
 
-  // sends a new message to the server
-  Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
-
-    try {
-      // sends message
-      await PocketBaseService().sendMessage(_messageController.text.trim());
-      if (!mounted) return;
-
-      // empties the new message field
-      _messageController.clear();
-
-      // notifies parent widgets
-      widget.onMessageSent();
-      
-      // TODO: clear unread messages on server
-
-    } catch (e) {
-      if (!mounted) return;
-
-      // displays error
-      snackBarText(context, 'Failed to send message: ${e.toString()}');
-    }
+  // called on input submit (clears input field)
+  void _onSubmit(String text) {
+    widget.onSubmit(text.trim());
+    _currentController.clear();
   }
 }
 
+
+// NOTE: this is not used anymore, but may be useful in the future!
 
 // a little dialog box to edit the original message
 class EditMessageDialog extends StatelessWidget {
