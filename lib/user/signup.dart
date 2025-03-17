@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/form.dart';
 import 'package:flutterchat/chat/screen.dart';
 
@@ -28,9 +29,7 @@ class SignupFormState extends State<SignupForm> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text != _confirmController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      snackBarText(context, 'Passwords do not match');
       return;
     }
 
@@ -49,18 +48,9 @@ class SignupFormState extends State<SignupForm> {
         _passwordController.text,
       );
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ChatScreen()),
-        );
-      }
+      if (mounted) navigateToPage(context, ChatScreen(), replace: true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Signup failed: ${e.toString()}')),
-        );
-      }
+      if (mounted) snackBarText(context, 'Signup failed: ${e.toString()}');
     }
   }
 

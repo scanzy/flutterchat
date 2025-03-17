@@ -7,10 +7,10 @@ import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
-import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/msg.dart';
+import 'package:flutterchat/chat/preview.dart';
 import 'package:flutterchat/chat/extras.dart';
 
 
@@ -46,6 +46,15 @@ class ChatScreenState extends State<ChatScreen> {
   // TODO: load from pocketbase on app open
   int unreadMessages = 3;
 
+  // message pinned at top, if any
+  Message? pinnedMessage;
+
+  // message being edited, if any
+  Message? editingMessage;
+
+  // message being quoted (reply action), if any
+  Message? replyingMessage;
+
 
   @override
   void initState() {
@@ -79,12 +88,26 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
 
-  // loads messages and shoes them in the list view
+  // loads messages and shows them in the list view
   Future<void> _loadMessages() async {
     final messages = await pb.loadMessages();
     if (!mounted) return;
-    setState(() => _messages.addAll(messages.reversed));
-  } 
+    setState(() {
+      _messages.addAll(messages.reversed);
+      searchPinnedMessage();
+    });
+  }
+
+
+  // searches most recent pinned message, to show it on top of chat
+  void searchPinnedMessage() {
+    for (var msg in _messages) {
+      if (msg.get<bool?>("pinned") == true) {
+        pinnedMessage = Message(msg);
+        break;
+      }   
+    }
+  }
 
 
   // sets up actions when something occurs with messages
@@ -114,7 +137,11 @@ class ChatScreenState extends State<ChatScreen> {
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index == -1) return;
-        setState(() => _messages[index] = msg);
+        setState(() {
+          _messages[index] = msg;
+          searchPinnedMessage();
+        });
+          
         break;
 
       case 'delete':
@@ -127,11 +154,74 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
 
+  // called when send button is pressed
+  void _onSubmit(String text) {
+    if (editingMessage != null) {
+      _editMessage(editingMessage as Message, text);
+    } else {
+      _sendMessage(text);
+    }
+    setState(() { replyingMessage = null; });
+  }
+
+
+  // sends a new message to the server
+  Future<void> _sendMessage(String text) async {
+    if (text.isEmpty) return;
+
+    // TODO: send also replyingMessage to pocketbase, together with message text
+
+    try {
+      // sends message
+      await PocketBaseService().sendMessage(text);
+      if (!mounted) return;
+
+      // TODO: clear unread messages on server
+
+      // scrolls to bottom, assuming that user read all new messages
+      _scrollToMessageIndex(0);
+      setState(() { unreadMessages = 0; });
+
+    } catch (e) {
+      if (mounted) snackBarText(context, 'Failed to send message: ${e.toString()}');
+    }
+  }
+
+
+  // edits an existing message
+  Future<void> _editMessage(Message message, String newText) async {
+    try {
+      await PocketBaseService().updateMessage(message.id, newText);
+      if (mounted) setState(() { editingMessage = null; });
+    } catch (e) {
+      if (mounted) snackBarText(context, 'Edit failed: ${e.toString()}');
+    }
+  }
+
+
+  // called when reply or edit message action is selected
+  void _handleEdit (Message message) => setState(() { editingMessage  = message; });
+  void _handleReply(Message message) => setState(() { replyingMessage = message; });
+
+
+  // called when pin message action is selected
+  Future<void> _handlePin(Message message, {bool unPin = false}) async {
+    try {
+      // toggles pinned state
+      await PocketBaseService().pinMessage(message.id, !unPin);
+      if (mounted) setState(searchPinnedMessage);
+    } catch (e) {
+      if (mounted) snackBarText(context, 'Pin/unpin failed: ${e.toString()}');
+    }
+  }
+
+
   // scrolls view to message
-  void _scrollToMessage(String messageId) {
+  void _scrollToMessage(Message? message) {
+    if (message == null) return;
 
     // finds index of specified message
-    final index = _messages.indexWhere((m) => m.id == messageId);
+    final index = _messages.indexWhere((m) => m.id == message.id);
     
     // scrolls to specified message
     _scrollToMessageIndex(index);
@@ -150,16 +240,6 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
 
-  // logs user out, returning to login page
-  Future<void> _logout() async {
-    pb.logout();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const AuthScreen()),
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,26 +252,19 @@ class ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
 
-          // test button to scroll
-          ElevatedButton(
-            onPressed: () => _scrollToMessage("80my166t2465hf9"),
-            style: AppStyles.btnAccent(context),
-            child: const Text("Scroll to \"Gasp\""),
+          // search button
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => notImplemented(context),
           ),
-          SizedBox(width: 8, height: 8),
-          ElevatedButton(
-            onPressed: () => _scrollToMessage("5mn4ozdmry3z1hq"),
-            style: AppStyles.btnAccent(context),
-            child: const Text("Scroll to \"daje\""),
-          ),
-
-          // logout button
-          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
         ],
       ),
 
       body: Column(
         children: [
+
+          // bar just below top bar (or message edit bar), for message reply
+          if (pinnedMessage != null) _buildPinnedMessageBar(),
 
           // center area with messages
           Expanded(
@@ -213,6 +286,12 @@ class ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
+          // bar just above bottom bar (or message edit bar), for message reply
+          if (replyingMessage != null) _buildReplyingMessageBar(),
+
+          // bar just above bottom bar, for message edit
+          if (editingMessage != null) _buildEditingMessageBar(),
+
           // bottom bar with send message field
           Container(
             padding: const EdgeInsets.all(8),
@@ -220,15 +299,56 @@ class ChatScreenState extends State<ChatScreen> {
               color: AppColors.normal(context),
               boxShadow: AppStyles.shadow(context),
             ),
-            child: ChatInputBar(onMessageSent: () {
-
-              // scrolls to bottom, assuming that user read all new messages
-              _scrollToMessageIndex(0);
-              setState(() { unreadMessages = 0; });
-            }),
+            child: ChatInputBar(
+              editingMessage: editingMessage,
+              onSubmit: _onSubmit,
+            ),
           ),
         ],
       ),
+    );
+  }
+
+
+  // top bar to show pinned message
+  Widget _buildPinnedMessageBar() {
+    return MessagePreviewBar(
+      // leadingIcon: Icons.push_pin,
+      preview: MessagePreview(
+        title: "Pinned message by ${pinnedMessage?.username}",
+        message: pinnedMessage as Message,
+        onPressed: () { _scrollToMessage(pinnedMessage); },
+      ),
+      onCancel: PocketBaseService().isAdmin ? // only admins can pin/unpin
+        () { _handlePin(pinnedMessage as Message, unPin: true); } : null,
+    );
+  }
+
+
+  // bottom bar to show message being edited
+  Widget _buildEditingMessageBar() {
+    return MessagePreviewBar(
+      leadingIcon: Icons.edit,
+      preview: MessagePreview(
+        title: "Edit message",
+        message: editingMessage as Message,
+        onPressed: () { _scrollToMessage(editingMessage); },
+      ),
+      onCancel: () { setState(() { editingMessage = null; }); },
+    );
+  }
+
+
+  // bottom bar to show message being replied to
+  Widget _buildReplyingMessageBar() {
+    return MessagePreviewBar(
+      leadingIcon: Icons.reply,
+      preview: MessagePreview(
+        title: "Reply to ${replyingMessage?.username}",
+        message: replyingMessage as Message,
+        onPressed: () { _scrollToMessage(replyingMessage); },
+      ),
+      onCancel: () { setState(() { replyingMessage = null; }); },
     );
   }
 
@@ -279,7 +399,12 @@ class ChatScreenState extends State<ChatScreen> {
               DateTitle(date: date),
 
             // displays message
-            MessageBubble(msg: message),
+            MessageBubble(
+              msg: message,
+              handlePin:   () => _handlePin(message, unPin: message.pinned),
+              handleEdit:  () => _handleEdit(message),
+              handleReply: () => _handleReply(message),
+            ),
           ]);
         },
       ),

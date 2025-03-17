@@ -1,6 +1,9 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/user/auth.dart';
+
 
 // This file handles authentication using PocketBase
 
@@ -45,9 +48,14 @@ class PocketBaseService {
 
 
   // logs user out, deleting stored auth token
-  Future<void> logout() async {
+  Future<void> logout(context) async {
+
+    // logs out
     _pb.authStore.clear();
     await _pb.collection('users').authRefresh();
+
+    // returns to login page
+    navigateToPage(context, const AuthScreen(), replace: true);
   }
 
 
@@ -66,11 +74,18 @@ class PocketBaseService {
   }
 
 
-  // updates existing message
+  // updates existing message text
   Future<void> updateMessage(String messageId, String newContent) async {
     await _pb.collection('messages').update(
-      messageId,
-      body: {'message': newContent},
+      messageId, body: {'message': newContent},
+    );
+  }
+
+
+  // pins/unpins existing message
+  Future<void> pinMessage(String messageId, bool pinned) async {
+    await _pb.collection('messages').update(
+      messageId, body: {'pinned': pinned},
     );
   }
 

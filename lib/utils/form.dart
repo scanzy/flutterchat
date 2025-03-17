@@ -57,6 +57,7 @@ class FormWidget extends StatelessWidget {
       child: Text(
         hintText as String,
         style: AppStyles.textAccent(context),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -67,6 +68,7 @@ class FormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 400,
+      margin:  const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
       decoration: AppStyles.boxNormal(context),
 
@@ -89,12 +91,14 @@ class FormWidget extends StatelessWidget {
             ],
       
             // submit button
-            if (submitText != null)
+            if (submitText != null) ...[
+              const SizedBox(height: 16),
               _buildSubmit(context),
+            ],
 
             // hint
             if (hintText != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               _buildHint(context),
             ],
           ],

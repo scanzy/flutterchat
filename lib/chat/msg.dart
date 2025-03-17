@@ -14,6 +14,7 @@ import 'package:flutterchat/user/profile.dart';
 class Message {
   late final String id;
   late final String text;
+  late final bool   pinned;
   late final String userId;
   late final String username;
   late final bool   isOwn;
@@ -25,6 +26,7 @@ class Message {
 
     id       = record.id;
     text     = record.get<String?>('message') ?? '';
+    pinned   = record.get<bool?>('pinned') ?? false;
     userId   = user.id;
     username = user.get<String?>('username') ?? 'Unknown';
     isOwn    = userId == PocketBaseService().userId;
@@ -38,23 +40,30 @@ class Message {
 // widget for one message
 class MessageBubble extends StatefulWidget {
   final Message msg;
-  const MessageBubble({super.key, required this.msg});
+  final VoidCallback handlePin;
+  final VoidCallback handleEdit;
+  final VoidCallback handleReply;
+
+  const MessageBubble({
+    super.key,
+    required this.msg,
+    required this.handlePin,
+    required this.handleEdit,
+    required this.handleReply,
+  });
 
   @override
   State<MessageBubble> createState() => MessageBubbleState();
 
-  static MessageBubble fromRecord(RecordModel record) {
-    return MessageBubble(msg: Message(record));
-  }
-
   String get messageId  => msg.id;
   String get text       => msg.text;
   String get userId     => msg.userId;
+  bool   get pinned     => msg.pinned;
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
   DateTime get created  => msg.created;
 
-  // checkx if current user is admin (and can delete/pin messages)
+  // checks if current user is admin (and can delete/pin messages)
   bool get isAdmin => PocketBaseService().isAdmin;
 }
 
@@ -132,10 +141,26 @@ class MessageBubbleState extends State<MessageBubble> {
                     parseLinks(widget.text),
                     const SizedBox(height: 4),
 
-                    // Timestamp
-                    Text(
-                      DateFormat('HH:mm').format(widget.created),
-                      style: AppStyles.textFaded(context),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+
+                        // timestamp
+                        Text(
+                          DateFormat('HH:mm').format(widget.created),
+                          style: AppStyles.textFaded(context),
+                        ),
+
+                        // pin icon (for pinned messages)
+                        if (widget.pinned) ...[
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.push_pin,
+                            size: 16,
+                            color: AppColors.text(context),
+                          ),
+                        ]
+                      ],
                     ),
                   ],
                 ),
@@ -167,21 +192,22 @@ class MessageBubbleState extends State<MessageBubble> {
         ActionButton(
           text: "Reply",
           icon: Icons.reply,
-          onPressed: _handleReply,
+          onPressed: widget.handleReply,
         ),
 
         if (widget.isOwn)
           ActionButton(
             text: "Edit",
             icon: Icons.edit,
-            onPressed: _handleEdit,
+            onPressed: widget.handleEdit,
           ),
 
         if (widget.isAdmin)
           ActionButton(
             text: "Pin",
             icon: Icons.push_pin,
-            onPressed: _handlePin,
+            highlight: widget.pinned,
+            onPressed: widget.handlePin,
           ),
         
         ActionButton(
@@ -202,6 +228,7 @@ class MessageBubbleState extends State<MessageBubble> {
   }
 
 
+  // NOTE: not used anymore
   // called when edit action is selected
   Future<void> _handleEdit() async {
 
@@ -211,29 +238,6 @@ class MessageBubbleState extends State<MessageBubble> {
       builder: (context) => EditMessageDialog(initialText: widget.text),
     );
     if (newContent == null) return;
-
-    try {
-      await PocketBaseService().updateMessage(widget.messageId, newContent);
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Edit failed: ${e.toString()}')));
-    }
-  }
-
-
-  // called when reply to message is selected
-  Future<void> _handleReply() async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Not implemented')));
-  }
-
-
-  // called when pin message is selected
-  Future<void> _handlePin() async {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Not implemented')));
   }
 
 
@@ -244,10 +248,7 @@ class MessageBubbleState extends State<MessageBubble> {
     try {
       await PocketBaseService().deleteMessage(widget.messageId);
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Delete failed: ${e.toString()}')));
+      if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
     }
   }
 }
@@ -257,11 +258,13 @@ class MessageBubbleState extends State<MessageBubble> {
 class ActionButton {
   final String text;
   final IconData icon;
+  final bool highlight;
   final VoidCallback? onPressed;
 
   const ActionButton({
     required this.text,
     required this.icon,
+    this.highlight = false,
     this.onPressed,
   });
 }
@@ -289,12 +292,15 @@ class ActionButtonsMenu extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
+
+        // builds one button for every action
         children: actions.map((action) =>
           Tooltip(
             message: action.text,
             child: IconButton(
               icon: Icon(action.icon, size: 18),
-              style: AppStyles.btnNormal(context),
+              style: action.highlight ? // accent style if highlighted
+                AppStyles.btnAccent(context) : AppStyles.btnNormal(context),
               onPressed: () {
                 onSelection!();
                 action.onPressed!();

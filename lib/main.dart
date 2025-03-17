@@ -6,8 +6,8 @@ import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
 import 'package:flutterchat/user/auth.dart';
-import 'package:flutterchat/palette.dart';
-import 'package:flutterchat/scouting2.dart';
+import 'package:flutterchat/dev/styles.dart';
+import 'package:flutterchat/dev/scouting2.dart';
 // Add other files with pages here
 
 
@@ -15,7 +15,7 @@ import 'package:flutterchat/scouting2.dart';
 // false => show test selection buttons
 // true  => show login form (webapp converted)
 // after changing the variable, press R to perform hot restart
-bool skipTestSelectionPage = true;
+bool skipTestSelectionPage = false;
 
 
 // main entry point of the app
@@ -34,7 +34,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final List<PageInfo> pages = [
     PageInfo('Full app',    AuthScreen()),
-    PageInfo('App colors',  PalettePage()),
+    PageInfo('App styles',  StylesPage()),
     PageInfo('Chat test 2', ChatPageTest2()),
     // Add new pages here by simply adding new entries
   ];
@@ -90,11 +90,9 @@ class HomePage extends StatelessWidget {
   // button to go to linked page
   Widget _buildPageButton(BuildContext context, PageInfo pageInfo) {
     return ElevatedButton(
-      style: AppStyles.btnAccent(context).merge(
-        ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
-      ),
+      style: AppStyles.btnAccent(context),
       onPressed: () => navigateToPage(context, pageInfo.page),
-      child: Text('Go to ${pageInfo.title}'),
+      child: Text(pageInfo.title),
     );
   }
 

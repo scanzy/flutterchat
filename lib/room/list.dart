@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/chat/screen.dart';
 import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
 
 
@@ -63,6 +64,14 @@ class RoomsListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Chat app"),
+        actions: [
+
+          // logout button
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => PocketBaseService().logout(context),
+          ),
+        ]
       ),
       body: Column(
       children: [
