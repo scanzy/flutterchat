@@ -44,9 +44,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: skipTestSelectionPage ? const AuthScreen() : HomePage(pages: pages),
+      home: const AuthScreen(),
     );
   }
 }

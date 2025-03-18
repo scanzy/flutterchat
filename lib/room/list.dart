@@ -69,7 +69,7 @@ class RoomsListScreen extends StatelessWidget {
           // logout button
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => PocketBaseService().logout(context),
+            onPressed: () => AuthScreen.logout(context),
           ),
 
           // prevents overlapping between bebug banner and last action
