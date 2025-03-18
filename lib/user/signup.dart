@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/form.dart';
-import 'package:flutterchat/chat/screen.dart';
 
 
 class SignupForm extends StatefulWidget {
   final VoidCallback toggleForm;
-  const SignupForm({super.key, required this.toggleForm});
+  final Function(BuildContext) onAuth;
+  const SignupForm({super.key, required this.toggleForm, required this.onAuth});
 
   @override
   SignupFormState createState() => SignupFormState();
@@ -28,13 +28,15 @@ class SignupFormState extends State<SignupForm> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // validates password
     if (_passwordController.text != _confirmController.text) {
       snackBarText(context, 'Passwords do not match');
       return;
     }
 
+    var pb = PocketBaseService();
     try {
-      var pb = PocketBaseService();
+      // creates account
       await pb.client.collection('users').create(body: {
           'username': _usernameController.text,
           'email': _emailController.text,
@@ -42,16 +44,18 @@ class SignupFormState extends State<SignupForm> {
           'passwordConfirm': _confirmController.text,
         },
       );
-
-      await pb.client.collection('users').authWithPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-
-      if (mounted) navigateToPage(context, ChatScreen(), replace: true);
     } catch (e) {
       if (mounted) snackBarText(context, 'Signup failed: ${e.toString()}');
+      return;
     }
+    if (!mounted) return;
+
+    // and logs in
+    await pb.login(_emailController.text, _passwordController.text);
+    if (!mounted) return;
+
+    // login completed: go to homepage
+    widget.onAuth(context);
   }
 
 

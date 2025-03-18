@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterchat/utils/misc.dart';
 
 
 class RoomDetailsScreen extends StatelessWidget {
@@ -9,6 +10,11 @@ class RoomDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Room details'),
+        actions: [
+
+          // prevents overlapping between bebug banner and last action
+          debugBannerSpace(),
+        ]
       ),
       body: Center(
         child: Text("Details here"),

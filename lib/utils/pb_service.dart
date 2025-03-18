@@ -1,9 +1,6 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutterchat/utils/misc.dart';
-import 'package:flutterchat/user/auth.dart';
-
 
 // This file handles authentication using PocketBase
 
@@ -47,16 +44,28 @@ class PocketBaseService {
   }
 
 
-  // logs user out, deleting stored auth token
-  Future<void> logout(context) async {
+  // tries to login using stored auth info
+  Future<bool> autoLogin() async {
 
-    // logs out
-    _pb.authStore.clear();
-    await _pb.collection('users').authRefresh();
+    // nothing to do if no stored info
+    if (!client.authStore.isValid) return false;
 
-    // returns to login page
-    navigateToPage(context, const AuthScreen(), replace: true);
+    // tries auth with stored credentials
+    // what happens if invalid credentials? does it throw exception?
+    // TODO: handle invalid credentials and network errors differently
+    await client.collection('users').authRefresh();
+    return true;
   }
+
+
+  // logs in using specified credentials
+  Future<void> login(String email, String password) async {
+    await client.collection('users').authWithPassword(email, password);
+  }
+
+
+  // logs user out, deleting stored auth token
+  void logout() => _pb.authStore.clear();
 
 
   // loads previous messages
@@ -64,6 +73,7 @@ class PocketBaseService {
     return await _pb.collection('messages')
         .getFullList(sort: '+created', expand: 'user');
   }
+
 
   // sends message
   Future<void> sendMessage(String message) async {
