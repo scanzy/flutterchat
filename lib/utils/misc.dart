@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter/gestures.dart";
+import "package:flutter/foundation.dart";
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -76,3 +77,10 @@ void snackBarText(BuildContext context, String text) =>
 // shows not implemented in a snack bar
 void notImplemented(BuildContext context) =>
   snackBarText(context, "Not implemented");
+
+
+// debug helpers
+
+// use this as last element of Scaffold actions
+// so the debug banner at top right at the screen does not overlap actions
+Widget debugBannerSpace() => SizedBox(width: kDebugMode ? 48 : 0);
