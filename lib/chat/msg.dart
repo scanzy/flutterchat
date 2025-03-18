@@ -302,8 +302,8 @@ class ActionButtonsMenu extends StatelessWidget {
               style: action.highlight ? // accent style if highlighted
                 AppStyles.btnAccent(context) : AppStyles.btnNormal(context),
               onPressed: () {
-                onSelection!();
-                action.onPressed!();
+                onSelection?.call();
+                action.onPressed?.call();
               },
             ),
           ),
