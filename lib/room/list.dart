@@ -8,18 +8,20 @@ import 'package:flutterchat/utils/style.dart';
 
 class Room {
   final String name;
-  final String type;
-  final String lastMsgPreview;
-  final DateTime lastCreated;
-  final int unreadMessages;
+  final IconData? icon;
+  final String? type;
+  final String? lastMsgPreview;
+  final DateTime? lastCreated;
+  final int? unreadMessages;
   final Function(BuildContext)? onTap;
 
   Room({
     required this.name,
-    required this.type,
-    required this.lastMsgPreview,
-    required this.lastCreated,
-    required this.unreadMessages,
+    this.icon,
+    this.type,
+    this.lastMsgPreview,
+    this.lastCreated,
+    this.unreadMessages,
     this.onTap,
   });
 }
@@ -33,6 +35,7 @@ class RoomsListScreen extends StatelessWidget {
     Room(
       name: "Branco",
       type: "Generale",
+      icon: Icons.public,
       lastMsgPreview: "user: Ciao uomini!",
       lastCreated: DateTime.now(),
       unreadMessages: 10,
@@ -102,29 +105,36 @@ class RoomsListScreen extends StatelessWidget {
   Widget _buildRoomRow(BuildContext context, Room room) { 
     return ListTile(
 
-      leading: CircleAvatar(child: Text("R")),
+      leading: CircleAvatar(
+        child: (room.icon != null) ? Icon(room.icon) : Text(room.name[0]),
+      ),
       title: Row(
         children: [
           Text(room.name),
           SizedBox(width: 10),
-          Badge(
-            label: Text(room.type),
-            textColor: AppColors.normal(context),
-            backgroundColor: AppColors.text(context),
-          ),
+          if (room.type != null)
+            Badge(
+              label: Text(room.type!),
+              textColor: AppColors.normal(context),
+              backgroundColor: AppColors.text(context),
+            ),
         ],
       ),
-      subtitle: Text(
-        room.lastMsgPreview,
-        style: AppStyles.textFaded(context),
-      ),
-      trailing: Container(
-        width: 25,
-        height: 25,
-        decoration: AppStyles.boxAccent(context),
-        child: Center(child: Text("${room.unreadMessages}")),
-      ),
-      onTap: () => room.onTap?.call(context),
+      subtitle:
+        (room.lastMsgPreview == null) ? null :
+        Text(
+          room.lastMsgPreview!,
+          style: AppStyles.textFaded(context),
+        ),
+      trailing:
+        (room.unreadMessages ?? 0) == 0 ? null :
+        Container(
+          width: 25,
+          height: 25,
+          decoration: AppStyles.boxAccent(context),
+          child: Center(child: Text("${room.unreadMessages}")),
+        ),
+      onTap: () => room.onTap?.call(context) ?? notImplemented(context),
     );
   }
 
