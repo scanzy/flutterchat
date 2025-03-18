@@ -170,21 +170,22 @@ class MessageBubbleState extends State<MessageBubble> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          // Username with generated color
-          RichText(
-            text: TextSpan(
-              text: widget.username,
-              style: TextStyle(
-                color: usernameColor,
-                fontWeight: FontWeight.bold,
-              ),
+          // username with generated color (only for others' message)
+          if (!widget.isOwn)
+            RichText(
+              text: TextSpan(
+                text: widget.username,
+                style: TextStyle(
+                  color: usernameColor,
+                  fontWeight: FontWeight.bold,
+                ),
 
-              // opens profile page on username click
-              recognizer: TapGestureRecognizer()
-                ..onTap = () { navigateToPage(
-                  context, ProfileScreen(userId: widget.userId)); },
+                // opens profile page on username click
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () { navigateToPage(
+                    context, ProfileScreen(userId: widget.userId)); },
+              ),
             ),
-          ),
 
           // Message text with URL detection
           const SizedBox(height: 4),
