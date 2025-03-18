@@ -8,10 +8,10 @@ Main objective: provide a cross-platform self-hosted working alternative to Tele
 
 Documentation:
 - `README.md` (this file) with contributing guidelines and code style
-- [doc/description.md](doc/description.md) with the description of the app and its functionalities
-- [doc/commands.md](doc/commands.md) with useful commands to setup dev env, build and deploy app
-- [doc/pocketbase.md](doc/pocketbase.md) with pocketbase database structure description
-- [doc/cheatsheet.md](doc/cheatsheet.md) with useful code examples for dart and flutter
+- [`doc/description.md`](doc/description.md) with the description of the app and its functionalities
+- [`doc/commands.md`](doc/commands.md) with useful commands to setup dev env, build and deploy app
+- [`doc/pocketbase.md`](doc/pocketbase.md) with pocketbase database structure description
+- [`doc/cheatsheet.md`](doc/cheatsheet.md) with useful code examples for dart and flutter
 
 User:
 - `user/auth.dart` for user authorization and loading screen
@@ -27,14 +27,20 @@ Chat:
 - `chat/screen.dart` for chat page with messages list
 - `chat/input.dart` for the bottom bar of chat, to send messages
 - `chat/msg.dart` for message bubble widget with avatar, and context menu
-- `chat/extras.dart` for various widgets like `DateTitle`, `UnreadMessageTitle`, `MessagePreview`
+- `chat/preview.dart` for clickable message tile, used in replies, edit, pinned messages
+- `chat/extras.dart` for various widgets like `DateTitle`, `UnreadMessageTitle`
+
+Development:
+- `dev/styles.dart` with an example page that showcases app colors and styles 
+- other debug pages (shown as fake rooms), for scouting or interactive examples for devs
 
 Other:
-- `util/constants.dart` for app configuration, like locale and server urls
 - `util/style.dart` for app theme colors and style
+- `util/form.dart` with reusable form widget (used for login/signup)
 - `util/pb_service.dart` for pocketbase related functions 
+- `util/constants.dart` for app configuration, like locale and server urls
 - `util/misc.dart` for other utilities like `navigateToPage`
-- `main.dart` for entrypoint and test selection
+- `main.dart` for app entrypoint and debug pages registration
 
 If you add other files to the project, make sure to update the above list.
 
