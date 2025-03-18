@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
 import 'package:flutterchat/utils/misc.dart';
-import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
 
 
@@ -12,6 +12,7 @@ class Room {
   final String lastMsgPreview;
   final DateTime lastCreated;
   final int unreadMessages;
+  final Function(BuildContext)? onTap;
 
   Room({
     required this.name,
@@ -19,6 +20,7 @@ class Room {
     required this.lastMsgPreview,
     required this.lastCreated,
     required this.unreadMessages,
+    this.onTap,
   });
 }
 
@@ -34,6 +36,7 @@ class RoomsListScreen extends StatelessWidget {
       lastMsgPreview: "user: Ciao uomini!",
       lastCreated: DateTime.now(),
       unreadMessages: 10,
+      onTap: (context) => navigateToPage(context, ChatScreen()),
     ),
     Room(
       name: "Branco del Nord",
@@ -121,7 +124,7 @@ class RoomsListScreen extends StatelessWidget {
         decoration: AppStyles.boxAccent(context),
         child: Center(child: Text("${room.unreadMessages}")),
       ),
-      onTap: () => navigateToPage(context, ChatScreen())
+      onTap: () => room.onTap?.call(context),
     );
   }
 
