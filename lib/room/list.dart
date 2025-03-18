@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutterchat/main.dart';
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
 import 'package:flutterchat/utils/misc.dart';
@@ -62,6 +64,17 @@ class RoomsListScreen extends StatelessWidget {
       lastCreated: DateTime.now(),
       unreadMessages: 8,
     ),
+
+    // adds debug pages (only in debug mode)
+    if (kDebugMode)
+      for (var page in MyApp.debugPages.entries) ...[
+        Room(
+          name: page.key,
+          type: "Debug",
+          icon: Icons.code,
+          onTap: (context) => navigateToPage(context, page.value),
+        )
+      ],
   ];
 
 
