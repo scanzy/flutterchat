@@ -3,7 +3,7 @@ name: Main Branch Push Deploy
 on:
   push:
     branches:
-      - main
+      - deploy
 
 jobs:
   notify:
