@@ -189,7 +189,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
           // Message text with URL detection
           const SizedBox(height: 4),
-          parseLinks(widget.text),
+          parseLinks(widget.text, color: AppColors.text(context)),
           const SizedBox(height: 4),
 
           Row(
