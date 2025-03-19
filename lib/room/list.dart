@@ -147,7 +147,7 @@ class RoomsListScreen extends StatelessWidget {
           decoration: AppStyles.boxAccent(context),
           child: Center(child: Text("${room.unreadMessages}")),
         ),
-      onTap: () => room.onTap?.call(context) ?? notImplemented(context),
+      onTap: () => (room.onTap ?? notImplemented)(context),
     );
   }
 
