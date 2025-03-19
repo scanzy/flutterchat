@@ -1,0 +1,17 @@
+name: Main Branch Push Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Webhook
+        run: |
+          curl -X POST https://branco.realmen.it/deploy \
+          -H "Content-Type: application/json" \
+          -H "X-Hub-Signature-256: sha256=$(echo -n '{"action": "push", "repository": {"name": "test-repo"}}' | openssl dgst -sha256 -hmac '${{ secrets.DEPLOY_SECRET }}' | sed 's/^.* //')" \
+          -d '{"action": "push", "repository": {"name": "test-repo"}}'

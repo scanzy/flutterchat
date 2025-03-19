@@ -1,5 +1,5 @@
 # FROM cirrusci/flutter:latest
-FROM ghcr.io/cirruslabs/flutter:latest
+FROM ghcr.io/cirruslabs/flutter:3.29.0
 
 # Install essential Linux desktop dependencies
 RUN apt-get update && apt-get install -y \
