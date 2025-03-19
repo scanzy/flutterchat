@@ -88,6 +88,72 @@ class MessageBubbleState extends State<MessageBubble> {
   @override
   Widget build(BuildContext context) {
 
+    return MouseRegion(
+      onExit: _isDesktop ? (_) { setState(() => _showActions = false); } : null,
+      child: GestureDetector(
+        
+        // shows context menu when long-tapping or right-click the MessageBubble
+        onSecondaryTap: () => setState(toggleShowActions),
+        onLongPress:    () => setState(toggleShowActions),
+
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(
+              // own messages on right, others' on left
+              alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+
+                // message width: 90% of parent
+                constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+
+                // message group: avatar (only other users) + bubble
+                child: Row(
+                  spacing: 8,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    if (!widget.isOwn)
+                      _buildAvatar(context),
+
+                    Expanded(child: Container(
+                      alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
+                      child: _buildBubble(context)
+                    )),
+                  ],
+                ),
+              ),
+            ),
+
+            // shows context menu overlay
+            if (_showActions) _buildContextMenu(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  // builds user avatar for message
+  Widget _buildAvatar(BuildContext context) {
+    return CircleAvatar(
+
+      // background depending on user
+      backgroundColor: widget.isOwn ?
+        AppColors.accent(context) : AppColors.normal(context),
+      
+      // first letter of username
+      child: Text(
+        widget.msg.username[0].toUpperCase(),
+        // style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+
+  // builds the bubble
+  Widget _buildBubble(BuildContext context) {
+
     // color for username (based on username)
     final usernameColor = widget.isOwn ?
       AppColors.text(context) : generateColor(widget.username);
@@ -96,88 +162,65 @@ class MessageBubbleState extends State<MessageBubble> {
     final bubbleStyle = widget.isOwn ?
       AppStyles.boxAccent(context) : AppStyles.boxNormal(context);
 
-    return MouseRegion(
-      // shows contect menu when long-tapping or right-click the MessageBubble
-      onExit: _isDesktop ? (_) { setState(() => _showActions = false); } : null,
-      child: GestureDetector(
-        onSecondaryTap: _isDesktop ? () => setState(toggleShowActions) : null,
-        onLongPress:   !_isDesktop ? () => setState(toggleShowActions) : null,
+    return Container(
+      decoration: bubbleStyle,
+      padding: const EdgeInsets.all(12),
 
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Align(
-              alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                decoration: bubbleStyle,
-                margin:  const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
 
-                // max message width: 90% of parent
-                constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // Username with generated color
-                    RichText(
-                      text: TextSpan(
-                        text: widget.username,
-                        style: TextStyle(
-                          color: usernameColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-
-                        // opens profile page on username click
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () { navigateToPage(
-                            context, ProfileScreen(userId: widget.userId)); },
-                      ),
-                    ),
-
-                    // Message text with URL detection
-                    const SizedBox(height: 4),
-                    parseLinks(widget.text),
-                    const SizedBox(height: 4),
-
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        // timestamp
-                        Text(
-                          DateFormat('HH:mm').format(widget.created),
-                          style: AppStyles.textFaded(context),
-                        ),
-
-                        // pin icon (for pinned messages)
-                        if (widget.pinned) ...[
-                          SizedBox(width: 4),
-                          Icon(
-                            Icons.push_pin,
-                            size: 16,
-                            color: AppColors.text(context),
-                          ),
-                        ]
-                      ],
-                    ),
-                  ],
+          // username with generated color (only for others' message)
+          if (!widget.isOwn)
+            RichText(
+              text: TextSpan(
+                text: widget.username,
+                style: TextStyle(
+                  color: usernameColor,
+                  fontWeight: FontWeight.bold,
                 ),
+
+                // opens profile page on username click
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () { navigateToPage(
+                    context, ProfileScreen(userId: widget.userId)); },
               ),
             ),
 
-            // shows context menu overlay
-            if (_showActions) _buildContextMenu(),
-          ],
-        ),
+          // Message text with URL detection
+          const SizedBox(height: 4),
+          parseLinks(widget.text, color: AppColors.text(context)),
+          const SizedBox(height: 4),
+
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              // timestamp
+              Text(
+                DateFormat('HH:mm').format(widget.created),
+                style: AppStyles.textFaded(context),
+              ),
+
+              // pin icon (for pinned messages)
+              if (widget.pinned) ...[
+                SizedBox(width: 4),
+                Icon(
+                  Icons.push_pin,
+                  size: 16,
+                  color: AppColors.text(context),
+                ),
+              ]
+            ],
+          ),
+        ],
       ),
     );
   }
 
 
   // context menu for messages
-  Widget _buildContextMenu() {
+  Widget _buildContextMenu(BuildContext context) {
     return Positioned(
       top: 0,
       // handle the position depending on the MessageBubble
@@ -302,8 +345,8 @@ class ActionButtonsMenu extends StatelessWidget {
               style: action.highlight ? // accent style if highlighted
                 AppStyles.btnAccent(context) : AppStyles.btnNormal(context),
               onPressed: () {
-                onSelection!();
-                action.onPressed!();
+                onSelection?.call();
+                action.onPressed?.call();
               },
             ),
           ),

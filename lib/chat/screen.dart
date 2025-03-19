@@ -257,6 +257,9 @@ class ChatScreenState extends State<ChatScreen> {
             icon: Icon(Icons.search),
             onPressed: () => notImplemented(context),
           ),
+
+          // prevents overlapping between bebug banner and last action
+          debugBannerSpace(),
         ],
       ),
 

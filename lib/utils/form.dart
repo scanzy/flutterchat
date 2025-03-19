@@ -33,7 +33,7 @@ class FormWidget extends StatelessWidget {
   // form title
   Widget _buildTitle(BuildContext context) {
     return Text(
-      title as String,
+      title!,
       style: Theme.of(context).textTheme.displaySmall,
       textAlign: TextAlign.center,
     );
@@ -45,7 +45,7 @@ class FormWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: onSubmit,
       style: AppStyles.btnSubmit(context),
-      child: Text(submitText as String),
+      child: Text(submitText!),
     );
   }
 
@@ -55,7 +55,7 @@ class FormWidget extends StatelessWidget {
     return TextButton(
       onPressed: onHintClick,
       child: Text(
-        hintText as String,
+        hintText!,
         style: AppStyles.textAccent(context),
         textAlign: TextAlign.center,
       ),

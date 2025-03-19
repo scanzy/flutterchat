@@ -14,6 +14,23 @@ class AuthScreen extends StatefulWidget {
 
   @override
   AuthScreenState createState() => AuthScreenState();
+
+
+  // called when user is authenticated: shows rooms list
+  void onAuth(BuildContext context) {
+    navigateToPage(context, RoomsListScreen(), replace: true);
+  }
+
+
+  // callback for logout button
+  static void logout(BuildContext context) {
+
+    // removes stored auth info
+    PocketBaseService().logout();
+
+    // returns to login page
+    navigateToPage(context, const AuthScreen(), replace: true);
+  }
 }
 
 class AuthScreenState extends State<AuthScreen> {
@@ -31,16 +48,19 @@ class AuthScreenState extends State<AuthScreen> {
 
   Future<void> _checkAuth() async {
     try {
-      var pb = PocketBaseService();
+      // tries to check the auth store
+      if (await PocketBaseService().autoLogin()) {
+        if (!mounted) return;
 
-      if (pb.client.authStore.isValid) {
-        await pb.client.collection('users').authRefresh();
-        if (mounted) navigateToPage(context, RoomsListScreen(), replace: true);
+        // goes to home page
+        widget.onAuth(context);
         return;
       }
     } catch (e) {
       if (mounted) snackBarText(context, 'Auth check error: ${e.toString()}');
     }
+
+    // hides loading indicator and shows login form
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -62,8 +82,8 @@ class AuthScreenState extends State<AuthScreen> {
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: _showLogin
-            ? LoginForm (toggleForm: toggleForm)
-            : SignupForm(toggleForm: toggleForm),
+            ? LoginForm (toggleForm: toggleForm, onAuth: widget.onAuth)
+            : SignupForm(toggleForm: toggleForm, onAuth: widget.onAuth),
         ),
       ),
     );
