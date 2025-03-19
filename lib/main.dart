@@ -1,5 +1,7 @@
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
@@ -25,15 +27,36 @@ void main() async {
 }
 
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => MyAppState();
 
   static final Map<String, Widget> debugPages = {
     'App styles':  StylesPage(),
     'Chat test 2': ChatPageTest2(),
     // Add new debug or scouting pages here by simply adding new entries
   };
+}
+
+
+class MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+    // on web, disable the browser's context menu
+    if (kIsWeb) BrowserContextMenu.disableContextMenu();
+  }
+
+
+ @override
+  void dispose() {
+    // on web, re-enable browser's context menu again
+    if (kIsWeb) BrowserContextMenu.enableContextMenu();
+    super.dispose();
+  }
 
 
   @override
