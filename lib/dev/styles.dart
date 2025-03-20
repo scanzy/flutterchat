@@ -20,9 +20,16 @@ class StylesPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            // text examples
+            // text size examples
+            Text("Large text (size: 3)",  style: AppStyles.textNormal(context, size: 3)),
+            Text("Medium text (size: 2)", style: AppStyles.textNormal(context, size: 2)),
+            Text("Small text (size: 1)",  style: AppStyles.textNormal(context, size: 1)),
 
-            Text("Normal text"),
+            SizedBox(height: 64), // separator
+
+            // text colors examples
+
+            Text("Normal text", style: AppStyles.textNormal(context)),
             Text("Accent text", style: AppStyles.textAccent(context)),
             Text("Faded text",  style: AppStyles.textFaded (context)),
 

@@ -34,7 +34,7 @@ class FormWidget extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     return Text(
       title!,
-      style: Theme.of(context).textTheme.displaySmall,
+      style: AppStyles.textNormal(context, size: 2),
       textAlign: TextAlign.center,
     );
   }
