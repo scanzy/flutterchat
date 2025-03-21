@@ -78,7 +78,7 @@ class AuthScreenState extends State<AuthScreen> {
     }
 
     return Scaffold(
-      body: Center(
+      body: ScrollableCenterPage(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: _showLogin

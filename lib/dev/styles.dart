@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
 
@@ -15,7 +16,8 @@ class StylesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("App styles"),
       ),
-      body: Center(
+      body: ScrollableCenterPage(
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
