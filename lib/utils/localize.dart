@@ -116,6 +116,11 @@ DBtype enDB = {
 
   // shared
   "shared.title": "Realmen app",
+
+  // chat screen
+  "chat.pin.multi":
+    "Can't pin message because another message is already pinned. "
+    "Unpin the other message and try again.",
 };
 
 
@@ -136,4 +141,9 @@ DBtype itDB = {
 
   // shared
   "shared.title": "App Realmen",
+
+  // chat screen
+  "chat.pin.multi":
+      "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
+      "Rimuovi il messaggio già fissato in alto e riprova.",
 };
