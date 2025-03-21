@@ -1,9 +1,9 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutterchat/utils/constants.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
 
 
 // title with date for messages list
@@ -29,12 +29,12 @@ class DateTitle extends StatelessWidget {
 
     // writes the day of week (e.g. Monday)
     if (pastDays < 7) {
-      _formattedDate = DateFormat.EEEE(locale).format(date);
+      _formattedDate = formatDateTime(DateFormat.EEEE, date).toCapitalized();
       return;
     }
 
     // formats date normally
-    _formattedDate = DateFormat.yMMMMd(locale).format(date);
+    _formattedDate = formatDateTime(DateFormat.yMMMMd, date);
   }
 
 

@@ -65,6 +65,7 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: localize("shared.title"), // title for web
       theme: appTheme,
       home: const AuthScreen(),
     );
