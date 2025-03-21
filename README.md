@@ -31,11 +31,13 @@ Chat:
 - `chat/extras.dart` for various widgets like `DateTitle`, `UnreadMessageTitle`
 
 Development:
-- `dev/styles.dart` with an example page that showcases app colors and styles 
+- `dev/styles.dart` with an example page that showcases app colors and styles
+- `dev/localize.dart` with an example page that showcases text localization features
 - other debug pages (shown as fake rooms), for scouting or interactive examples for devs
 
 Other:
 - `util/style.dart` for app theme colors and style
+- `util/localize.dart` for app localization functions
 - `util/form.dart` with reusable form widget (used for login/signup)
 - `util/pb_service.dart` for pocketbase related functions 
 - `util/constants.dart` for app configuration, like locale and server urls

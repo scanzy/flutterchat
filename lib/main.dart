@@ -1,14 +1,15 @@
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/dev/styles.dart';
 import 'package:flutterchat/dev/scouting2.dart';
+import 'package:flutterchat/dev/localize.dart';
 // Add other files with debug or scouting pages here
 
 
@@ -19,8 +20,8 @@ void main() async {
   // sets up pocket base service, configuring auth store
   await PocketBaseService().setup();
 
-  // provides italian localization for date and time
-  initializeDateFormatting("it");
+  // provides localization for date and time
+  AppLocalization.init();
 
   // starts the application
   runApp(const MyApp());
@@ -36,7 +37,9 @@ class MyApp extends StatefulWidget {
   static final Map<String, Widget> debugPages = {
     'App styles':  StylesPage(),
     'Chat test 2': ChatPageTest2(),
+    'Localization': LocalizationPage(),
     // Add new debug or scouting pages here by simply adding new entries
+    // It's ok if you don't use app localization in debug pages
   };
 }
 
