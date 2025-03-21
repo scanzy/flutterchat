@@ -41,10 +41,18 @@ class ScrollableCenterPage extends StatelessWidget {
 
 // formatting helpers
 
-// generates color from string
-Color generateColor(String seed) {
-  final hash = seed.hashCode;
-  return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
+// adds methods to strings
+extension StringCasingExtension on String {
+
+  // only first capital letter
+  String toCapitalized() {
+    if (isEmpty) return "";
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  } 
+
+  // generates color from string
+  Color generateColor() =>
+    HSLColor.fromAHSL(1.0, (hashCode % 360).toDouble(), 0.7, 0.5).toColor();
 }
 
 
