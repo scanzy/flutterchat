@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
+
 import 'package:flutterchat/main.dart';
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
-import 'package:flutterchat/utils/misc.dart';
-import 'package:flutterchat/utils/style.dart';
 
 
 class Room {
@@ -82,7 +84,7 @@ class RoomsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat app"),
+        title: Text(localize("shared.title")),
         actions: [
 
           // logout button

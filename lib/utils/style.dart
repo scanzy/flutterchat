@@ -5,14 +5,20 @@ import "package:flutter/material.dart";
 
 
 /*
-To create normal text:
-    Text(...) // no style needed
+To create normal small text:
+    Text(..., style: AppStyles.textNormal(context, size: 1))
 
-To create accent text:
-    Text(..., style: AppStyles.textAccent(context))
+To create normal medium-size text:
+    Text(..., style: AppStyles.textNormal(context, size: 2))
 
-To create faded text:
-    Text(..., style: AppStyles.textFaded(context))
+To create normal large text:
+    Text(..., style: AppStyles.textNormal(context, size: 3))
+
+To create accent text (small/medium/large):
+    Text(..., style: AppStyles.textAccent(context, size: 1/2/3))
+
+To create faded text (small/medium/large):
+    Text(..., style: AppStyles.textFaded(context, size: 1/2/3))
 
 To create normal boxes:
     Container(..., decoration: AppStyles.boxNormal(context))
@@ -54,8 +60,8 @@ class AppColors {
   // basic colors (dark theme)
   // NOTE: do not use these colors directly in app
 
-  static final Color _white = Colors.white70;   // for normal text
-  static final Color _fade = Colors.white54;    // for faded text
+  static final Color _white = Colors.white70;     // for normal text
+  static final Color _fade = Colors.white38;    // for faded text
   static final Color _aqua = Color(0xFF00AFA9); // for important text
   static final Color _teal = Color(0xFF007B73); // for important elements
   static final Color _dark = Color(0xFF1F2C34); // for normal elements
@@ -85,19 +91,43 @@ class AppColors {
 
 class AppStyles {
 
-  // texts
-  static TextStyle textFaded (BuildContext ctx) => TextStyle(color: AppColors.faded(ctx));
-  static TextStyle textAccent(BuildContext ctx) =>
-    TextStyle(color: AppColors.light(ctx), fontWeight: FontWeight.bold);
+  // text colors
+  static TextStyle textNormal(BuildContext ctx, {int size = 1}) =>
+    _build(ctx, color: AppColors.text, size: size);
 
-  // boxes
+  static TextStyle textFaded (BuildContext ctx, {int size = 1}) =>
+    _build(ctx, color: AppColors.faded, size: size);
+
+  static TextStyle textAccent(BuildContext ctx, {int size = 1}) =>
+    _build(ctx, color: AppColors.light, size: size)
+      .merge(TextStyle(fontWeight: FontWeight.bold));
+
+
+  // text sizes
+  static TextStyle textSize(int size, BuildContext ctx) {
+    final textTheme = Theme.of(ctx).textTheme;
+    return <int, TextStyle?>{
+      1: textTheme.bodyMedium,
+      2: textTheme.headlineMedium,
+      3: textTheme.displayMedium,
+    }[size]!;
+  }
+
+  // builds text style combining color and size
+  static TextStyle _build(BuildContext ctx,
+    {required Function(BuildContext) color, required int size}) =>
+      textSize(size, ctx).merge(TextStyle(color: color(ctx)));
+
+
+  // box colors
   static BoxDecoration boxNormal(BuildContext ctx) => box(ctx, AppColors.normal(ctx));
   static BoxDecoration boxAccent(BuildContext ctx) => box(ctx, AppColors.accent(ctx));
 
   static BoxDecoration box(BuildContext ctx, Color color) =>
     BoxDecoration(color: color, borderRadius: BorderRadius.circular(15));
 
-  // buttons
+
+  // button colors
   static ButtonStyle btnNormal(BuildContext ctx) => btn(ctx, AppColors.normal(ctx));
   static ButtonStyle btnAccent(BuildContext ctx) => btn(ctx, AppColors.accent(ctx));
   static ButtonStyle btnSubmit(BuildContext ctx) => btn(ctx, AppColors.accent(ctx), wide: true);

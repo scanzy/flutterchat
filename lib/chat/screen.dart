@@ -6,6 +6,7 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/chat/input.dart';
@@ -15,6 +16,7 @@ import 'package:flutterchat/chat/extras.dart';
 
 
 
+// screen with chat history, and new message field
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -207,6 +209,13 @@ class ChatScreenState extends State<ChatScreen> {
   // called when pin message action is selected
   Future<void> _handlePin(Message message, {bool unPin = false}) async {
     try {
+      // prevents pinning message if some other is already pinned
+      // TODO: implement multiple pinned messages
+      if (pinnedMessage != null) {
+        snackBarText(context, localize("chat.pin.multi"));
+        return;
+      }
+
       // toggles pinned state
       await PocketBaseService().pinMessage(message.id, !unPin);
       if (mounted) setState(searchPinnedMessage);

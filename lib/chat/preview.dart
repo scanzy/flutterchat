@@ -52,7 +52,7 @@ class MessagePreview extends StatelessWidget {
                 // uses random color for others' username
                 // uses accent color to self username or custom title
                 color: message.isOwn || title != null ?
-                  AppColors.accent(context) : generateColor(message.username),
+                  AppColors.accent(context) : message.username.generateColor(),
                 fontWeight: FontWeight.bold,
               ),
             ),

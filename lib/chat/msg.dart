@@ -156,7 +156,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
     // color for username (based on username)
     final usernameColor = widget.isOwn ?
-      AppColors.text(context) : generateColor(widget.username);
+      AppColors.text(context) : widget.username.generateColor();
 
     // style for message bubble
     final bubbleStyle = widget.isOwn ?
