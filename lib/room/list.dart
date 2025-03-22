@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
@@ -86,6 +87,16 @@ class RoomsListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(localize("shared.title")),
         actions: [
+
+          // app version button
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () async {
+              PackageInfo packageInfo = await PackageInfo.fromPlatform();
+              if (!context.mounted) return;
+              snackBarText(context, "App version: ${packageInfo.version}");
+            },
+          ),
 
           // logout button
           IconButton(
