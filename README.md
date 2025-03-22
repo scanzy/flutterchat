@@ -49,24 +49,21 @@ If you add other files to the project, make sure to update the above list.
 
 ## Contributing
 
-To access the development environment, visit [gitpod.io](https://gitpod.io/) and create a new account, logging in using GitHub.<br/>
-Install the Gitpod browser extension that shows the "Open in Gitpod" green button on GitHub repositories.
+To contribute to the project, follow the steps below:
+
 
 1. **Look at tasks**: visit [this project](https://github.com/users/scanzy/projects/1) to see the board with all issues (development tasks), divided into groups.
-2. **Choose priority**: choose one of the issues in the "Next" group (priority) and assign it to yourself.
-3. **Investigate** about the task and comment the issue describing how you think to solve the issue.
-4. **Create branch** with short but clear name, with issue number at the end (e.g. `action-buttons-9`), separating words with hyphens.
-5. **Launch the environment** starting Gitpod on the new branch (this may take some minutes to spin up the cloud-based environment).
-6. **Edit code and test it** until the issue is solved, making commits with short but clear description of the edits.
-7. **Write updates** for the team into the issue, and push changes to avoid to loose unsaved code.
-8. **Close & Pull**: once the new feature is implemented (or the bug solved), close the issue and create a pull request.
-9. **Review**: inform the team, so that another developer can review the pull request and accept (or edit) it, merging the branch to main.
+2. **Choose priority**: choose one of the issues in the "Next" group (priority) assign it to yourself, and move it in the "In progress" group.
+3. **Investigate** about the task and comment the issue describing how you think to solve the issue, including helpful links, resources and code snippets.
+4. **Launch the environment** starting Gitpod or Docker. This may take some minutes, especially on the first time. For more info on dev env setup, visit [this page](doc/commands.md).
+5. **Create branch** with short but clear name, with issue number at the end (e.g. `action-buttons-9` for issue #9), separating words with hyphens. Make sure to link the branch to the issue, clicking on "Development" title, at the bottom right of issue page.
+6. **Update app version** in `pubspec.yaml`, replacing the last number with issue number (e.g. `1.0.9` for issue #9).
+7. **Edit code and test it** until the issue is solved, making one or more commits with short but clear description of the edits. Push changes to avoid to loose unsaved code.
+8. **Write updates** for the team into the issue, including screenshots of the new feature, if applicable.
+9. **Close & Pull**: once the new feature is implemented (or the bug solved), close the issue and create a pull request for the branch. Make sure to link the pull request to the issue, as on step 5.
+10. **Ask for review**: inform the team, so that another developer can review the pull request and accept it (or edit it), merging the branch to main.
 
-Note: you may need to edit Gitpod settings to allow you to push your commits from Gitpod to GitHub repositories.<br/>
-To do so, visit [this settings page](https://gitpod.io/user/integrations) and add permissions `repo` and/or `public_repo` for GitHub.
-
-To suggest new features or if you find some bug, visit [this project](https://github.com/users/scanzy/projects/1)
-and open an issue using the right template (feature or bug), making sure to include all the relevant information.
+To suggest new features or if you find some bug, visit [this project](https://github.com/users/scanzy/projects/1) and open an issue using the right template (feature or bug), making sure to include all the relevant information.
 
 
 ## Code style
@@ -75,6 +72,7 @@ To keep code readable and easy to mantain, follow this rules:
 - comment code blocks frequently, explaining using simple and concise words
 - separate code blocks using single blank lines
 - separate methods and classes using double blank lines
+- include at least one line of comment for every class, method and function
 - use lowerCamelCase for names of variables, fields, methods and functions
 - use UpperCamelCase for names of classes and mixins
 - use leading _ for private members, avoiding snake_case
