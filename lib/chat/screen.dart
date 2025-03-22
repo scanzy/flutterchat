@@ -102,13 +102,15 @@ class ChatScreenState extends State<ChatScreen> {
 
 
   // searches most recent pinned message, to show it on top of chat
+  // TODO: allow multiple pinned messages, show the one pinned most recently
   void searchPinnedMessage() {
     for (var msg in _messages) {
       if (msg.get<bool?>("pinned") == true) {
         pinnedMessage = Message(msg);
-        break;
+        return;
       }   
     }
+    pinnedMessage = null;
   }
 
 
@@ -211,7 +213,7 @@ class ChatScreenState extends State<ChatScreen> {
     try {
       // prevents pinning message if some other is already pinned
       // TODO: implement multiple pinned messages
-      if (pinnedMessage != null) {
+      if (pinnedMessage != null && unPin == false) {
         snackBarText(context, localize("chat.pin.multi"));
         return;
       }
