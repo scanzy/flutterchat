@@ -1,45 +1,22 @@
 {
-  "name": "Flutter Development",
-  "build": {
-    "dockerfile": ".gitpod.Dockerfile"
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "dart-code.flutter"
-      ]
-    }
-  },
-  "postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms linux .",
-  "portsAttributes": {
-    "5900": {
-      "label": "VNC",
-      "onAutoForward": "ignore"
-    },
-    "6080": {
-      "label": "Flutter Preview",
-      "onAutoForward": "openPreview"
-    },
-    "8080": {
-      "onAutoForward": "ignore"
-    },
-    "5037": {
-      "onAutoForward": "ignore"
-    },
-    "9100-9101": {
-      "onAutoForward": "ignore"
-    },
-    "40000-50000": {
-      "onAutoForward": "ignore"
-    }
-  },
-  "forwardPorts": [
-    5900,
-    6080,
-    8080,
-    5037,
-    "9100-9101",
-    "40000-50000"
-  ],
-  "remoteUser": "root"
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"forwardPorts": [3000],
+	"name": "Flutter",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"Dart-Code.dart-code",
+				"Dart-Code.flutter"
+			]
+		}
+	},
+	"portsAttributes": {
+		"3000": {
+			"label": "Application",
+			"onAutoForward": "openBrowser"
+		}
+	},
+	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms web linux . && chmod +x ./.devcontainer/run.sh",
 }
