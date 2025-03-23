@@ -40,8 +40,10 @@ class AppLocalization {
   // locale settings
   static String _defaultLocale = "en"; // ignore: prefer_final_fields
   static String _currentLocale = "it";
-  static String _currentTzName = "Europe/Rome"; // forza Roma!
   static String get currentLocale => _currentLocale;
+
+  // ignore: prefer_final_fields
+  static String _currentTzName = "Europe/Rome"; // forza Roma!
 
   // TODO: detect current locale and timezone from device settings
   // find a way to override this for servers (gitpod dev env and web production)

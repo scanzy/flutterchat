@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -201,7 +202,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
               // timestamp
               Text(
-                widget.createdUTC.utcToAppTz.time.format(context),
+                widget.createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm),
                 style: AppStyles.textFaded(context),
               ),
 
