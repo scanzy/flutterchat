@@ -28,8 +28,11 @@ class ChatInputBar extends StatefulWidget {
 
 class ChatInputBarState extends State<ChatInputBar> {
 
-  // used to hide placeholder
+  // used to hide input placeholder on focus
   bool _hasFocus = false;
+
+  // used to refocus input after message sent
+  final FocusNode _focusNode = FocusNode();
 
   // controllers for new message/edit message field
   // we use 2 controllers so that the 2 actions are independent
@@ -76,6 +79,7 @@ class ChatInputBarState extends State<ChatInputBar> {
               onFocusChange: (hasFocus) { setState(() { _hasFocus = hasFocus; }); },
               child: TextField(
                 // autofocus: true,
+                focusNode: _focusNode,
                 controller: _currentController,
                 
                 decoration: InputDecoration(
@@ -112,10 +116,12 @@ class ChatInputBarState extends State<ChatInputBar> {
   }
 
 
-  // called on input submit (clears input field)
+  // called on input submit
+  // sends message, clears input, refocus it to write other messages
   void _onSubmit(String text) {
     widget.onSubmit(text.trim());
     _currentController.clear();
+    _focusNode.requestFocus();
   }
 
 
