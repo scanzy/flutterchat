@@ -396,11 +396,11 @@ class ChatScreenState extends State<ChatScreen> {
           
           // gets message and its date
           final message = Message(_messages[index]);
-          final date = message.date;
+          final dateLocal = message.dateLocal;
 
           // gets previous message and checks if has different date
           final prev = _messages.elementAtOrNull(index + 1);
-          final firstOfDay = (prev == null) || (Message(prev).date != date);
+          final firstOfDay = (prev == null) || (Message(prev).dateLocal != dateLocal);
 
           return Column(children: [
 
@@ -410,7 +410,7 @@ class ChatScreenState extends State<ChatScreen> {
 
             // displays date title over message, if first of the day
             if (firstOfDay)
-              DateTitle(date: date),
+              DateTitle(localDate: dateLocal),
 
             // displays message
             MessageBubble(

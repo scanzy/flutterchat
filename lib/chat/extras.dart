@@ -8,33 +8,33 @@ import 'package:flutterchat/utils/localize.dart';
 
 // title with date for messages list
 class DateTitle extends StatelessWidget {
-  final DateTime date;
+  final DateTime localDate;
   late final String _formattedDate;
 
-  DateTitle({super.key, required this.date}) {
+  DateTitle({super.key, required this.localDate}) {
 
     // calculates the number of days ago
-    final now = DateTime.now();
-    final pastDays = now.difference(date).inDays;
+    final now = DateTime.timestamp().utcToAppTz;
+    final pastDays = now.difference(localDate).inDays;
 
     // checks today and yesterday
     if (pastDays == 0) {
-      _formattedDate = "Today";
+      _formattedDate = localize("today").toCapitalized();
       return;
     }
     if (pastDays == 1) {
-      _formattedDate = "Yesterday";
+      _formattedDate = localize("yesterday").toCapitalized();
       return;
     }
 
     // writes the day of week (e.g. Monday)
     if (pastDays < 7) {
-      _formattedDate = formatDateTime(DateFormat.EEEE, date).toCapitalized();
+      _formattedDate = localDate.formatLocalized(DateFormat.EEEE).toCapitalized();
       return;
     }
 
     // formats date normally
-    _formattedDate = formatDateTime(DateFormat.yMMMMd, date);
+    _formattedDate = localDate.formatLocalized(DateFormat.yMMMMd);
   }
 
 

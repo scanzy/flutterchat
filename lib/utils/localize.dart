@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:timezone/timezone.dart';
+import 'package:timezone/data/latest.dart';
 import 'package:logging/logging.dart';
 
 
@@ -10,10 +13,21 @@ String  localize    (String  key) => AppLocalization.getDBentry(AppLocalization.
 String? localizeSafe(String? key) => (key == null) ? null : localize(key);
 
 
-// formats a date (with time, if you want), with proper localization
-// example: formatDateTime(DateFormat.dMMMMy, myDateTime); // gives "1 Gennaio 2025"
-String formatDateTime(DateFormat Function(dynamic) format, DateTime dateTime) =>
-  format(AppLocalization._currentLocale).format(dateTime);
+// datetime utilities (localization and formatting)
+extension DateTimeExtension on DateTime {
+
+  // formats a local date (with time, if you want), without timezone conversion
+  // example: formatDateTime(DateFormat.dMMMMy, myDateTime); // gives "1 Gennaio 2025"
+  String formatLocalized(DateFormat Function(dynamic) format) =>
+    format(AppLocalization._currentLocale).format(this);
+
+  // converts from UTC to app timezone
+  DateTime get utcToAppTz => TZDateTime.from(this, UTC).toLocal();
+
+  // extracts only date or time
+  DateTime  get date => DateTime(year, month, day);
+  TimeOfDay get time => TimeOfDay.fromDateTime(this);
+}
 
 
 // type alias for locale database
@@ -26,14 +40,17 @@ class AppLocalization {
   // locale settings
   static String _defaultLocale = "en"; // ignore: prefer_final_fields
   static String _currentLocale = "it";
+  static String _currentTzName = "Europe/Rome"; // forza Roma!
   static String get currentLocale => _currentLocale;
 
-  // TODO: load current locale from device settings
+  // TODO: detect current locale and timezone from device settings
   // find a way to override this for servers (gitpod dev env and web production)
 
 
-  // provides initialization for date and time formatting
+  // datetime utilities initialization (timezones and formatting)
   static void init() {
+    initializeTimeZones();
+    setLocalLocation(getLocation(_currentTzName));
     initializeDateFormatting(_currentLocale);
   }
 
@@ -114,6 +131,10 @@ DBtype enDB = {
   "localeDemo.device.title":    "Device settings",
   "localeDemo.device.hint":     "App locale is not linked to device settings (for now).",
 
+  // words
+  "today":      "today",
+  "yesterday":  "yesterday",
+
   // shared
   "shared.title": "Realmen app",
 
@@ -138,6 +159,10 @@ DBtype itDB = {
   "localeDemo.selection.hint":  "Prova a cambiare la lingua corrente della app, e guarda l'effetto.",
   "localeDemo.device.title":    "Impostazioni del dispositivo",
   "localeDemo.device.hint":     "La lingua della app (per ora) è indipendente dalle impostazioni del dispositivo.",    
+
+  // words
+  "today":      "oggi",
+  "yesterday":  "ieri",
 
   // shared
   "shared.title": "App Realmen",

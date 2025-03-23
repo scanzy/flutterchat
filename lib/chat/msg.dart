@@ -1,11 +1,12 @@
-import 'package:intl/intl.dart';
-import 'package:pocketbase/pocketbase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
+
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/user/profile.dart';
 
@@ -18,7 +19,7 @@ class Message {
   late final String userId;
   late final String username;
   late final bool   isOwn;
-  late final DateTime created;
+  late final DateTime createdUTC;
 
   // gets data from message record
   Message(RecordModel record) {
@@ -30,10 +31,11 @@ class Message {
     userId   = user.id;
     username = user.get<String?>('username') ?? 'Unknown';
     isOwn    = userId == PocketBaseService().userId;
-    created  = DateTime.parse(record.get<String>("created"));
+    createdUTC = DateTime.parse(record.get<String>("created"));
   }
 
-  DateTime get date => DateTime(created.year, created.month, created.day);
+  // gets date in local timezone
+  DateTime get dateLocal => createdUTC.utcToAppTz.date;
 }
 
 
@@ -61,7 +63,8 @@ class MessageBubble extends StatefulWidget {
   bool   get pinned     => msg.pinned;
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
-  DateTime get created  => msg.created;
+
+  DateTime  get createdUTC => msg.createdUTC;
 
   // checks if current user is admin (and can delete/pin messages)
   bool get isAdmin => PocketBaseService().isAdmin;
@@ -198,7 +201,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
               // timestamp
               Text(
-                DateFormat('HH:mm').format(widget.created),
+                widget.createdUTC.utcToAppTz.time.format(context),
                 style: AppStyles.textFaded(context),
               ),
 
