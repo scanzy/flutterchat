@@ -42,7 +42,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   // messages arrived when viewing old ones
   int newMessages = 0;
-  bool viewingLastMsg = false;
+  bool viewingLastMsg = true;
   
   // messages arrived when chat not shown
   // TODO: load from pocketbase on app open
@@ -75,11 +75,7 @@ class ChatScreenState extends State<ChatScreen> {
     _chatObserver = ChatScrollObserver(_observerController)
 
       // min scroll offset to disable auto-scroll on new messages
-      ..fixedPositionOffset = 5
-
-      // not clear why... but this is needed to make smart scroll work...
-      ..toRebuildScrollViewCallback = () { setState(() {}); };
-
+      ..fixedPositionOffset = 50;
   }
 
   @override
