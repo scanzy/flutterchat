@@ -13,10 +13,13 @@ RUN sudo apt-get update \
    libxtst6 \
    xauth \
    xvfb \
+   curl git unzip xz-utils zip libglu1-mesa \
+   clang cmake git  ninja-build pkg-config \
+   libgtk-3-dev liblzma-dev libstdc++-12-dev \
  && sudo rm -rf /var/lib/apt/lists/*
 
-RUN apt-get clean
-
-RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /flutter
-ENV PATH="/flutter/bin:$PATH"
+# Download and install flutter 
+ENV FLUTTER_VERSION=3.29.0-stable
+RUN wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}.tar.xz" -O - | tar xpJ -C "$HOME"
+ENV PATH="$HOME/flutter/bin:$PATH"
 RUN flutter doctor
