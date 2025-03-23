@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
@@ -64,29 +65,39 @@ class ChatInputBarState extends State<ChatInputBar> {
 
         // message input
         Expanded(
-          child: Focus(
-            onFocusChange: (hasFocus) { setState(() { _hasFocus = hasFocus; }); },
-            child: TextField(
-            // autofocus: true,
-            controller: _currentController,
-            
-            decoration: InputDecoration(
-              hintText: _hasFocus ? '' : localize("chat.input.hint"),
-              hintStyle: AppStyles.textFaded(context),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(24),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+          child: CallbackShortcuts(
+            bindings: {
+              // detects c
+              const SingleActivator(LogicalKeyboardKey.enter, control: true): _newLine,
+              const SingleActivator(LogicalKeyboardKey.enter, alt:     true): _newLine,
+              const SingleActivator(LogicalKeyboardKey.enter, shift:   true): _newLine,
+            },
+            child: Focus(
+              onFocusChange: (hasFocus) { setState(() { _hasFocus = hasFocus; }); },
+              child: TextField(
+                // autofocus: true,
+                controller: _currentController,
+                
+                decoration: InputDecoration(
+                  hintText: _hasFocus ? '' : localize("chat.input.hint"),
+                  hintStyle: AppStyles.textFaded(context),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
+                minLines: 1, // default height: single line
+                maxLines: 8, // expands to multiline, without exaggeration
+                onSubmitted: _onSubmit,
+                textInputAction: TextInputAction.send,
               ),
             ),
-            minLines: 1, // default height: single line
-            maxLines: 8, // expands to multiline, without exaggeration
-            onSubmitted: _onSubmit,
-          )),
+          ),
         ),
 
         // send message (or confirm edit) icon
@@ -106,6 +117,10 @@ class ChatInputBarState extends State<ChatInputBar> {
     widget.onSubmit(text.trim());
     _currentController.clear();
   }
+
+
+  // adds newline to message, called on Ctrl/Shift/Alt+Enter
+  void _newLine() { _currentController.text += "\n"; }
 }
 
 
