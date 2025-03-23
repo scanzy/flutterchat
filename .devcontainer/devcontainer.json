@@ -1,9 +1,9 @@
 {
+	"name": "Flutter development",
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	"forwardPorts": [3000],
-	"name": "Flutter",
+	"forwardPorts": [6080],
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -13,11 +13,14 @@
 		}
 	},
 	"portsAttributes": {
-		"3000": {
-			"label": "Application",
+		"6080": {
+			"label": "Remote desktop",
 			"onAutoForward": "openBrowser"
 		}
 	},
 	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms=web,linux .",
-	"postStartCommand": "flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000"
+	"postStartCommand": "gp-vncsession"
 }
+
+// if remote desktop is not working
+// "flutter run -d web-server --web-hostname 0.0.0.0 --web-port 6080"
