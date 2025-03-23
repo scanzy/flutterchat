@@ -18,5 +18,6 @@
 			"onAutoForward": "openBrowser"
 		}
 	},
-	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms web linux . && chmod +x ./.devcontainer/run.sh",
+	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms=web,linux .",
+	"postStartCommand": "flutter run -d web-server --web-hostname 0.0.0.0 --web-port 3000"
 }
