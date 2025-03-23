@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
 import 'package:flutterchat/chat/msg.dart';
 
 
@@ -25,6 +26,9 @@ class ChatInputBar extends StatefulWidget {
 
 
 class ChatInputBarState extends State<ChatInputBar> {
+
+  // used to hide placeholder
+  bool _hasFocus = false;
 
   // controllers for new message/edit message field
   // we use 2 controllers so that the 2 actions are independent
@@ -60,10 +64,14 @@ class ChatInputBarState extends State<ChatInputBar> {
 
         // message input
         Expanded(
-          child: TextField(
+          child: Focus(
+            onFocusChange: (hasFocus) { setState(() { _hasFocus = hasFocus; }); },
+            child: TextField(
+            // autofocus: true,
             controller: _currentController,
+            
             decoration: InputDecoration(
-              hintText: 'Message',
+              hintText: _hasFocus ? '' : localize("chat.input.hint"),
               hintStyle: AppStyles.textFaded(context),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(24),
@@ -78,7 +86,7 @@ class ChatInputBarState extends State<ChatInputBar> {
             minLines: 1, // default height: single line
             maxLines: 8, // expands to multiline, without exaggeration
             onSubmitted: _onSubmit,
-          ),
+          )),
         ),
 
         // send message (or confirm edit) icon
