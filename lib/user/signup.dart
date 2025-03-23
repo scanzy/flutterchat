@@ -75,6 +75,7 @@ class SignupFormState extends State<SignupForm> {
             filled: true,
           ),
           validator: (value) => value!.isEmpty ? 'Enter username' : null,
+          textInputAction: TextInputAction.next,
         ),
 
         // email field
@@ -85,6 +86,7 @@ class SignupFormState extends State<SignupForm> {
             filled: true,
           ),
           validator: (value) => value!.contains('@') ? null : 'Invalid email',
+          textInputAction: TextInputAction.next,
         ),
 
         // password field
@@ -95,6 +97,8 @@ class SignupFormState extends State<SignupForm> {
             labelText: 'Password',
             filled: true,
           ),
+          validator: (value) => value!.length >= 5 ? null : "Password is too short.",
+          textInputAction: TextInputAction.next,
         ),
 
         // confirm password field
@@ -105,6 +109,12 @@ class SignupFormState extends State<SignupForm> {
             labelText: 'Confirm Password',
             filled: true,
           ),
+          validator: (value) => value == _passwordController.text ?
+            null : "Password and confirm do not match.",
+
+          // submits form on enter press
+          textInputAction: TextInputAction.go,
+          onEditingComplete: _handleSignup,
         ),
 
         // TODO: add personal info (maybe in other page)

@@ -74,6 +74,7 @@ class FormWidget extends StatelessWidget {
 
       child: Form(
         key: formKey,
+        autovalidateMode: AutovalidateMode.onUnfocus,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
