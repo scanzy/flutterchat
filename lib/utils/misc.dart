@@ -18,12 +18,41 @@ void navigateToPage(BuildContext context, Widget page, {bool replace = false}) {
 }
 
 
+// scrollable container for page with static content
+// on large screens: content is be centered
+// on small screens: page scrolls, with padding
+class ScrollableCenterPage extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  const ScrollableCenterPage({super.key, required this.child, this.padding});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        primary: true,
+        padding: padding,
+        child: Center(child: child),
+      )
+    );
+  }
+}
+
+
 // formatting helpers
 
-// generates color from string
-Color generateColor(String seed) {
-  final hash = seed.hashCode;
-  return HSLColor.fromAHSL(1.0, (hash % 360).toDouble(), 0.7, 0.5).toColor();
+// adds methods to strings
+extension StringCasingExtension on String {
+
+  // only first capital letter
+  String toCapitalized() {
+    if (isEmpty) return "";
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  } 
+
+  // generates color from string
+  Color generateColor() =>
+    HSLColor.fromAHSL(1.0, (hashCode % 360).toDouble(), 0.7, 0.5).toColor();
 }
 
 

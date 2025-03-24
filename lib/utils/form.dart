@@ -34,7 +34,7 @@ class FormWidget extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     return Text(
       title!,
-      style: Theme.of(context).textTheme.displaySmall,
+      style: AppStyles.textNormal(context, size: 2),
       textAlign: TextAlign.center,
     );
   }
@@ -74,6 +74,7 @@ class FormWidget extends StatelessWidget {
 
       child: Form(
         key: formKey,
+        autovalidateMode: AutovalidateMode.onUnfocus,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
