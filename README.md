@@ -10,6 +10,7 @@ Documentation:
 - `README.md` (this file) with contributing guidelines and code style
 - [`doc/description.md`](doc/description.md) with the description of the app and its functionalities
 - [`doc/commands.md`](doc/commands.md) with useful commands to setup dev env, build and deploy app
+- [`doc/styles.md`](doc/styles.md) with a short guide to use app styles in dart code
 - [`doc/pocketbase.md`](doc/pocketbase.md) with pocketbase database structure description
 - [`doc/cheatsheet.md`](doc/cheatsheet.md) with useful code examples for dart and flutter
 
