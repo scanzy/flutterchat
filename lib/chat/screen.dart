@@ -159,21 +159,21 @@ class ChatScreenState extends State<ChatScreen> {
     if (editingMessage != null) {
       _editMessage(editingMessage as Message, text);
     } else {
-      _sendMessage(text);
+      _sendMessage(text, replyingMessage);
     }
     setState(() { replyingMessage = null; });
   }
 
 
   // sends a new message to the server
-  Future<void> _sendMessage(String text) async {
+  Future<void> _sendMessage(String text, Message? replyingMessage) async {
     if (text.isEmpty) return;
 
     // TODO: send also replyingMessage to pocketbase, together with message text
 
     try {
       // sends message
-      await PocketBaseService().sendMessage(text);
+      await PocketBaseService().sendMessage(text, replyingMessage);
       if (!mounted) return;
 
       // TODO: clear unread messages on server
