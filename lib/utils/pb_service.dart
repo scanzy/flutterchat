@@ -72,7 +72,7 @@ class PocketBaseService {
   // loads previous messages
   Future<List<RecordModel>> loadMessages() async {
     return await _pb.collection('messages')
-        .getFullList(sort: '+created', expand: 'user');
+        .getFullList(sort: '+created', expand: 'user,replyTo.user');
   }
 
 

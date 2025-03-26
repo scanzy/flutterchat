@@ -1,3 +1,4 @@
+import 'package:flutterchat/chat/preview.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -21,19 +22,35 @@ class Message {
   late final String username;
   late final bool   isOwn;
   late final DateTime createdUTC;
+  late final Message? repliedTo;
 
   // gets data from message record
   Message(RecordModel record) {
-    final user = record.get<RecordModel>("expand.user");
+      final user = record.get<RecordModel>("expand.user");
+      final replyToRecord = record.get<RecordModel?>('expand.replyTo');
 
-    id       = record.id;
-    text     = record.get<String?>('message') ?? '';
-    pinned   = record.get<bool?>('pinned') ?? false;
-    userId   = user.id;
-    username = user.get<String?>('username') ?? 'Unknown';
-    isOwn    = userId == PocketBaseService().userId;
-    createdUTC = DateTime.parse(record.get<String>("created"));
+      id       = record.id;
+      text     = record.get<String?>('message') ?? '';
+      pinned   = record.get<bool?>('pinned') ?? false;
+      userId   = user.id;
+      username = user.get<String?>('username') ?? 'Unknown';
+      isOwn    = userId == PocketBaseService().userId;
+      createdUTC = DateTime.parse(record.get<String>("created"));
+      repliedTo = replyToRecord != null
+        ? Message._fromReply(replyToRecord, user: replyToRecord.get<RecordModel>("expand.user"))
+        : null;
   }
+
+  // Private constructor for replies
+  Message._fromReply(RecordModel replyRecord, {required RecordModel user}) :
+    id = replyRecord.id,
+    text = replyRecord.get<String?>('message') ?? '',
+    pinned = replyRecord.get<bool?>('pinned') ?? false,
+    userId = replyRecord.get<RecordModel>("expand.user").id,
+    username = replyRecord.get<RecordModel>("expand.user").get<String?>('username') ?? 'Unknown',
+    isOwn = replyRecord.get<RecordModel>("expand.user").id == PocketBaseService().userId,
+    createdUTC = DateTime.parse(replyRecord.get<String>("created")),
+    repliedTo = null;  // Prevent infinite recursion for nested replies
 
   // gets date in local timezone
   DateTime get dateLocal => createdUTC.utcToAppTz.date;
@@ -173,7 +190,8 @@ class MessageBubbleState extends State<MessageBubble> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
+          if (widget.msg.repliedTo != null)
+          MessagePreview(message: widget.msg.repliedTo!),
           // username with generated color (only for others' message)
           if (!widget.isOwn)
             RichText(
