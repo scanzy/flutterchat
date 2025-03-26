@@ -6,6 +6,7 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/room/details.dart';
 import 'package:flutterchat/chat/input.dart';
@@ -15,6 +16,7 @@ import 'package:flutterchat/chat/extras.dart';
 
 
 
+// screen with chat history, and new message field
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -40,7 +42,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   // messages arrived when viewing old ones
   int newMessages = 0;
-  bool viewingLastMsg = false;
+  bool viewingLastMsg = true;
   
   // messages arrived when chat not shown
   // TODO: load from pocketbase on app open
@@ -73,11 +75,7 @@ class ChatScreenState extends State<ChatScreen> {
     _chatObserver = ChatScrollObserver(_observerController)
 
       // min scroll offset to disable auto-scroll on new messages
-      ..fixedPositionOffset = 5
-
-      // not clear why... but this is needed to make smart scroll work...
-      ..toRebuildScrollViewCallback = () { setState(() {}); };
-
+      ..fixedPositionOffset = 50;
   }
 
   @override
@@ -100,13 +98,15 @@ class ChatScreenState extends State<ChatScreen> {
 
 
   // searches most recent pinned message, to show it on top of chat
+  // TODO: allow multiple pinned messages, show the one pinned most recently
   void searchPinnedMessage() {
     for (var msg in _messages) {
       if (msg.get<bool?>("pinned") == true) {
         pinnedMessage = Message(msg);
-        break;
+        return;
       }   
     }
+    pinnedMessage = null;
   }
 
 
@@ -207,6 +207,13 @@ class ChatScreenState extends State<ChatScreen> {
   // called when pin message action is selected
   Future<void> _handlePin(Message message, {bool unPin = false}) async {
     try {
+      // prevents pinning message if some other is already pinned
+      // TODO: implement multiple pinned messages
+      if (pinnedMessage != null && unPin == false) {
+        snackBarText(context, localize("chat.pin.multi"));
+        return;
+      }
+
       // toggles pinned state
       await PocketBaseService().pinMessage(message.id, !unPin);
       if (mounted) setState(searchPinnedMessage);
@@ -385,11 +392,11 @@ class ChatScreenState extends State<ChatScreen> {
           
           // gets message and its date
           final message = Message(_messages[index]);
-          final date = message.date;
+          final dateLocal = message.dateLocal;
 
           // gets previous message and checks if has different date
           final prev = _messages.elementAtOrNull(index + 1);
-          final firstOfDay = (prev == null) || (Message(prev).date != date);
+          final firstOfDay = (prev == null) || (Message(prev).dateLocal != dateLocal);
 
           return Column(children: [
 
@@ -399,7 +406,7 @@ class ChatScreenState extends State<ChatScreen> {
 
             // displays date title over message, if first of the day
             if (firstOfDay)
-              DateTitle(date: date),
+              DateTitle(localDate: dateLocal),
 
             // displays message
             MessageBubble(

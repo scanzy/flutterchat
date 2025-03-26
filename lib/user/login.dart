@@ -58,6 +58,7 @@ class LoginFormState extends State<LoginForm> {
             filled: true,
           ),
           validator: (value) => value!.contains('@') ? null : 'Invalid email',
+          textInputAction: TextInputAction.next,
         ),
 
         // password field
@@ -68,6 +69,10 @@ class LoginFormState extends State<LoginForm> {
             labelText: 'Password',
             filled: true,
           ),
+
+          // submits form on enter press
+          textInputAction: TextInputAction.go,
+          onEditingComplete: _handleLogin,
         ),
       ],
 
