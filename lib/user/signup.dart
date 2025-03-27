@@ -97,7 +97,7 @@ class SignupFormState extends State<SignupForm> {
             labelText: 'Password',
             filled: true,
           ),
-          validator: (value) => value!.length >= 5 ? null : "Password is too short.",
+          validator: (value) => value!.length >= 9 ? null : "Password is too short.",
           textInputAction: TextInputAction.next,
         ),
 
