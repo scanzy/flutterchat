@@ -113,7 +113,7 @@ class ChatScreenState extends State<ChatScreen> {
   // sets up actions when something occurs with messages
   Future<void> _setupRealtime() async {
     _unsubscribe = await pb.client.collection('messages')
-      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user');
+      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user,replyTo.user');
   }
 
 
@@ -168,8 +168,6 @@ class ChatScreenState extends State<ChatScreen> {
   // sends a new message to the server
   Future<void> _sendMessage(String text, Message? replyingMessage) async {
     if (text.isEmpty) return;
-
-    // TODO: send also replyingMessage to pocketbase, together with message text
 
     try {
       // sends message

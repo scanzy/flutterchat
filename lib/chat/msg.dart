@@ -41,7 +41,7 @@ class Message {
         : null;
   }
 
-  // Private constructor for replies
+  // private constructor for replies
   Message._fromReply(RecordModel replyRecord, {required RecordModel user}) :
     id = replyRecord.id,
     text = replyRecord.get<String?>('message') ?? '',
@@ -50,7 +50,7 @@ class Message {
     username = replyRecord.get<RecordModel>("expand.user").get<String?>('username') ?? 'Unknown',
     isOwn = replyRecord.get<RecordModel>("expand.user").id == PocketBaseService().userId,
     createdUTC = DateTime.parse(replyRecord.get<String>("created")),
-    repliedTo = null;  // Prevent infinite recursion for nested replies
+    repliedTo = null;  // prevent infinite recursion for nested replies
 
   // gets date in local timezone
   DateTime get dateLocal => createdUTC.utcToAppTz.date;
