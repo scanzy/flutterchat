@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # - v: main version number
 # - m: milestone number 
 # - i: current issue number
-version: 1.0.67
+version: 1.0.70
 
 environment:
   sdk: "^3.7.0"
@@ -49,6 +49,7 @@ dependencies:
   logging: ^1.3.0
   package_info_plus: ^8.3.0
   timezone: ^0.10.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

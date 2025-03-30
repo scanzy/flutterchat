@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/colors.dart';
 
 
 // screen to show app colors and styles
@@ -18,7 +19,32 @@ class StylesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("App styles"),
+        title: Text("App styles (theme: ${ThemeController.get()})"),
+        actions: [
+
+          // theme control buttons
+          ...{
+            "auto":    Icons.auto_awesome,
+            "light":   Icons.light_mode,
+            "dark":    Icons.dark_mode,
+            "realmen": Icons.highlight,
+            "teal":    Icons.brush_sharp,
+          }
+          .entries.map(
+            (entry) => IconButton(
+
+              // theme name and icon
+              icon: Icon(entry.value),
+              tooltip: "${entry.key.toCapitalized()} theme",
+
+              // activates theme on click
+              onPressed: () => ThemeController.set(entry.key),
+            )
+          ),
+            
+          // prevents action buttons overlapping
+          debugBannerSpace(),
+        ]
       ),
       body: ScrollableCenterPage(
         padding: EdgeInsets.all(24),
