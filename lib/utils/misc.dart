@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter/foundation.dart";
+
 import 'package:url_launcher/url_launcher.dart';
+import "package:flutterchat/utils/style.dart";
 
 
 // composes the plural of a word, depending on the count
@@ -95,13 +97,21 @@ Widget parseLinks(String text, {Color? color}) {
 
 // snack bar helpers
 
+// TODO: extension SnackBarContextExtension on BuildContext {
 // shows something in a snack bar (temporary bottom bar)
 void snackBar(BuildContext context, Widget child) =>
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: child));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: context.styles.accent.backgroundColor,
+      content: child,
+    ),
+  );
+
 
 // shows a text in a snack bar
 void snackBarText(BuildContext context, String text) =>
-  snackBar(context, Text(text));
+  snackBar(context, Text(text, style: context.styles.accent.txt()));
+
 
 // shows not implemented in a snack bar
 void notImplemented(BuildContext context) =>

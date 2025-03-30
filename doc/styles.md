@@ -120,6 +120,15 @@ context.styles.background.btn(outline: true) // button with background color
 
 See [`lib/dev/styles.dart`](lib/dev/styles.dart) for a complete working example.
 
+
+### Snackbars
+
+To display temporary messages to the user, `utils/misc.dart` provides useful helper methods, already configured to show a "snack bar" with proper app styles:
+- `snackBarText(context, <message>)`: show a snack bar with a text message
+- `snackBar(context, <widget>)`: show a snack bar with a custom widget
+- `notImplemented(context)`: show a snack bar with a "Not implemented" message
+
+
 ### Direct access to colors
 
 Some widgets don't have a `style` property, but accept only color values.
