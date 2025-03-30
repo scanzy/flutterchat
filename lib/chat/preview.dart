@@ -11,6 +11,7 @@ class MessagePreview extends StatelessWidget {
   final Message message;
   final int maxLines;
   final VoidCallback? onPressed;
+  final StyleGroup styleGroup;
 
   const MessagePreview({
     super.key,
@@ -18,6 +19,7 @@ class MessagePreview extends StatelessWidget {
     required this.message,
     this.onPressed,
     this.maxLines = 1,
+    required this.styleGroup,
   });
 
   @override
@@ -29,14 +31,11 @@ class MessagePreview extends StatelessWidget {
       child: Container(
         margin:  EdgeInsets.symmetric(vertical: 12),
         padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        decoration: BoxDecoration(
-          color: AppColors.normal(context),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: AppStyles.shadow(context),
+        decoration: styleGroup.box(rounded: true, shadow: true).copyWith(
           border: BorderDirectional(
             start: BorderSide(
               width: 4,
-              color: AppColors.accent(context),
+              color: styleGroup.specialTextColor,
             ),
           ),
         ),
@@ -50,16 +49,16 @@ class MessagePreview extends StatelessWidget {
               style: TextStyle(
 
                 // uses random color for others' username
-                // uses accent color to self username or custom title
+                // uses special color to self username or custom title
                 color: message.isOwn || title != null ?
-                  AppColors.accent(context) : message.username.generateColor(),
+                  styleGroup.specialTextColor : message.username.generateColor(),
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
               message.text,
               overflow: TextOverflow.ellipsis,
-              style: AppStyles.textFaded(context),
+              style: styleGroup.txt(),
             ),
           ],
         ),
@@ -74,23 +73,26 @@ class MessagePreviewBar extends StatelessWidget {
   final IconData? leadingIcon;
   final MessagePreview preview;
   final VoidCallback? onCancel; // cancel button is shown only if callback specified
+  final StyleGroup? styleGroup;
 
   const MessagePreviewBar({
     super.key,
     this.leadingIcon,
     required this.preview,
     this.onCancel,
+    this.styleGroup,
   });
 
 
   @override
   Widget build(BuildContext context) {
+
+    // uses configured style group, or basic as fallback
+    final group = styleGroup ?? context.styles.basic;
     return Container(
+      decoration: group.box(shadow: true),
+
       padding: EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppColors.normal(context),
-        boxShadow: AppStyles.shadow(context),
-      ),
       child: Row(
         spacing: 8,
         children: [
@@ -102,7 +104,7 @@ class MessagePreviewBar extends StatelessWidget {
               onPressed: null,
               iconSize: 32,
               padding: EdgeInsets.all(8),
-              style: AppStyles.btnNormal(context),
+              style: group.btn(),
             ),
 
           // message preview
@@ -115,7 +117,7 @@ class MessagePreviewBar extends StatelessWidget {
               icon: Icon(Icons.close),
               iconSize: 32,
               padding: EdgeInsets.all(8),
-              style: AppStyles.btnNormal(context),
+              style: group.btn(),
             ),
         ],
       ),

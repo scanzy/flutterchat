@@ -61,9 +61,7 @@ class ChatInputBarState extends State<ChatInputBar> {
           iconSize: 32,
           onPressed: () => notImplemented(context),
           icon: Icon(Icons.attach_file),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColors.faded(context),
-          ),
+          color: context.styles.basic.normalTextColor,
         ),
 
         // message input
@@ -84,7 +82,6 @@ class ChatInputBarState extends State<ChatInputBar> {
                 
                 decoration: InputDecoration(
                   hintText: _hasFocus ? '' : localize("chat.input.hint"),
-                  hintStyle: AppStyles.textFaded(context),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
@@ -107,7 +104,7 @@ class ChatInputBarState extends State<ChatInputBar> {
         // send message (or confirm edit) icon
         IconButton(
           iconSize: 32,
-          style: AppStyles.btnAccent(context),
+          style: context.styles.accent.btn(),
           icon: Icon(widget.isEditing ? Icons.done : Icons.send),
           onPressed: () => _onSubmit(_currentController.text),
         ),
@@ -141,26 +138,30 @@ class EditMessageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: initialText);
+    final styleGroup = context.styles.accent;
 
     return AlertDialog(
       title: const Text('Edit Message'),
+      backgroundColor: styleGroup.backgroundColor,
       content: TextField(
         controller: controller,
         autofocus: true,
         maxLines: 3,
         decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: OutlineInputBorder(
+            borderRadius: AppDimensions.radius
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          style: AppStyles.btnNormal(context),
+          style: styleGroup.btn(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, controller.text),
-          style: AppStyles.btnAccent(context),
+          style: styleGroup.btn(),
           child: const Text('Save'),
         ),
       ],

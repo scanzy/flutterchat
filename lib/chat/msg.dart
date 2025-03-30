@@ -89,6 +89,11 @@ class MessageBubbleState extends State<MessageBubble> {
   }
 
 
+  // gets style for message bubble
+  StyleGroup get styleGroup => widget.isOwn ?
+    context.styles.accent : context.styles.basic;
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -143,13 +148,12 @@ class MessageBubbleState extends State<MessageBubble> {
     return CircleAvatar(
 
       // background depending on user
-      backgroundColor: widget.isOwn ?
-        AppColors.accent(context) : AppColors.normal(context),
-      
+      backgroundColor: styleGroup.backgroundColor,
+
       // first letter of username
       child: Text(
         widget.msg.username[0].toUpperCase(),
-        // style: TextStyle(fontWeight: FontWeight.bold),
+        style: styleGroup.txt(),
       ),
     );
   }
@@ -157,64 +161,42 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // builds the bubble
   Widget _buildBubble(BuildContext context) {
-
-    // color for username (based on username)
-    final usernameColor = widget.isOwn ?
-      AppColors.text(context) : widget.username.generateColor();
-
-    // style for message bubble
-    final bubbleStyle = widget.isOwn ?
-      AppStyles.boxAccent(context) : AppStyles.boxNormal(context);
-
     return Container(
-      decoration: bubbleStyle,
+      decoration: styleGroup.box(rounded: true),
       padding: const EdgeInsets.all(12),
 
       child: Column(
+        spacing: AppDimensions.S,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
           // username with generated color (only for others' message)
           if (!widget.isOwn)
-            RichText(
-              text: TextSpan(
-                text: widget.username,
-                style: TextStyle(
-                  color: usernameColor,
-                  fontWeight: FontWeight.bold,
-                ),
-
-                // opens profile page on username click
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () { navigateToPage(
-                    context, ProfileScreen(userId: widget.userId)); },
-              ),
-            ),
+            _buildClickableUsername(context, styleGroup),
 
           // Message text with URL detection
-          const SizedBox(height: 4),
-          parseLinks(widget.text, color: AppColors.text(context)),
-          const SizedBox(height: 4),
+          parseLinks(widget.text, style: styleGroup.txt()),
 
           Row(
+            spacing: AppDimensions.S,
             mainAxisSize: MainAxisSize.min,
             children: [
 
               // timestamp
               Text(
                 widget.createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm),
-                style: AppStyles.textFaded(context),
+                style: styleGroup.txt(level: 1),
               ),
 
+              // TODO: "edited at"
+
               // pin icon (for pinned messages)
-              if (widget.pinned) ...[
-                SizedBox(width: 4),
+              if (widget.pinned)
                 Icon(
                   Icons.push_pin,
-                  size: 16,
-                  color: AppColors.text(context),
+                  size: AppDimensions.M,
+                  color: styleGroup.fadedTextColor,
                 ),
-              ]
             ],
           ),
         ],
@@ -222,6 +204,30 @@ class MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+
+  // clickable username for messages
+  Widget _buildClickableUsername(BuildContext context, StyleGroup styleGroup) {
+
+    // color for username (based on username)
+    final usernameColor = widget.isOwn ?
+      styleGroup.normalTextColor : widget.username.generateColor();
+
+    // opens profile page on username click
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => navigateToPage(context, ProfileScreen(userId: widget.userId)),
+
+        child: Text(
+          widget.username,
+          style: styleGroup.txt().copyWith(
+            color: usernameColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
   // context menu for messages
   Widget _buildContextMenu(BuildContext context) {
@@ -332,11 +338,7 @@ class ActionButtonsMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.normal(context),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: AppStyles.shadow(context),
-      ),
+      decoration: context.styles.basic.box(rounded: true, shadow: true),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
 
@@ -346,8 +348,13 @@ class ActionButtonsMenu extends StatelessWidget {
             message: action.text,
             child: IconButton(
               icon: Icon(action.icon, size: 18),
-              style: action.highlight ? // accent style if highlighted
-                AppStyles.btnAccent(context) : AppStyles.btnNormal(context),
+
+              // accent style if highlighted
+              style: action.highlight ?
+                context.styles.accent.btn() : context.styles.basic.btn(),
+
+              // calls general function to close the menu
+              // then calls action-specific function
               onPressed: () {
                 onSelection?.call();
                 action.onPressed?.call();

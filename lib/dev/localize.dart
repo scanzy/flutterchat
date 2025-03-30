@@ -24,22 +24,20 @@ class LocalizationPageState extends State<LocalizationPage> {
         title: Text(localize("localeDemo.title")),
       ),
       body: ScrollableCenterPage(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.all(AppDimensions.L),
         child: Column(
+          spacing: AppDimensions.M,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             // example of what you should not do
             _buildDontDoExample(),
-            SizedBox(height: 64),
 
             // example of what you should do
             _buildHowToExample(),
-            SizedBox(height: 64),
 
             // locale selection dropdown
-            _buildLocaleSelection(),    
-            SizedBox(height: 64),
+            _buildLocaleSelection(),
 
             // shows device locale settings
             _buildDeviceSettings()
@@ -50,19 +48,42 @@ class LocalizationPageState extends State<LocalizationPage> {
   }
 
 
+  // card for examples
+  Widget _buildCard({
+    required StyleGroup style,
+    required List<Widget> children,
+    bool outline = false,
+  }) {
+
+    // rounded box
+    return Container(
+      decoration: style.box(rounded: true, outline: outline),
+      padding: EdgeInsets.all(AppDimensions.M),
+
+      // centered children widgets with small space
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: AppDimensions.S,
+        children: children,
+      ),
+    );
+  }
+
+
   // example of what you should do
   Widget _buildDontDoExample() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final styleGroup = context.styles.basic;
+    return _buildCard(
+      style: styleGroup,
       children: [
         Text(
           localize("localeDemo.dontDo"),
-          style: AppStyles.textAccent(context, size: 2)
+          style: styleGroup.txt(level: 3, size: 2),
         ),
 
         // avoid hardcoded strings!
-        Text("Hardcoded english string! (Bad)"),
-        Text("Stringa fissa, in italiano! (Molto male)"),
+        Text("Hardcoded english string! (Bad)",          style: styleGroup.txt()),
+        Text("Stringa fissa, in italiano! (Molto male)", style: styleGroup.txt()),
       ],
     );
   }
@@ -70,18 +91,19 @@ class LocalizationPageState extends State<LocalizationPage> {
 
   // example of what you should not do
   Widget _buildHowToExample() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final styleGroup = context.styles.accent;
+    return _buildCard(
+      style: styleGroup,
       children: [
 
         // use localized strings!
         Text(
           localize("localeDemo.howTo.title"),
-          style: AppStyles.textAccent(context, size: 2)
+          style: styleGroup.txt(level: 3, size: 2),
         ),
-        Text(localize("localeDemo.howTo.hint")),
-        Text(localize("localeDemo.howTo.example1")),
-        Text(localize("localeDemo.howTo.example2")),
+        Text(localize("localeDemo.howTo.hint"),     style: styleGroup.txt()),
+        Text(localize("localeDemo.howTo.example1"), style: styleGroup.txt()),
+        Text(localize("localeDemo.howTo.example2"), style: styleGroup.txt()),
       ],
     );
   }
@@ -89,23 +111,26 @@ class LocalizationPageState extends State<LocalizationPage> {
 
   // interactive locale selector
   Widget _buildLocaleSelection() {
-
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final styleGroup = context.styles.basic;
+    return _buildCard(
+      style: styleGroup,
       children: [
 
         // title and hint
         Text(
           localize("localeDemo.selection.title"),
-          style: AppStyles.textAccent(context, size: 2),
+          style: styleGroup.txt(level: 3, size: 2),
         ),
-        Text(localize("localeDemo.selection.hint")),
+        Text(
+          localize("localeDemo.selection.hint"),
+          style: styleGroup.txt(),
+        ),
 
-        SizedBox(height: 24), // space
+        SizedBox(height: AppDimensions.M), // space
 
         // language selection field
         DropdownMenu(
+          textStyle: styleGroup.txt(),
           initialSelection: AppLocalization.currentLocale,
           dropdownMenuEntries: AppLocalization.localesDB.keys.map(
             (locale) => DropdownMenuEntry(value: locale, label: locale),
@@ -127,28 +152,35 @@ class LocalizationPageState extends State<LocalizationPage> {
     // gets flutter localization settings (read from device)
     final Locale flutterLocale = Localizations.localeOf(context);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final styleGroup = context.styles.background;
+    return _buildCard(
+      style: styleGroup,
+      outline: true,
       children: [
 
         // title and hint
         Text(
           localize("localeDemo.device.title"),
-          style: AppStyles.textAccent(context, size: 2),
+          style: styleGroup.txt(level: 3, size: 2),
         ),
-        Text(localize("localeDemo.device.hint")),
+        Text(
+          localize("localeDemo.device.hint"),
+          style: styleGroup.txt(),
+        ),
 
-        SizedBox(height: 24), // space
+        SizedBox(height: AppDimensions.L), // space
 
         // flutter settings
-        Text("Context countryCode: ${flutterLocale.countryCode}"),
-        Text("Context languageCode: ${flutterLocale.languageCode}"),
-        Text("DateTime timezone: ${DateTime.now().timeZoneName}"),
+        ...[
+          "Context countryCode:  ${flutterLocale.countryCode}",
+          "Context languageCode: ${flutterLocale.languageCode}",
+          "DateTime timezone:    ${DateTime.now().timeZoneName}",
+        ].map((text) => Text(text, style: styleGroup.txt())),
 
         // not working on web (from package "dart:io")
         // Text("Platform.localeName: ${Platform.localeName}"),
 
-        SizedBox(height: 24), // space
+        SizedBox(height: AppDimensions.L), // space
 
         // checks system locale
         // the exmple uses button because we need async operation to get locale
@@ -158,7 +190,7 @@ class LocalizationPageState extends State<LocalizationPage> {
             if (!mounted) return;
             snackBarText(context, "System locale: $locale");
           },
-          style: AppStyles.btnNormal(context),
+          style: context.styles.accent.btn(),
           child: Text("Check system locale")
         ),
       ],
