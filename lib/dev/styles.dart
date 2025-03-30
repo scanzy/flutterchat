@@ -50,7 +50,7 @@ class StylesPage extends StatelessWidget {
 
 
   // draws sample widgets for the specified style group
-  Widget _buildStyleCard(BuildContext context, String name, StyleGroup appStyle) {
+  Widget _buildStyleCard(BuildContext context, String name, StyleGroup styleGroup) {
     return Expanded(child: Column(
       spacing: AppDimensions.M,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -64,28 +64,28 @@ class StylesPage extends StatelessWidget {
 
         // box with sample texts and boxes
         Container(
-          decoration: appStyle.box(rounded: true),
+          decoration: styleGroup.box(rounded: true),
           padding: EdgeInsets.all(AppDimensions.M),
-          child: _buildSampleWidgets(context, appStyle),
+          child: _buildSampleWidgets(context, styleGroup),
         ),
 
         // sample buttons
-        ..._buildSampleButtons(context, appStyle),
+        ..._buildSampleButtons(context, styleGroup),
       ]
     ));
   }
 
 
-  Widget _buildSampleWidgets(BuildContext context, StyleGroup appStyle) {
+  Widget _buildSampleWidgets(BuildContext context, StyleGroup styleGroup) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
 
         // text colors examples
 
-        Text("Faded text (level: 1)",  style: appStyle.txt(level: 1)),
-        Text("Normal text (level: 2)", style: appStyle.txt(level: 2)),
-        Text("Accent text (level: 3)", style: appStyle.txt(level: 3)),
+        Text("Faded text (level: 1)",  style: styleGroup.txt(level: 1)),
+        Text("Normal text (level: 2)", style: styleGroup.txt(level: 2)),
+        Text("Accent text (level: 3)", style: styleGroup.txt(level: 3)),
 
         SizedBox(height: AppDimensions.M), // separator
 
@@ -95,15 +95,15 @@ class StylesPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              decoration: appStyle.box(shadow: true),
+              decoration: styleGroup.box(shadow: true),
               padding: EdgeInsets.all(AppDimensions.M),
-              child: Text("Box with shadow", style: appStyle.txt()),
+              child: Text("Box with shadow", style: styleGroup.txt()),
             ),
 
             Container(
-              decoration: appStyle.box(outline: true),
+              decoration: styleGroup.box(outline: true),
               padding: EdgeInsets.all(AppDimensions.M),
-              child: Text("Box with outline", style: appStyle.txt()),
+              child: Text("Box with outline", style: styleGroup.txt()),
             ),
           ],
         ),
@@ -112,7 +112,7 @@ class StylesPage extends StatelessWidget {
   }
 
   // button examples
-  List<Widget> _buildSampleButtons(BuildContext context, StyleGroup appStyle) {
+  List<Widget> _buildSampleButtons(BuildContext context, StyleGroup styleGroup) {
     return [ 
       Row(
         spacing: AppDimensions.M,
@@ -121,13 +121,13 @@ class StylesPage extends StatelessWidget {
 
           ElevatedButton(
             onPressed: () { },
-            style: appStyle.btn(),
+            style: styleGroup.btn(),
             child: Text("Normal button"),
           ),
 
           OutlinedButton(
             onPressed: () { },
-            style: appStyle.btn(outline: true),
+            style: styleGroup.btn(outline: true),
             child: Text("Outlined button"),
           ),
         ],
@@ -135,7 +135,7 @@ class StylesPage extends StatelessWidget {
 
       ElevatedButton(
         onPressed: () { },
-        style: appStyle.btn(wide: true),
+        style: styleGroup.btn(wide: true),
         child: Text("Wide button"),
       ),
     ];

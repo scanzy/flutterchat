@@ -55,7 +55,7 @@ Note: make sure to specify the style for all visible widgets, to avoid using flu
 The styling system uses this syntax:
 
 ```dart
-context.styles.<appStyle>.<widgetType>(<parameters>)
+context.styles.<styleGroup>.<widgetType>(<parameters>)
 ```
 
 Every element composing the syntax is described below.
@@ -63,8 +63,8 @@ Every element composing the syntax is described below.
 **1. `context.styles`**<br>
 To begin, just write `context.styles` to access app styles from code.
 
-**2. `<appStyle>`**<br>
-Then choose the desired app style, that define the **background color** of elements:
+**2. `<styleGroup>`**<br>
+Then choose the desired style group, that define the **background color** of elements:
 - `basic`: for normal elements
 - `accent`: for important elements, to be highlighted
 - `background`: for less important elements
@@ -132,7 +132,7 @@ To display temporary messages to the user, `utils/misc.dart` provides useful hel
 ### Direct access to colors
 
 Some widgets don't have a `style` property, but accept only color values.
-In this case, you can use colors provided by the chosen app style:
+In this case, you can use colors provided by the chosen style group:
 - `backgroundColor`: color of the background
 - `fadedTextColor`: color of faded text (level 1)
 - `normalTextColor`: color of normal text (level 2)
@@ -140,11 +140,11 @@ In this case, you can use colors provided by the chosen app style:
 
 ```dart
 
-// gets app style for the widget
-final myStyle = context.styles.basic;
+// gets style group for the widget
+final styleGroup = context.styles.basic;
 
 // uses color of normal text (level 2)
-Icon(Icons.add, color: myStyle.normalTextColor)
+Icon(Icons.add, color: styleGroup.normalTextColor)
 ```
 
 Note: if available, prefer using the `style` property of the widget, to ensure a consistent design across the app.
