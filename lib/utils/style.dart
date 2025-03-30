@@ -1,182 +1,163 @@
 import "package:flutter/material.dart";
 
 
-// This file contains app colors and styles
+// This file contains shared app styles
+// For tutorial and exmples: see doc/styles.md
+// For full working examle: see lib/dev/styles.md
 
 
-/*
-To create normal small text:
-    Text(..., style: AppStyles.textNormal(context, size: 1))
+// Structure of styling system
 
-To create normal medium-size text:
-    Text(..., style: AppStyles.textNormal(context, size: 2))
-
-To create normal large text:
-    Text(..., style: AppStyles.textNormal(context, size: 3))
-
-To create accent text (small/medium/large):
-    Text(..., style: AppStyles.textAccent(context, size: 1/2/3))
-
-To create faded text (small/medium/large):
-    Text(..., style: AppStyles.textFaded(context, size: 1/2/3))
-
-To create normal boxes:
-    Container(..., decoration: AppStyles.boxNormal(context))
-
-To create accent boxes:
-    Container(..., decoration: AppStyles.boxAccent(context))
-
-To add a shadow to normal (or accent) boxes:
-    Container(...,
-      decoration: AppStyles.boxNormal(context).copyWith( 
-        boxShadow: AppStyles.shadow(context)
-    ))
-
-To add a shadow to custom boxes:
-    Container(...,
-      decoration: BoxDecoration(..., 
-        boxShadow: AppStyles.shadow(context)
-    ))
-
-To create normal buttons:
-    ElevatedButton(..., style: AppStyles.btnNormal(context))
-
-To create accent buttons:
-    ElevatedButton(..., style: AppStyles.btnAccent(context))
-
-To create wide accent buttons:
-    ElevatedButton(..., style: AppStyles.btnSubmit(context))
-
-To add also custom styles to buttons:
-    ElevatedButton(..., style: AppStyles.btnNormal(context).merge(
-      ElevatedButton.styleFrom(
-        <otherstyle>
-    ))
-*/
+// The app supports different themes
+// Every theme contains 3 style groups: background, basic, accent
+// Every group contains styles for different widgets (texts, boxes, buttons)
 
 
-class AppColors {
+// app style database, providing 3 style groups
+class AppStylesDB {
+  final BuildContext ctx;
+  AppStylesDB(this.ctx);
 
-  // basic colors (dark theme)
-  // NOTE: do not use these colors directly in app
-
-  static final Color _white = Colors.white70;     // for normal text
-  static final Color _fade = Colors.white38;    // for faded text
-  static final Color _aqua = Color(0xFF00AFA9); // for important text
-  static final Color _teal = Color(0xFF007B73); // for important elements
-  static final Color _dark = Color(0xFF1F2C34); // for normal elements
-  static final Color _deep = Color(0xFF0B141A); // for main background
-
-  // gets app color set
-  static ColorScheme _scheme(BuildContext ctx) => Theme.of(ctx).colorScheme;
+  // gets colors from current app theme
+  // theme app colors are mapped to style group colors:
+  //   - "primary" color is used for background
+  //   - "on primary fixed"   color is used for faded   text (level 1)
+  //   - "on primary"         color is used for normal  text (level 2)
+  //   - "on primary fixed variant" is used for special text (level 3)
+  ColorScheme get _scheme => Theme.of(ctx).colorScheme;
 
 
-  // theme color getters
-  // NOTE: use these colors in app! To provide light/dark theme functionality
- 
-  // for backgrounds
-  static Color normal    (BuildContext ctx) => _scheme(ctx).primary;
-  static Color accent    (BuildContext ctx) => _scheme(ctx).secondary;
-  static Color background(BuildContext ctx) => _scheme(ctx).surface;
+  // style group for important elements
+  StyleGroup get accent => StyleGroup(
+    backgroundColor:  _scheme.primary,
+    fadedTextColor:   _scheme.onPrimaryFixed,
+    normalTextColor:  _scheme.onPrimary,
+    specialTextColor: _scheme.onPrimaryFixedVariant,
+  );
 
-  // for text
-  static Color text (BuildContext ctx) => _scheme(ctx).onPrimary;
-  static Color light(BuildContext ctx) => _scheme(ctx).onSecondary;
-  static Color faded(BuildContext ctx) => _scheme(ctx).onTertiary;
+  // style group for normal elements
+  StyleGroup get basic => StyleGroup(
+    backgroundColor:  _scheme.secondary,
+    fadedTextColor:   _scheme.onSecondaryFixed,
+    normalTextColor:  _scheme.onSecondary,
+    specialTextColor: _scheme.onSecondaryFixedVariant,
+  );
+
+  // style group for less-evident elements
+  StyleGroup get background => StyleGroup(
+    backgroundColor:  _scheme.tertiary,
+    fadedTextColor:   _scheme.onTertiaryFixed,
+    normalTextColor:  _scheme.onTertiary,
+    specialTextColor: _scheme.onTertiaryFixedVariant,
+  );
 }
 
 
-// app style database
-// NOTE: use these styles in app! This ensures consistent styling across widgets
-
-class AppStyles {
-
-  // text colors
-  static TextStyle textNormal(BuildContext ctx, {int size = 1}) =>
-    _build(ctx, color: AppColors.text, size: size);
-
-  static TextStyle textFaded (BuildContext ctx, {int size = 1}) =>
-    _build(ctx, color: AppColors.faded, size: size);
-
-  static TextStyle textAccent(BuildContext ctx, {int size = 1}) =>
-    _build(ctx, color: AppColors.light, size: size)
-      .merge(TextStyle(fontWeight: FontWeight.bold));
+// easy access to style groups from context
+extension BuildContextExtension on BuildContext {
+  AppStylesDB get styles => AppStylesDB(this);
+}
 
 
-  // text sizes
-  static TextStyle textSize(int size, BuildContext ctx) {
-    final textTheme = Theme.of(ctx).textTheme;
-    return <int, TextStyle?>{
-      1: textTheme.bodyMedium,
-      2: textTheme.headlineMedium,
-      3: textTheme.displayMedium,
-    }[size]!;
+// app style group, storing color info and text sizes
+class StyleGroup {
+
+  final Color backgroundColor;
+  final Color fadedTextColor;
+  final Color normalTextColor;
+  final Color specialTextColor;
+  const StyleGroup({
+    required this.backgroundColor,
+    required this.fadedTextColor,
+    required this.normalTextColor,
+    required this.specialTextColor
+  });
+
+
+  // gets text color from level (importance)
+  Color _textColorFromLevel(int level) {
+    if (level < 1 || level > 3) {
+      throw ArgumentError("Invalid level. Allowed only 1, 2, 3.");
+    }
+    return {
+      1: fadedTextColor,
+      2: normalTextColor,
+      3: specialTextColor,
+    }[level]!;
   }
 
-  // builds text style combining color and size
-  static TextStyle _build(BuildContext ctx,
-    {required Function(BuildContext) color, required int size}) =>
-      textSize(size, ctx).merge(TextStyle(color: color(ctx)));
+
+  // accessors for widget styles
+
+  // style for text
+  TextStyle txt({int level = 2, int size = 1, bool bold = false}) =>
+    TextStyle(
+      color:    _textColorFromLevel(level),
+      fontSize: AppDimensions.textSize(size),
+      fontWeight: bold ? FontWeight.bold : null,
+    );
 
 
-  // box colors
-  static BoxDecoration boxNormal(BuildContext ctx) => box(ctx, AppColors.normal(ctx));
-  static BoxDecoration boxAccent(BuildContext ctx) => box(ctx, AppColors.accent(ctx));
+  // style for buttons
+  ButtonStyle btn({bool outline = false, bool wide = false}) {
+    return outline ?
+      OutlinedButton.styleFrom(
+        foregroundColor: normalTextColor,
+        backgroundColor: backgroundColor,
+        minimumSize: wide ? Size(double.infinity, AppDimensions.H) : null,
+        side: BorderSide(color: normalTextColor),
+        shape: RoundedRectangleBorder(borderRadius: AppDimensions.radius),
+      ):
+      ElevatedButton.styleFrom(
+        foregroundColor: normalTextColor,
+        backgroundColor: backgroundColor,
+        minimumSize: wide ? Size(double.infinity, AppDimensions.H) : null,
+      );
+  }
 
-  static BoxDecoration box(BuildContext ctx, Color color) =>
-    BoxDecoration(color: color, borderRadius: BorderRadius.circular(15));
 
-
-  // button colors
-  static ButtonStyle btnNormal(BuildContext ctx) => btn(ctx, AppColors.normal(ctx));
-  static ButtonStyle btnAccent(BuildContext ctx) => btn(ctx, AppColors.accent(ctx));
-  static ButtonStyle btnSubmit(BuildContext ctx) => btn(ctx, AppColors.accent(ctx), wide: true);
-                  
-  static ButtonStyle btn(BuildContext ctx, Color? color, {bool wide = false}) {
-    return ElevatedButton.styleFrom(
-      foregroundColor: AppColors.text(ctx),
-      backgroundColor: color,
-      minimumSize: wide ? const Size(double.infinity, 50) : null,
+  // style for boxes and containers
+  BoxDecoration box({
+    bool rounded = false,
+    bool outline = false,
+    bool shadow  = false,
+    bool wide    = false,
+  }) {
+    return BoxDecoration(
+      color: backgroundColor,
+      borderRadius: rounded ? AppDimensions.radius : null,
+      border: outline ? border() : null,
+      boxShadow: shadow ? this.shadow() : null,
     );
   }
 
-  // standard shadow
-  static List<BoxShadow> shadow(BuildContext context) {
-    return [BoxShadow(color: AppColors.background(context), blurRadius: 8)];
-  }
+  // effects for boxes
+  Border border() => Border.all(color: normalTextColor, width: AppDimensions.line);
+  List<BoxShadow> shadow() => [BoxShadow(color: fadedTextColor, blurRadius: 3)];
 }
 
 
-// builds app theme
-ThemeData appTheme = ThemeData.dark().copyWith(
-  colorScheme: ColorScheme.dark(
+// database for app dimensions
+class AppDimensions {
+  static final double S = 4;
+  static final double M = 16; // base dimension for text
+  static final double L = 24;
+  static final double X = 32;
+  static final double H = 64;
 
-    // text
-    onPrimary:   AppColors._white,
-    onSecondary: AppColors._aqua,
-    onTertiary:  AppColors._fade,
 
-    // elements
-    primary:   AppColors._dark,
-    secondary: AppColors._teal,
-    surface:   AppColors._deep,
-  ),
+  // gets text size
+  static double textSize(int size) {
+    if (size < 1 || size > 3) {
+      throw ArgumentError("Invalid size. Allowed only 1, 2, 3.");
+    }
+    return {1: M, 2: L, 3: X}[size]!;
+  }
 
-  // app background
-  scaffoldBackgroundColor: AppColors._deep,
 
-  // title bar
-  appBarTheme: AppBarTheme(
-    foregroundColor: AppColors._white,
-    backgroundColor: AppColors._dark,
-    shadowColor:     AppColors._deep,
-  ),
+  // line thickness for borders and separators
+  static double get line => 1.5;
 
-  // forms
-  inputDecorationTheme: InputDecorationTheme(
-    labelStyle: TextStyle(color: AppColors._white),
-  ),
-  textSelectionTheme: TextSelectionThemeData(
-    cursorColor: AppColors._white,
-  ),
-);
+  // border radius for boxes
+  static BorderRadius get radius => BorderRadius.circular(AppDimensions.M);
+}
