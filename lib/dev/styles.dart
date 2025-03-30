@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
@@ -12,6 +13,9 @@ class StylesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    // style for text size demo
+    final sizeDemoStyle = context.styles.background;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("App styles"),
@@ -23,91 +27,117 @@ class StylesPage extends StatelessWidget {
           children: [
 
             // text size examples
-            Text("Large text (size: 3)",  style: AppStyles.textNormal(context, size: 3)),
-            Text("Medium text (size: 2)", style: AppStyles.textNormal(context, size: 2)),
-            Text("Small text (size: 1)",  style: AppStyles.textNormal(context, size: 1)),
+            Text("Large text (size: 3)",  style: sizeDemoStyle.txt(size: 3)),
+            Text("Medium text (size: 2)", style: sizeDemoStyle.txt(size: 2)),
+            Text("Small text (size: 1)",  style: sizeDemoStyle.txt(size: 1)),
 
-            SizedBox(height: 64), // separator
+            SizedBox(height: AppDimensions.X), // separator
 
-            // text colors examples
-
-            Text("Normal text", style: AppStyles.textNormal(context)),
-            Text("Accent text", style: AppStyles.textAccent(context)),
-            Text("Faded text",  style: AppStyles.textFaded (context)),
-
-            SizedBox(height: 16), // separator
-
-
-            // box examples
-
-            Container(
-              decoration: AppStyles.boxNormal(context),
-              padding: EdgeInsets.all(8),
-              child: Text("Normal box"),
-            ),
-            
-            SizedBox(height: 16), // separator
-
-            Container(
-              decoration: AppStyles.boxAccent(context),
-              padding: EdgeInsets.all(8),
-              child: Text("Accent box"),
-            ),
-            
-            SizedBox(height: 16), // separator
-
-
-            // normal box with shadow
-
-            // background just to show the shadow
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.normal(context),
-              ),
-              padding: EdgeInsets.all(24),
-              child:
-              
-              // actual box with shadow
-              Container(
-                // combines normal box style, with shadow
-                decoration: AppStyles.boxNormal(context).copyWith(
-                  boxShadow: AppStyles.shadow(context),
-                ),
-                padding: EdgeInsets.all(8),
-                child: Text("Box with shadow"),
-              ),
-            ),
-
-            SizedBox(height: 64), // separator
-
-
-            // button examples
-
-            ElevatedButton(
-              onPressed: () { },
-              style: AppStyles.btnNormal(context),
-              child: Text("Normal button"),
-            ),
-
-            SizedBox(height: 16), // separator
-
-            ElevatedButton(
-              onPressed: () { },
-              style: AppStyles.btnAccent(context),
-              child: Text("Accent button"),
-            ),
-
-            SizedBox(height: 16), // separator
-
-            ElevatedButton(
-              onPressed: () { },
-              style: AppStyles.btnSubmit(context),
-              child: Text("Submit button (accent and wide)"),
+            // styles group examples
+            Row(
+              spacing: AppDimensions.H,
+              children: [
+                _buildStyleCard(context, "basic",      context.styles.basic),
+                _buildStyleCard(context, "accent",     context.styles.accent),
+                _buildStyleCard(context, "background", context.styles.background),
+              ]
             ),
           ],
-
         ),
       ),
     );
+  }
+
+
+  // draws sample widgets for the specified style group
+  Widget _buildStyleCard(BuildContext context, String name, StyleGroup appStyle) {
+    return Expanded(child: Column(
+      spacing: AppDimensions.M,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        // style title
+        Text(
+          "${name.toCapitalized()} style group",
+          style: context.styles.background.txt(size: 2),
+        ),
+
+        // box with sample texts and boxes
+        Container(
+          decoration: appStyle.box(rounded: true),
+          padding: EdgeInsets.all(AppDimensions.M),
+          child: _buildSampleWidgets(context, appStyle),
+        ),
+
+        // sample buttons
+        ..._buildSampleButtons(context, appStyle),
+      ]
+    ));
+  }
+
+
+  Widget _buildSampleWidgets(BuildContext context, StyleGroup appStyle) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        // text colors examples
+
+        Text("Faded text (level: 1)",  style: appStyle.txt(level: 1)),
+        Text("Normal text (level: 2)", style: appStyle.txt(level: 2)),
+        Text("Accent text (level: 3)", style: appStyle.txt(level: 3)),
+
+        SizedBox(height: AppDimensions.M), // separator
+
+        // box examples
+        Row(
+          spacing: AppDimensions.L,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: appStyle.box(shadow: true),
+              padding: EdgeInsets.all(AppDimensions.M),
+              child: Text("Box with shadow", style: appStyle.txt()),
+            ),
+
+            Container(
+              decoration: appStyle.box(outline: true),
+              padding: EdgeInsets.all(AppDimensions.M),
+              child: Text("Box with outline", style: appStyle.txt()),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // button examples
+  List<Widget> _buildSampleButtons(BuildContext context, StyleGroup appStyle) {
+    return [ 
+      Row(
+        spacing: AppDimensions.M,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+
+          ElevatedButton(
+            onPressed: () { },
+            style: appStyle.btn(),
+            child: Text("Normal button"),
+          ),
+
+          OutlinedButton(
+            onPressed: () { },
+            style: appStyle.btn(outline: true),
+            child: Text("Outlined button"),
+          ),
+        ],
+      ),
+
+      ElevatedButton(
+        onPressed: () { },
+        style: appStyle.btn(wide: true),
+        child: Text("Wide button"),
+      ),
+    ];
   }
 }
