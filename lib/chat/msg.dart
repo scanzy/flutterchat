@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
@@ -9,6 +8,7 @@ import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/chat/input.dart';
+import 'package:flutterchat/chat/preview.dart';
 import 'package:flutterchat/user/profile.dart';
 
 
@@ -21,19 +21,37 @@ class Message {
   late final String username;
   late final bool   isOwn;
   late final DateTime createdUTC;
+  late final Message? repliedTo;
 
   // gets data from message record
-  Message(RecordModel record) {
-    final user = record.get<RecordModel>("expand.user");
+  Message(RecordModel record, {bool expandReply = true}) {
+      final user = record.get<RecordModel>("expand.user");
+      final replyToRecord = record.get<RecordModel?>('expand.replyTo');
 
-    id       = record.id;
-    text     = record.get<String?>('message') ?? '';
-    pinned   = record.get<bool?>('pinned') ?? false;
-    userId   = user.id;
-    username = user.get<String?>('username') ?? 'Unknown';
-    isOwn    = userId == PocketBaseService().userId;
-    createdUTC = DateTime.parse(record.get<String>("created"));
+      id       = record.id;
+      text     = record.get<String?>('message') ?? '';
+      pinned   = record.get<bool?>('pinned') ?? false;
+      userId   = user.id;
+      username = user.get<String?>('username') ?? 'Unknown';
+      isOwn    = userId == PocketBaseService().userId;
+      createdUTC = DateTime.parse(record.get<String>("created"));
+
+      // gets data of the replied message, if any
+      // does not expand reply of replies, to avoid nested messages
+      repliedTo = (replyToRecord != null && expandReply)
+        ? Message(replyToRecord, expandReply: false) : null;
   }
+
+  // private constructor for replies
+  Message._fromReply(RecordModel replyRecord, {required RecordModel user}) :
+    id = replyRecord.id,
+    text = replyRecord.get<String?>('message') ?? '',
+    pinned = replyRecord.get<bool?>('pinned') ?? false,
+    userId = replyRecord.get<RecordModel>("expand.user").id,
+    username = replyRecord.get<RecordModel>("expand.user").get<String?>('username') ?? 'Unknown',
+    isOwn = replyRecord.get<RecordModel>("expand.user").id == PocketBaseService().userId,
+    createdUTC = DateTime.parse(replyRecord.get<String>("created")),
+    repliedTo = null;  // prevent infinite recursion for nested replies
 
   // gets date in local timezone
   DateTime get dateLocal => createdUTC.utcToAppTz.date;
@@ -46,6 +64,7 @@ class MessageBubble extends StatefulWidget {
   final VoidCallback handlePin;
   final VoidCallback handleEdit;
   final VoidCallback handleReply;
+  final VoidCallback onReplyClicked;
 
   const MessageBubble({
     super.key,
@@ -53,6 +72,7 @@ class MessageBubble extends StatefulWidget {
     required this.handlePin,
     required this.handleEdit,
     required this.handleReply,
+    required this.onReplyClicked,
   });
 
   @override
@@ -87,6 +107,11 @@ class MessageBubbleState extends State<MessageBubble> {
     _isDesktop = ![TargetPlatform.iOS, TargetPlatform.android]
       .contains(Theme.of(context).platform);
   }
+
+
+  // gets style for message bubble
+  StyleGroup get styleGroup => widget.isOwn ?
+    context.styles.accent : context.styles.basic;
 
 
   @override
@@ -143,13 +168,12 @@ class MessageBubbleState extends State<MessageBubble> {
     return CircleAvatar(
 
       // background depending on user
-      backgroundColor: widget.isOwn ?
-        AppColors.accent(context) : AppColors.normal(context),
-      
+      backgroundColor: styleGroup.backgroundColor,
+
       // first letter of username
       child: Text(
         widget.msg.username[0].toUpperCase(),
-        // style: TextStyle(fontWeight: FontWeight.bold),
+        style: styleGroup.txt(),
       ),
     );
   }
@@ -157,64 +181,50 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // builds the bubble
   Widget _buildBubble(BuildContext context) {
-
-    // color for username (based on username)
-    final usernameColor = widget.isOwn ?
-      AppColors.text(context) : widget.username.generateColor();
-
-    // style for message bubble
-    final bubbleStyle = widget.isOwn ?
-      AppStyles.boxAccent(context) : AppStyles.boxNormal(context);
-
     return Container(
-      decoration: bubbleStyle,
+      decoration: styleGroup.box(rounded: true),
       padding: const EdgeInsets.all(12),
 
       child: Column(
+        spacing: AppDimensions.S,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          // username with generated color (only for others' message)
-          if (!widget.isOwn)
-            RichText(
-              text: TextSpan(
-                text: widget.username,
-                style: TextStyle(
-                  color: usernameColor,
-                  fontWeight: FontWeight.bold,
-                ),
-
-                // opens profile page on username click
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () { navigateToPage(
-                    context, ProfileScreen(userId: widget.userId)); },
-              ),
+          // shows clickable reply, if any
+          if (widget.msg.repliedTo != null)
+            MessagePreview(
+              message: widget.msg.repliedTo!,
+              onPressed: widget.onReplyClicked,
+              styleGroup: styleGroup,
             ),
 
+          // username with generated color (only for others' message)
+          if (!widget.isOwn)
+            _buildClickableUsername(context, styleGroup),
+
           // Message text with URL detection
-          const SizedBox(height: 4),
-          parseLinks(widget.text, color: AppColors.text(context)),
-          const SizedBox(height: 4),
+          parseLinks(widget.text, style: styleGroup.txt()),
 
           Row(
+            spacing: AppDimensions.S,
             mainAxisSize: MainAxisSize.min,
             children: [
 
               // timestamp
               Text(
                 widget.createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm),
-                style: AppStyles.textFaded(context),
+                style: styleGroup.txt(level: 1),
               ),
 
+              // TODO: "edited at"
+
               // pin icon (for pinned messages)
-              if (widget.pinned) ...[
-                SizedBox(width: 4),
+              if (widget.pinned)
                 Icon(
                   Icons.push_pin,
-                  size: 16,
-                  color: AppColors.text(context),
+                  size: AppDimensions.M,
+                  color: styleGroup.fadedTextColor,
                 ),
-              ]
             ],
           ),
         ],
@@ -222,6 +232,30 @@ class MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+
+  // clickable username for messages
+  Widget _buildClickableUsername(BuildContext context, StyleGroup styleGroup) {
+
+    // color for username (based on username)
+    final usernameColor = widget.isOwn ?
+      styleGroup.normalTextColor : widget.username.generateColor();
+
+    // opens profile page on username click
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => navigateToPage(context, ProfileScreen(userId: widget.userId)),
+
+        child: Text(
+          widget.username,
+          style: styleGroup.txt().copyWith(
+            color: usernameColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
   // context menu for messages
   Widget _buildContextMenu(BuildContext context) {
@@ -332,11 +366,7 @@ class ActionButtonsMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.normal(context),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: AppStyles.shadow(context),
-      ),
+      decoration: context.styles.basic.box(rounded: true, shadow: true),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
 
@@ -346,8 +376,13 @@ class ActionButtonsMenu extends StatelessWidget {
             message: action.text,
             child: IconButton(
               icon: Icon(action.icon, size: 18),
-              style: action.highlight ? // accent style if highlighted
-                AppStyles.btnAccent(context) : AppStyles.btnNormal(context),
+
+              // accent style if highlighted
+              style: action.highlight ?
+                context.styles.accent.btn() : context.styles.basic.btn(),
+
+              // calls general function to close the menu
+              // then calls action-specific function
               onPressed: () {
                 onSelection?.call();
                 action.onPressed?.call();
