@@ -203,7 +203,7 @@ ThemeData realmenTheme = ThemeData.light().copyWith(
 
     // background for elements
     primary:   AppColors.black, // accent
-    secondary: AppColors.blackFaded, // basic
+    secondary: AppColors.yellowLight, // basic
     tertiary:  AppColors.yellow, // background
 
     // text for accent elements
@@ -212,9 +212,9 @@ ThemeData realmenTheme = ThemeData.light().copyWith(
     onPrimaryFixedVariant:    AppColors.white, // special
 
     // text for basic elements
-    onSecondary:              AppColors.yellow, // normal
-    onSecondaryFixed:         AppColors.black, // faded
-    onSecondaryFixedVariant:  AppColors.white, // special
+    onSecondary:              AppColors.blackFaded, // normal
+    onSecondaryFixed:         AppColors.yellowDark, // faded
+    onSecondaryFixedVariant:  AppColors.black, // special
 
     // text for background elements
     onTertiary:               AppColors.blackFaded,  // normal
