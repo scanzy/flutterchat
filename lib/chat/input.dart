@@ -61,16 +61,14 @@ class ChatInputBarState extends State<ChatInputBar> {
           iconSize: 32,
           onPressed: () => notImplemented(context),
           icon: Icon(Icons.attach_file),
-          style: ElevatedButton.styleFrom(
-            foregroundColor: AppColors.faded(context),
-          ),
+          color: context.styles.basic.normalTextColor,
         ),
 
         // message input
         Expanded(
           child: CallbackShortcuts(
             bindings: {
-              // detects c
+              // detects ctrl/alt/shift + enter to go to new line
               const SingleActivator(LogicalKeyboardKey.enter, control: true): _newLine,
               const SingleActivator(LogicalKeyboardKey.enter, alt:     true): _newLine,
               const SingleActivator(LogicalKeyboardKey.enter, shift:   true): _newLine,
@@ -81,20 +79,22 @@ class ChatInputBarState extends State<ChatInputBar> {
                 // autofocus: true,
                 focusNode: _focusNode,
                 controller: _currentController,
-                
+
+                // hint shown only when field not focused
                 decoration: InputDecoration(
                   hintText: _hasFocus ? '' : localize("chat.input.hint"),
-                  hintStyle: AppStyles.textFaded(context),
+
+                  // rounded sides
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(AppDimensions.L),
                     borderSide: BorderSide.none,
                   ),
-                  filled: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.M,
+                    vertical: AppDimensions.M,
                   ),
                 ),
+
                 minLines: 1, // default height: single line
                 maxLines: 8, // expands to multiline, without exaggeration
                 onSubmitted: _onSubmit,
@@ -107,7 +107,7 @@ class ChatInputBarState extends State<ChatInputBar> {
         // send message (or confirm edit) icon
         IconButton(
           iconSize: 32,
-          style: AppStyles.btnAccent(context),
+          style: context.styles.accent.btn(),
           icon: Icon(widget.isEditing ? Icons.done : Icons.send),
           onPressed: () => _onSubmit(_currentController.text),
         ),
@@ -141,26 +141,30 @@ class EditMessageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: initialText);
+    final styleGroup = context.styles.accent;
 
     return AlertDialog(
       title: const Text('Edit Message'),
+      backgroundColor: styleGroup.backgroundColor,
       content: TextField(
         controller: controller,
         autofocus: true,
         maxLines: 3,
         decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: OutlineInputBorder(
+            borderRadius: AppDimensions.radius
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          style: AppStyles.btnNormal(context),
+          style: styleGroup.btn(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, controller.text),
-          style: AppStyles.btnAccent(context),
+          style: styleGroup.btn(),
           child: const Text('Save'),
         ),
       ],
