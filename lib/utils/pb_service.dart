@@ -1,5 +1,6 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutterchat/chat/msg.dart';
 
 
 // This file handles authentication using PocketBase
@@ -71,16 +72,19 @@ class PocketBaseService {
   // loads previous messages
   Future<List<RecordModel>> loadMessages() async {
     return await _pb.collection('messages')
-        .getFullList(sort: '+created', expand: 'user');
+        .getFullList(sort: '+created', expand: 'user,replyTo.user');
   }
 
 
   // sends message
-  Future<void> sendMessage(String message) async {
+  Future<void> sendMessage(String message, Message? replyingMessage) async {
     await _pb.collection('messages').create(body: {
       'user': userId,
       'message': message,
-    });
+      if (replyingMessage != null) 'replyTo': replyingMessage!.id,
+    },
+    expand: 'replyTo',
+    );
   }
 
 

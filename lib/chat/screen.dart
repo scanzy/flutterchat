@@ -113,7 +113,7 @@ class ChatScreenState extends State<ChatScreen> {
   // sets up actions when something occurs with messages
   Future<void> _setupRealtime() async {
     _unsubscribe = await pb.client.collection('messages')
-      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user');
+      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user, replyTo.user');
   }
 
 
@@ -159,21 +159,19 @@ class ChatScreenState extends State<ChatScreen> {
     if (editingMessage != null) {
       _editMessage(editingMessage as Message, text);
     } else {
-      _sendMessage(text);
+      _sendMessage(text, replyingMessage);
     }
     setState(() { replyingMessage = null; });
   }
 
 
   // sends a new message to the server
-  Future<void> _sendMessage(String text) async {
+  Future<void> _sendMessage(String text, Message? replyingMessage) async {
     if (text.isEmpty) return;
-
-    // TODO: send also replyingMessage to pocketbase, together with message text
 
     try {
       // sends message
-      await PocketBaseService().sendMessage(text);
+      await PocketBaseService().sendMessage(text, replyingMessage);
       if (!mounted) return;
 
       // TODO: clear unread messages on server
@@ -419,9 +417,10 @@ class ChatScreenState extends State<ChatScreen> {
             // displays message
             MessageBubble(
               msg: message,
-              handlePin:   () => _handlePin(message, unPin: message.pinned),
-              handleEdit:  () => _handleEdit(message),
-              handleReply: () => _handleReply(message),
+              handlePin:      () => _handlePin(message, unPin: message.pinned),
+              handleEdit:     () => _handleEdit(message),
+              handleReply:    () => _handleReply(message),
+              onReplyClicked: () => _scrollToMessage(message.repliedTo),
             ),
           ]);
         },

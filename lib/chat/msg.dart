@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
@@ -9,6 +8,7 @@ import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/chat/input.dart';
+import 'package:flutterchat/chat/preview.dart';
 import 'package:flutterchat/user/profile.dart';
 
 
@@ -21,18 +21,25 @@ class Message {
   late final String username;
   late final bool   isOwn;
   late final DateTime createdUTC;
+  late final Message? repliedTo;
 
   // gets data from message record
-  Message(RecordModel record) {
-    final user = record.get<RecordModel>("expand.user");
+  Message(RecordModel record, {bool expandReply = true}) {
+      final user = record.get<RecordModel>("expand.user");
+      final replyToRecord = record.get<RecordModel?>('expand.replyTo');
 
-    id       = record.id;
-    text     = record.get<String?>('message') ?? '';
-    pinned   = record.get<bool?>('pinned') ?? false;
-    userId   = user.id;
-    username = user.get<String?>('username') ?? 'Unknown';
-    isOwn    = userId == PocketBaseService().userId;
-    createdUTC = DateTime.parse(record.get<String>("created"));
+      id       = record.id;
+      text     = record.get<String?>('message') ?? '';
+      pinned   = record.get<bool?>('pinned') ?? false;
+      userId   = user.id;
+      username = user.get<String?>('username') ?? 'Unknown';
+      isOwn    = userId == PocketBaseService().userId;
+      createdUTC = DateTime.parse(record.get<String>("created"));
+
+      // gets data of the replied message, if any
+      // does not expand reply of replies, to avoid nested messages
+      repliedTo = (replyToRecord != null && expandReply)
+        ? Message(replyToRecord, expandReply: false) : null;
   }
 
   // gets date in local timezone
@@ -46,6 +53,7 @@ class MessageBubble extends StatefulWidget {
   final VoidCallback handlePin;
   final VoidCallback handleEdit;
   final VoidCallback handleReply;
+  final VoidCallback onReplyClicked;
 
   const MessageBubble({
     super.key,
@@ -53,6 +61,7 @@ class MessageBubble extends StatefulWidget {
     required this.handlePin,
     required this.handleEdit,
     required this.handleReply,
+    required this.onReplyClicked,
   });
 
   @override
@@ -169,6 +178,14 @@ class MessageBubbleState extends State<MessageBubble> {
         spacing: AppDimensions.S,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          // shows clickable reply, if any
+          if (widget.msg.repliedTo != null)
+            MessagePreview(
+              message: widget.msg.repliedTo!,
+              onPressed: widget.onReplyClicked,
+              styleGroup: styleGroup,
+            ),
 
           // username with generated color (only for others' message)
           if (!widget.isOwn)
