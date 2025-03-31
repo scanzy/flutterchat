@@ -68,7 +68,7 @@ class ChatInputBarState extends State<ChatInputBar> {
         Expanded(
           child: CallbackShortcuts(
             bindings: {
-              // detects c
+              // detects ctrl/alt/shift + enter to go to new line
               const SingleActivator(LogicalKeyboardKey.enter, control: true): _newLine,
               const SingleActivator(LogicalKeyboardKey.enter, alt:     true): _newLine,
               const SingleActivator(LogicalKeyboardKey.enter, shift:   true): _newLine,
@@ -79,19 +79,22 @@ class ChatInputBarState extends State<ChatInputBar> {
                 // autofocus: true,
                 focusNode: _focusNode,
                 controller: _currentController,
-                
+
+                // hint shown only when field not focused
                 decoration: InputDecoration(
                   hintText: _hasFocus ? '' : localize("chat.input.hint"),
+
+                  // rounded sides
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(AppDimensions.L),
                     borderSide: BorderSide.none,
                   ),
-                  filled: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: AppDimensions.M,
+                    vertical: AppDimensions.M,
                   ),
                 ),
+
                 minLines: 1, // default height: single line
                 maxLines: 8, // expands to multiline, without exaggeration
                 onSubmitted: _onSubmit,

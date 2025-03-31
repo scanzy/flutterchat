@@ -70,7 +70,7 @@ class FormWidget extends StatelessWidget {
       width: 400,
       margin:  const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
-      decoration: context.styles.basic.box(),
+      decoration: context.styles.basic.box(rounded: true),
 
       child: Form(
         key: formKey,

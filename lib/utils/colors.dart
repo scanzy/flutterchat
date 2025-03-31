@@ -75,14 +75,19 @@ ThemeData tealTheme = ThemeData.light().copyWith(
 
   // forms
   inputDecorationTheme: InputDecorationTheme(
-    labelStyle: TextStyle(color: AppColors.white),
+    filled: true,
+    fillColor:  AppColors.black,
+    labelStyle: TextStyle(color: AppColors.whiteFaded),
+    hintStyle:  TextStyle(color: AppColors.deep),
   ),
   textSelectionTheme: TextSelectionThemeData(
-    cursorColor:          AppColors.white,
-    selectionColor:       AppColors.white,
+    cursorColor:          AppColors.whiteFaded,
+    selectionColor:       AppColors.teal,
     selectionHandleColor: AppColors.white,
   ),
-  textTheme: textTheme,
+  textTheme: textTheme.copyWith(
+    bodyLarge: TextStyle(color: AppColors.white), // input field text style
+  ),
 );
 
 
@@ -123,15 +128,19 @@ ThemeData lightTheme = ThemeData.light().copyWith(
 
   // forms
   inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor:  AppColors.yellowLight,
     labelStyle: TextStyle(color: AppColors.deep),
     hintStyle:  TextStyle(color: AppColors.blackFaded),
   ),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor:          AppColors.deep,
-    selectionColor:       AppColors.yellowDark,
+    selectionColor:       AppColors.yellow,
     selectionHandleColor: AppColors.deep,
   ),
-  textTheme: textTheme,
+  textTheme: textTheme.copyWith(
+    bodyLarge: TextStyle(color: AppColors.black), // input field text style
+  ),
 );
 
 
@@ -172,21 +181,25 @@ ThemeData darkTheme = ThemeData.dark().copyWith(
 
   // forms
   inputDecorationTheme: InputDecorationTheme(
-    labelStyle: TextStyle(color: AppColors.white),
-    hintStyle: TextStyle(color: AppColors.blackFaded),
+    filled: true,
+    fillColor:  AppColors.black,
+    labelStyle: TextStyle(color: AppColors.black),
+    hintStyle:  TextStyle(color: AppColors.blackFaded),
   ),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor:          AppColors.white,
-    selectionColor:       AppColors.white,
+    selectionColor:       AppColors.blackFaded,
     selectionHandleColor: AppColors.white,
   ),
-  textTheme: textTheme,
+  textTheme: textTheme.copyWith(
+    bodyLarge: TextStyle(color: AppColors.white), // input field text style
+  ),
 );
 
 
 // realmen theme (high contrast)
-ThemeData realmenTheme = ThemeData.dark().copyWith(
-    colorScheme: ColorScheme.dark(
+ThemeData realmenTheme = ThemeData.light().copyWith(
+    colorScheme: ColorScheme.light(
 
     // background for elements
     primary:   AppColors.black, // accent
@@ -221,16 +234,19 @@ ThemeData realmenTheme = ThemeData.dark().copyWith(
 
   // forms
   inputDecorationTheme: InputDecorationTheme(
-    fillColor: AppColors.yellow,
-    labelStyle: TextStyle(color: AppColors.white),
-    hintStyle: TextStyle(color: AppColors.deep),
+    filled: true,
+    fillColor:  AppColors.yellow,
+    labelStyle: TextStyle(color: AppColors.black),
+    hintStyle:  TextStyle(color: AppColors.deep),
   ),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor:          AppColors.black,
-    selectionColor:       AppColors.black,
+    selectionColor:       AppColors.blackFaded,
     selectionHandleColor: AppColors.deep,
   ),
-  textTheme: textTheme,
+  textTheme: textTheme.copyWith(
+    bodyLarge: TextStyle(color: AppColors.black), // input field text style
+  ),
 );
 
 
