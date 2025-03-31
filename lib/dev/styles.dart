@@ -17,6 +17,11 @@ class StylesPage extends StatelessWidget {
     // style for text size demo
     final sizeDemoStyle = context.styles.background;
 
+    // gets app bar colors, to style action buttons
+    final appBarTheme = Theme.of(context).appBarTheme;
+    final barBackground = appBarTheme.backgroundColor;
+    final barForeground = appBarTheme.foregroundColor;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("App styles (theme: ${ThemeController.get()})"),
@@ -36,6 +41,17 @@ class StylesPage extends StatelessWidget {
               // theme name and icon
               icon: Icon(entry.value),
               tooltip: "${entry.key.toCapitalized()} theme",
+
+              // button highlighted if theme active
+              style: ThemeController.get() == entry.key ?
+                ElevatedButton.styleFrom(
+                  foregroundColor: barBackground,
+                  backgroundColor: barForeground,
+                ) :
+                ElevatedButton.styleFrom(
+                  foregroundColor: barForeground,
+                  backgroundColor: barBackground
+                ),
 
               // activates theme on click
               onPressed: () => ThemeController.set(entry.key),
