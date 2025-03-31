@@ -46,27 +46,16 @@ class RoomsListScreen extends StatelessWidget {
       unreadMessages: 10,
       onTap: (context) => navigateToPage(context, ChatScreen()),
     ),
-    Room(
-      name: "Branco del Nord",
-      type: "Locale",
-      lastMsgPreview: "user nordico: Uee uomini!",
-      lastCreated: DateTime.now(),
-      unreadMessages: 12,
-    ),
-    Room(
-      name: "Branco del Centro",
-      type: "Locale",
-      lastMsgPreview: "user centrale: daje uomini!",
-      lastCreated: DateTime.now(),
-      unreadMessages: 2,
-    ),
-    Room(
-      name: "Branco del Sud",
-      type: "Locale",
-      lastMsgPreview: "user: Weeeeee! Jamme ja",
-      lastCreated: DateTime.now(),
-      unreadMessages: 8,
-    ),
+
+    // adds extra pages
+    for (var page in MyApp.extraPages.entries) ...[
+      Room(
+        name: page.key,
+        type: "Extra",
+        icon: Icons.explore,
+        onTap: (context) => navigateToPage(context, page.value),
+      )
+    ],
 
     // adds debug pages (only in debug mode)
     if (kDebugMode)

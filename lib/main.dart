@@ -37,8 +37,14 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => MyAppState();
 
+  // pages shown as fake rooms
+  static final Map<String, Widget> extraPages = {
+    'App styles and themes': StylesPage(),
+    // Add new extra pages here by simply adding new entries
+  };
+
+  // pages shown only in debug mode
   static final Map<String, Widget> debugPages = {
-    'App styles':  StylesPage(),
     'Chat test 2': ChatPageTest2(),
     'Localization': LocalizationPage(),
     // Add new debug or scouting pages here by simply adding new entries
