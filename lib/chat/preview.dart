@@ -22,7 +22,11 @@ class MessagePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+
+    // clickable container
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onPressed,
 
       // rounded normal box with shadow and left accent border
@@ -63,7 +67,7 @@ class MessagePreview extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }
