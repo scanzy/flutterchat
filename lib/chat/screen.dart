@@ -409,9 +409,10 @@ class ChatScreenState extends State<ChatScreen> {
             // displays message
             MessageBubble(
               msg: message,
-              handlePin:   () => _handlePin(message, unPin: message.pinned),
-              handleEdit:  () => _handleEdit(message),
-              handleReply: () => _handleReply(message),
+              handlePin:      () => _handlePin(message, unPin: message.pinned),
+              handleEdit:     () => _handleEdit(message),
+              handleReply:    () => _handleReply(message),
+              onReplyClicked: () => _scrollToMessage(message.repliedTo),
             ),
           ]);
         },

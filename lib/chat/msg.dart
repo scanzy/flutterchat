@@ -63,6 +63,7 @@ class MessageBubble extends StatefulWidget {
   final VoidCallback handlePin;
   final VoidCallback handleEdit;
   final VoidCallback handleReply;
+  final VoidCallback onReplyClicked;
 
   const MessageBubble({
     super.key,
@@ -70,6 +71,7 @@ class MessageBubble extends StatefulWidget {
     required this.handlePin,
     required this.handleEdit,
     required this.handleReply,
+    required this.onReplyClicked,
   });
 
   @override
@@ -190,8 +192,14 @@ class MessageBubbleState extends State<MessageBubble> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          // shows clickable reply, if any
           if (widget.msg.repliedTo != null)
-          MessagePreview(message: widget.msg.repliedTo!),
+            MessagePreview(
+              message: widget.msg.repliedTo!,
+              onPressed: widget.onReplyClicked,
+            ),
+
           // username with generated color (only for others' message)
           if (!widget.isOwn)
             RichText(
