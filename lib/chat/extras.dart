@@ -45,7 +45,7 @@ class DateTitle extends StatelessWidget {
       child: Container(
         margin:  const EdgeInsets.all(16),
         padding: const EdgeInsets.all(8),
-        decoration: AppStyles.boxNormal(context),
+        decoration: context.styles.basic.box(rounded: true),
         child: Text(
           _formattedDate,
           textAlign: TextAlign.center,
@@ -64,7 +64,7 @@ class UnreadMessagesTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.normal(context),
+      decoration: context.styles.basic.box(),
       padding: EdgeInsets.symmetric(vertical: 8),
       margin:  EdgeInsets.symmetric(vertical: 4),
       child: Center(

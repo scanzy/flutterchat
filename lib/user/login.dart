@@ -53,10 +53,7 @@ class LoginFormState extends State<LoginForm> {
         // email field
         TextFormField(
           controller: _emailController,
-          decoration: InputDecoration(
-            labelText: 'Email',
-            filled: true,
-          ),
+          decoration: InputDecoration(labelText: 'Email'),
           validator: (value) => value!.contains('@') ? null : 'Invalid email',
           textInputAction: TextInputAction.next,
         ),
@@ -65,10 +62,7 @@ class LoginFormState extends State<LoginForm> {
         TextFormField(
           controller: _passwordController,
           obscureText: true,
-          decoration: InputDecoration(
-            labelText: 'Password',
-            filled: true,
-          ),
+          decoration: InputDecoration(labelText: 'Password'),
 
           // submits form on enter press
           textInputAction: TextInputAction.go,
