@@ -18,7 +18,7 @@
 			"onAutoForward": "openBrowser"
 		}
 	},
-	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms=web,linux .",
+	"postCreateCommand": "dart --disable-analytics && flutter pub get && flutter create --platforms=linux .",
 	"postStartCommand": "gp-vncsession"
 }
 
