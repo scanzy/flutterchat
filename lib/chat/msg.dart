@@ -21,6 +21,7 @@ class Message {
   late final String username;
   late final bool   isOwn;
   late final DateTime createdUTC;
+  late final DateTime? editedUTC;
   late final Message? repliedTo;
 
   // gets data from message record
@@ -35,6 +36,7 @@ class Message {
       username = user.get<String?>('username') ?? 'Unknown';
       isOwn    = userId == PocketBaseService().userId;
       createdUTC = DateTime.parse(record.get<String>("created"));
+      editedUTC  = DateTime.tryParse(record.get<String>("contentEditedAt"));
 
       // gets data of the replied message, if any
       // does not expand reply of replies, to avoid nested messages
@@ -67,6 +69,7 @@ class MessageBubble extends StatefulWidget {
   @override
   State<MessageBubble> createState() => MessageBubbleState();
 
+  // basic message data
   String get messageId  => msg.id;
   String get text       => msg.text;
   String get userId     => msg.userId;
@@ -74,10 +77,21 @@ class MessageBubble extends StatefulWidget {
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
 
-  DateTime  get createdUTC => msg.createdUTC;
-
   // checks if current user is admin (and can delete/pin messages)
   bool get isAdmin => PocketBaseService().isAdmin;
+
+
+  // message timestamps
+  DateTime  get createdUTC => msg.createdUTC;
+  DateTime? get editedUTC  => msg.editedUTC;
+
+  // builds timestamp text, with "edited at"
+  String get timeText =>
+    createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm) +
+    (editedUTC == null ? "" :
+      ", ${localize('chat.msg.editedAt')} "
+      "${editedUTC?.utcToAppTz.formatLocalized(DateFormat.Hm)}"
+    );
 }
 
 
@@ -199,13 +213,11 @@ class MessageBubbleState extends State<MessageBubble> {
             mainAxisSize: MainAxisSize.min,
             children: [
 
-              // timestamp
+              // timestamp, with "edited at"
               Text(
-                widget.createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm),
+                widget.timeText,
                 style: styleGroup.txt(level: 1),
               ),
-
-              // TODO: "edited at"
 
               // pin icon (for pinned messages)
               if (widget.pinned)
