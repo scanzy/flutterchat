@@ -136,6 +136,9 @@ DBtype enDB = {
   // words
   "today":      "today",
   "yesterday":  "yesterday",
+  "yes":        "yes",
+  "no":         "no",
+  "delete":     "delete",
 
   // shared
   "shared.title": "Realmen app",
@@ -145,6 +148,8 @@ DBtype enDB = {
   "chat.pin.multi":
     "Can't pin message because another message is already pinned. "
     "Unpin the other message and try again.",
+  "chat.delete.dialog":
+    "Are you sure to remove the message?",
 };
 
 
@@ -166,6 +171,9 @@ DBtype itDB = {
   // words
   "today":      "oggi",
   "yesterday":  "ieri",
+  "yes":        "sì",
+  "no":         "no",
+  "delete":     "cancella",
 
   // shared
   "shared.title": "App Realmen",
@@ -173,6 +181,8 @@ DBtype itDB = {
   // chat screen
   "chat.input.hint": "Messaggio",
   "chat.pin.multi":
-      "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
-      "Rimuovi il messaggio già fissato in alto e riprova.",
+    "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
+    "Rimuovi il messaggio già fissato in alto e riprova.",
+  "chat.delete.dialog":
+    "Vuoi davvero cancellare questo messaggio?",
 };

@@ -81,7 +81,7 @@ class PocketBaseService {
     await _pb.collection('messages').create(body: {
       'user': userId,
       'message': message,
-      if (replyingMessage != null) 'replyTo': replyingMessage!.id,
+      if (replyingMessage != null) 'replyTo': replyingMessage.id,
     },
     expand: 'replyTo',
     );
