@@ -136,6 +136,20 @@ class MessageBubbleState extends State<MessageBubble> {
   @override
   Widget build(BuildContext context) {
 
+    // shows "message deleted" placeholder, if needed
+    if (widget.msg.justDeleted) {
+      return Container(
+        // own messages on right, others' on left
+        alignment: widget.isOwn ? Alignment.centerRight : Alignment.centerLeft,
+        padding: EdgeInsets.all(AppDimensions.M),
+        child: Text(
+          localize("chat.msg.deleted").toCapitalized(),
+          style: context.styles.background.txt(),
+        ),
+      );
+    }
+
+    // shows normal bubble
     return MouseRegion(
       onExit: _isDesktop ? (_) { setState(() => _showActions = false); } : null,
       child: GestureDetector(
@@ -212,18 +226,9 @@ class MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+
   // bubble content
   List<Widget> _buildBubbleContent(BuildContext context) {
-
-    // shows "message deleted" placeholder, if needed
-    if (widget.msg.justDeleted) {
-      return [Text(
-        localize("chat.msg.deleted").toCapitalized(),
-        style: styleGroup.txt(level: 1),
-      )];
-    }
-
-    // or normal bubble
     return [
 
       // shows clickable reply, if any

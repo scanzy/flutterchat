@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutterchat/chat/msg.dart';
+import 'package:flutterchat/utils/localize.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 
@@ -60,7 +61,10 @@ class MessagePreview extends StatelessWidget {
               ),
             ),
             Text(
-              message.text,
+              // shows "message deleted" if needed
+              message.justDeleted ?
+                localize("chat.msg.deleted").toCapitalized()
+                : message.text,
               overflow: TextOverflow.ellipsis,
               style: styleGroup.txt(),
             ),
