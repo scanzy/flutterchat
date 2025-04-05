@@ -38,7 +38,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   // loaded messages
   // TODO: use device cache
-  final List<RecordModel> _messages = [];
+  final List<Message> _messages = [];
 
   // messages arrived when viewing old ones
   int newMessages = 0;
@@ -101,10 +101,12 @@ class ChatScreenState extends State<ChatScreen> {
   // TODO: allow multiple pinned messages, show the one pinned most recently
   void searchPinnedMessage() {
     for (var msg in _messages) {
-      if (msg.get<bool?>("pinned") == true) {
-        pinnedMessage = Message(msg);
+
+      // finds the most recent pinned
+      if (msg.pinned) {
+        pinnedMessage = msg;
         return;
-      }   
+      }
     }
     pinnedMessage = null;
   }
@@ -127,7 +129,7 @@ class ChatScreenState extends State<ChatScreen> {
         setState(() {
         
           // adds the new messages to the list
-          _messages.insert(0, msg);
+          _messages.insert(0, Message(msg));
 
           // updates count of new messages if needed
           if (!viewingLastMsg) newMessages++;
@@ -137,11 +139,16 @@ class ChatScreenState extends State<ChatScreen> {
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index == -1) return;
+
+        // locks message scrolling
+        _chatObserver.standby(isRemove: true);
+
+        // updates message
         setState(() {
-          _messages[index] = msg;
+          _messages[index] = Message(msg);
           searchPinnedMessage();
         });
-          
+
         break;
 
       case 'delete':
@@ -397,12 +404,12 @@ class ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           
           // gets message and its date
-          final message = Message(_messages[index]);
+          final message = _messages[index];
           final dateLocal = message.dateLocal;
 
           // gets previous message and checks if has different date
           final prev = _messages.elementAtOrNull(index + 1);
-          final firstOfDay = (prev == null) || (Message(prev).dateLocal != dateLocal);
+          final firstOfDay = (prev == null) || (prev.dateLocal != dateLocal);
 
           return Column(children: [
 
