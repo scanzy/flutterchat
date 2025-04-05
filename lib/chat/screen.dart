@@ -165,6 +165,10 @@ class ChatScreenState extends State<ChatScreen> {
         setState(() {
           _messages[index].justDeleted = true;
           searchPinnedMessage();
+
+          // deactivates reply or edit if message deleted
+          if (replyingMessage?.id == msg.id) replyingMessage = null;
+          if (editingMessage?.id  == msg.id) editingMessage = null;
         });
         break;
 
