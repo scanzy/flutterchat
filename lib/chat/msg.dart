@@ -275,7 +275,7 @@ class MessageBubbleState extends State<MessageBubble> {
 
     // color for username (based on username)
     final usernameColor = widget.isOwn ?
-      styleGroup.normalTextColor : widget.username.generateColor();
+      styleGroup.normalTextColor : widget.username.generateColor(styleGroup);
 
     // opens profile page on username click
     return MouseRegion(

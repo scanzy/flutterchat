@@ -56,7 +56,7 @@ class MessagePreview extends StatelessWidget {
                 // uses random color for others' username
                 // uses special color to self username or custom title
                 color: message.isOwn || title != null ?
-                  styleGroup.specialTextColor : message.username.generateColor(),
+                  styleGroup.specialTextColor : message.username.generateColor(styleGroup),
                 fontWeight: FontWeight.bold,
               ),
             ),
