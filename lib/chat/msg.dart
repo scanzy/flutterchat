@@ -24,6 +24,9 @@ class Message {
   late final DateTime? editedUTC;
   late final Message? repliedTo;
 
+  // tracks message deletion to display "message deleted"
+  bool justDeleted = false;
+
   // gets data from message record
   Message(RecordModel record, {bool expandReply = true}) {
       final user = record.get<RecordModel>("expand.user");
@@ -102,7 +105,18 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // flag to show context menu with action buttons
   bool _showActions = false;
-  void toggleShowActions() { _showActions = !_showActions; }
+
+  void toggleShowActions() {
+    // context menu deactivated for deleted messages
+    // TODO: maybe add restore functionality
+    if (widget.msg.justDeleted) {
+      _showActions = false;
+      return;
+    }
+
+    // shows/hides context menu
+    _showActions = !_showActions;
+  }
 
 
   @override
@@ -159,8 +173,8 @@ class MessageBubbleState extends State<MessageBubble> {
               ),
             ),
 
-            // shows context menu overlay
-            if (_showActions) _buildContextMenu(context),
+            // shows context menu overlay, if message not deleted
+            if (_showActions && !widget.msg.justDeleted) _buildContextMenu(context),
           ],
         ),
       ),
@@ -193,51 +207,66 @@ class MessageBubbleState extends State<MessageBubble> {
       child: Column(
         spacing: AppDimensions.S,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          // shows clickable reply, if any
-          if (widget.msg.repliedTo != null)
-            MessagePreview(
-              message: widget.msg.repliedTo!,
-              onPressed: widget.onReplyClicked,
-              styleGroup: styleGroup,
-            ),
-
-          // username with generated color (only for others' message)
-          if (!widget.isOwn)
-            _buildClickableUsername(context, styleGroup),
-
-          // Message text with URL detection
-          parseLinks(widget.text, style: styleGroup.txt()),
-
-          Row(
-            spacing: AppDimensions.S,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // timestamp, with "edited" if needed
-              Text(
-                widget.timeText,
-                style: styleGroup.txt(level: 1),
-              ),
-
-              // pin icon (for pinned messages)
-              if (widget.pinned)
-                Icon(
-                  Icons.push_pin,
-                  size: AppDimensions.M,
-                  color: styleGroup.fadedTextColor,
-                ),
-            ],
-          ),
-        ],
+        children: _buildBubbleContent(context),
       ),
     );
   }
 
+  // bubble content
+  List<Widget> _buildBubbleContent(BuildContext context) {
+
+    // shows "message deleted" placeholder, if needed
+    if (widget.msg.justDeleted) {
+      return [Text(
+        localize("chat.msg.deleted").toCapitalized(),
+        style: styleGroup.txt(level: 1),
+      )];
+    }
+
+    // or normal bubble
+    return [
+
+      // shows clickable reply, if any
+      if (widget.msg.repliedTo != null)
+        MessagePreview(
+          message: widget.msg.repliedTo!,
+          onPressed: widget.onReplyClicked,
+          styleGroup: styleGroup,
+        ),
+
+      // username with generated color (only for others' message)
+      if (!widget.isOwn)
+        _buildClickableUsername(context),
+
+      // Message text with URL detection
+      parseLinks(widget.text, style: styleGroup.txt()),
+
+      Row(
+        spacing: AppDimensions.S,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          // timestamp, with "edited" if needed
+          Text(
+            widget.timeText,
+            style: styleGroup.txt(level: 1),
+          ),
+
+          // pin icon (for pinned messages)
+          if (widget.pinned)
+            Icon(
+              Icons.push_pin,
+              size: AppDimensions.M,
+              color: styleGroup.fadedTextColor,
+            ),
+        ],
+      ),
+    ];
+  }
+
 
   // clickable username for messages
-  Widget _buildClickableUsername(BuildContext context, StyleGroup styleGroup) {
+  Widget _buildClickableUsername(BuildContext context) {
 
     // color for username (based on username)
     final usernameColor = widget.isOwn ?

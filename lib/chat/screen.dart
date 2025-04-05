@@ -102,6 +102,9 @@ class ChatScreenState extends State<ChatScreen> {
   void searchPinnedMessage() {
     for (var msg in _messages) {
 
+      // skips deleted messages
+      if (msg.justDeleted) continue;
+
       // finds the most recent pinned
       if (msg.pinned) {
         pinnedMessage = msg;
@@ -152,8 +155,17 @@ class ChatScreenState extends State<ChatScreen> {
         break;
 
       case 'delete':
-        _chatObserver.standby(isRemove: true); // locks message scrolling
-        setState(() => _messages.removeWhere((m) => m.id == msg.id));
+        final index = _messages.indexWhere((m) => m.id == msg.id);
+        if (index == -1) return;
+
+        // locks message scrolling
+        _chatObserver.standby(isRemove: true);
+
+        // sets message as just deleted
+        setState(() {
+          _messages[index].justDeleted = true;
+          searchPinnedMessage();
+        });
         break;
 
       default:
@@ -234,7 +246,7 @@ class ChatScreenState extends State<ChatScreen> {
 
     // finds index of specified message
     final index = _messages.indexWhere((m) => m.id == message.id);
-    
+
     // scrolls to specified message
     _scrollToMessageIndex(index);
   }

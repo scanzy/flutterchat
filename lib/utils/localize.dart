@@ -141,8 +141,9 @@ DBtype enDB = {
   "shared.title": "Realmen app",
 
   // chat screen
-  "chat.input.hint":    "Message",
+  "chat.input.hint":    "message",
   "chat.msg.editedAt":  "edited",
+  "chat.msg.deleted":   "deleted message",
   "chat.pin.multi":
     "Can't pin message because another message is already pinned. "
     "Unpin the other message and try again.",
@@ -172,8 +173,9 @@ DBtype itDB = {
   "shared.title": "App Realmen",
 
   // chat screen
-  "chat.input.hint":    "Messaggio",
+  "chat.input.hint":    "messaggio",
   "chat.msg.editedAt":  "modificato",
+  "chat.msg.deleted":   "messaggio eliminato",
   "chat.pin.multi":
       "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
       "Rimuovi il messaggio già fissato in alto e riprova.",
