@@ -85,12 +85,14 @@ class MessageBubble extends StatefulWidget {
   DateTime  get createdUTC => msg.createdUTC;
   DateTime? get editedUTC  => msg.editedUTC;
 
-  // builds timestamp text, with "edited at"
+  // builds timestamp text, with "edited"
   String get timeText =>
     createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm) +
     (editedUTC == null ? "" :
       ", ${localize('chat.msg.editedAt')} "
-      "${editedUTC?.utcToAppTz.formatLocalized(DateFormat.Hm)}"
+
+      // we chose not to display edit time,
+      // "${editedUTC?.utcToAppTz.formatLocalized(DateFormat.Hm)}"
     );
 }
 
@@ -213,7 +215,7 @@ class MessageBubbleState extends State<MessageBubble> {
             mainAxisSize: MainAxisSize.min,
             children: [
 
-              // timestamp, with "edited at"
+              // timestamp, with "edited" if needed
               Text(
                 widget.timeText,
                 style: styleGroup.txt(level: 1),

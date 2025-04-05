@@ -142,7 +142,7 @@ DBtype enDB = {
 
   // chat screen
   "chat.input.hint":    "Message",
-  "chat.msg.editedAt":  "edited at",
+  "chat.msg.editedAt":  "edited",
   "chat.pin.multi":
     "Can't pin message because another message is already pinned. "
     "Unpin the other message and try again.",
@@ -173,7 +173,7 @@ DBtype itDB = {
 
   // chat screen
   "chat.input.hint":    "Messaggio",
-  "chat.msg.editedAt":  "modificato alle",
+  "chat.msg.editedAt":  "modificato",
   "chat.pin.multi":
       "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
       "Rimuovi il messaggio già fissato in alto e riprova.",
