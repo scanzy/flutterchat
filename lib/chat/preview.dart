@@ -34,18 +34,17 @@ class MessagePreview extends StatelessWidget {
 
       // rounded normal box with shadow and left accent border
       child: Container(
-        margin:  EdgeInsets.symmetric(vertical: 12),
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: EdgeInsets.all(2 * AppDimensions.S),
         decoration: styleGroup.box(rounded: true, shadow: true).copyWith(
           border: BorderDirectional(
             start: BorderSide(
-              width: 4,
+              width: AppDimensions.S,
               color: styleGroup.specialTextColor,
             ),
           ),
         ),
         child: Column(
-          spacing: 4,
+          spacing: AppDimensions.S,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -100,9 +99,9 @@ class MessagePreviewBar extends StatelessWidget {
     return Container(
       decoration: group.box(shadow: true),
 
-      padding: EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.all(2 * AppDimensions.S),
       child: Row(
-        spacing: 8,
+        spacing: 2 * AppDimensions.S,
         children: [
 
           // leading icon
@@ -110,8 +109,8 @@ class MessagePreviewBar extends StatelessWidget {
             IconButton(
               icon: Icon(leadingIcon),
               onPressed: null,
-              iconSize: 32,
-              padding: EdgeInsets.all(8),
+              iconSize: AppDimensions.X,
+              padding: EdgeInsets.all(2 * AppDimensions.S),
               style: group.btn(),
             ),
 
@@ -123,8 +122,8 @@ class MessagePreviewBar extends StatelessWidget {
             IconButton(
               onPressed: onCancel,
               icon: Icon(Icons.close),
-              iconSize: 32,
-              padding: EdgeInsets.all(8),
+              iconSize: AppDimensions.X,
+              padding: EdgeInsets.all(2 * AppDimensions.S),
               style: group.btn(),
             ),
         ],

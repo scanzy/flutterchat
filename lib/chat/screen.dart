@@ -306,8 +306,8 @@ class ChatScreenState extends State<ChatScreen> {
                 // button to jump to last message
                 if (!viewingLastMsg)
                   Positioned(
-                    bottom: 20,
-                    right: 20,
+                    bottom: AppDimensions.L,
+                    right: AppDimensions.L,
                     child: JumpToLastMessageButton(
                       newMessages: newMessages,
                       onPressed: () { _scrollToMessageIndex(0); },
@@ -325,7 +325,7 @@ class ChatScreenState extends State<ChatScreen> {
 
           // bottom bar with send message field
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(2 * AppDimensions.S),
 
             // custom style to match
             decoration: BoxDecoration(
@@ -370,7 +370,7 @@ class ChatScreenState extends State<ChatScreen> {
         title: "Edit message",
         message: editingMessage!,
         onPressed: () { _scrollToMessage(editingMessage); },
-        styleGroup: context.styles.accent,
+        styleGroup: context.styles.basic,
       ),
       onCancel: () { setState(() { editingMessage = null; }); },
     );
@@ -385,7 +385,7 @@ class ChatScreenState extends State<ChatScreen> {
         title: "Reply to ${replyingMessage?.username}",
         message: replyingMessage!,
         onPressed: () { _scrollToMessage(replyingMessage); },
-        styleGroup: context.styles.accent,
+        styleGroup: context.styles.basic,
       ),
       onCancel: () { setState(() { replyingMessage = null; }); },
     );

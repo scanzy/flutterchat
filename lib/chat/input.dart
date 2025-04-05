@@ -52,13 +52,13 @@ class ChatInputBarState extends State<ChatInputBar> {
     _editMessageController.text = widget.editingMessage?.text ?? "";
 
     return Row(
-      spacing: 8,
+      spacing: 2 * AppDimensions.S,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
 
         // attach button
         IconButton(
-          iconSize: 32,
+          iconSize: AppDimensions.X,
           onPressed: () => notImplemented(context),
           icon: Icon(Icons.attach_file),
           color: context.styles.basic.normalTextColor,
@@ -82,17 +82,14 @@ class ChatInputBarState extends State<ChatInputBar> {
 
                 // hint shown only when field not focused
                 decoration: InputDecoration(
-                  hintText: _hasFocus ? '' : localize("chat.input.hint"),
+                  hintText: _hasFocus ? '' : localize("chat.input.hint").toCapitalized(),
 
                   // rounded sides
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.L),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: AppDimensions.M,
-                    vertical: AppDimensions.M,
-                  ),
+                  contentPadding: EdgeInsets.all(AppDimensions.M),
                 ),
 
                 minLines: 1, // default height: single line
@@ -106,7 +103,7 @@ class ChatInputBarState extends State<ChatInputBar> {
 
         // send message (or confirm edit) icon
         IconButton(
-          iconSize: 32,
+          iconSize: AppDimensions.X,
           style: context.styles.accent.btn(),
           icon: Icon(widget.isEditing ? Icons.done : Icons.send),
           onPressed: () => _onSubmit(_currentController.text),

@@ -168,11 +168,14 @@ class MessageBubbleState extends State<MessageBubble> {
 
                 // message width: 90% of parent
                 constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                margin: EdgeInsets.symmetric(
+                  vertical: AppDimensions.S,
+                  horizontal: AppDimensions.M,
+                ),
 
                 // message group: avatar (only other users) + bubble
                 child: Row(
-                  spacing: 8,
+                  spacing: AppDimensions.S,
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     if (!widget.isOwn)
@@ -216,7 +219,7 @@ class MessageBubbleState extends State<MessageBubble> {
   Widget _buildBubble(BuildContext context) {
     return Container(
       decoration: styleGroup.box(rounded: true),
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(AppDimensions.M),
 
       child: Column(
         spacing: AppDimensions.S,
@@ -232,12 +235,14 @@ class MessageBubbleState extends State<MessageBubble> {
     return [
 
       // shows clickable reply, if any
-      if (widget.msg.repliedTo != null)
+      if (widget.msg.repliedTo != null) ...[
         MessagePreview(
           message: widget.msg.repliedTo!,
           onPressed: widget.onReplyClicked,
           styleGroup: styleGroup,
         ),
+        SizedBox(height: AppDimensions.S),
+      ],
 
       // username with generated color (only for others' message)
       if (!widget.isOwn)
@@ -300,7 +305,7 @@ class MessageBubbleState extends State<MessageBubble> {
       top: 0,
       // handle the position depending on the MessageBubble
       right: widget.isOwn ? 20 : null,
-      left:  widget.isOwn ? null : 20,
+      left:  widget.isOwn ? null : 60,
       child: ActionButtonsMenu(
 
         // hides menu on selection
@@ -404,7 +409,6 @@ class ActionButtonsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: context.styles.basic.box(rounded: true, shadow: true),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
 
         // builds one button for every action
@@ -412,7 +416,7 @@ class ActionButtonsMenu extends StatelessWidget {
           Tooltip(
             message: action.text,
             child: IconButton(
-              icon: Icon(action.icon, size: 18),
+              icon: Icon(action.icon, size: AppDimensions.L),
 
               // accent style if highlighted
               style: action.highlight ?
