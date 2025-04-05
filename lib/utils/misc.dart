@@ -82,7 +82,7 @@ Widget parseLinks(String text, {TextStyle? style}) {
       final url = match.group(0)!;
       spans.add(TextSpan(
         text: url,
-        style: (style ?? TextStyle()).copyWith(
+        style: TextStyle(
           color: Colors.blueAccent,
           decoration: TextDecoration.underline,
         ),
@@ -96,13 +96,13 @@ Widget parseLinks(String text, {TextStyle? style}) {
 
     // leaves other text untouched
     onNonMatch: (text) {
-      spans.add(TextSpan(text: text, style: style));
+      spans.add(TextSpan(text: text));
       return '';
     },
   );
 
   // composes text joining processed chuncks
-  return RichText(text: TextSpan(children: spans));
+  return Text.rich(TextSpan(children: spans), style: style);
 }
 
 
