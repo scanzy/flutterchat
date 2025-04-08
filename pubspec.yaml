@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # - v: main version number
 # - m: milestone number 
 # - i: current issue number
-version: 1.0.90
+version: 1.0.71
 
 environment:
   sdk: "^3.7.0"

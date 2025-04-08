@@ -63,7 +63,7 @@ class StylesPage extends StatelessWidget {
         ]
       ),
       body: ScrollableCenterPage(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.all(AppDimensions.L),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
