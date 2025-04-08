@@ -38,7 +38,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   // loaded messages
   // TODO: use device cache
-  final List<RecordModel> _messages = [];
+  final List<Message> _messages = [];
 
   // messages arrived when viewing old ones
   int newMessages = 0;
@@ -101,10 +101,15 @@ class ChatScreenState extends State<ChatScreen> {
   // TODO: allow multiple pinned messages, show the one pinned most recently
   void searchPinnedMessage() {
     for (var msg in _messages) {
-      if (msg.get<bool?>("pinned") == true) {
-        pinnedMessage = Message(msg);
+
+      // skips deleted messages
+      if (msg.justDeleted) continue;
+
+      // finds the most recent pinned
+      if (msg.pinned) {
+        pinnedMessage = msg;
         return;
-      }   
+      }
     }
     pinnedMessage = null;
   }
@@ -127,7 +132,7 @@ class ChatScreenState extends State<ChatScreen> {
         setState(() {
         
           // adds the new messages to the list
-          _messages.insert(0, msg);
+          _messages.insert(0, Message(msg));
 
           // updates count of new messages if needed
           if (!viewingLastMsg) newMessages++;
@@ -137,16 +142,34 @@ class ChatScreenState extends State<ChatScreen> {
       case 'update':
         final index = _messages.indexWhere((m) => m.id == msg.id);
         if (index == -1) return;
+
+        // locks message scrolling
+        _chatObserver.standby(isRemove: true);
+
+        // updates message
         setState(() {
-          _messages[index] = msg;
+          _messages[index] = Message(msg);
           searchPinnedMessage();
         });
-          
+
         break;
 
       case 'delete':
-        _chatObserver.standby(isRemove: true); // locks message scrolling
-        setState(() => _messages.removeWhere((m) => m.id == msg.id));
+        final index = _messages.indexWhere((m) => m.id == msg.id);
+        if (index == -1) return;
+
+        // locks message scrolling
+        _chatObserver.standby(isRemove: true);
+
+        // sets message as just deleted
+        setState(() {
+          _messages[index].justDeleted = true;
+          searchPinnedMessage();
+
+          // deactivates reply or edit if message deleted
+          if (replyingMessage?.id == msg.id) replyingMessage = null;
+          if (editingMessage?.id  == msg.id) editingMessage = null;
+        });
         break;
 
       default:
@@ -227,7 +250,7 @@ class ChatScreenState extends State<ChatScreen> {
 
     // finds index of specified message
     final index = _messages.indexWhere((m) => m.id == message.id);
-    
+
     // scrolls to specified message
     _scrollToMessageIndex(index);
   }
@@ -283,8 +306,8 @@ class ChatScreenState extends State<ChatScreen> {
                 // button to jump to last message
                 if (!viewingLastMsg)
                   Positioned(
-                    bottom: 20,
-                    right: 20,
+                    bottom: AppDimensions.L,
+                    right: AppDimensions.L,
                     child: JumpToLastMessageButton(
                       newMessages: newMessages,
                       onPressed: () { _scrollToMessageIndex(0); },
@@ -302,7 +325,7 @@ class ChatScreenState extends State<ChatScreen> {
 
           // bottom bar with send message field
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(2 * AppDimensions.S),
 
             // custom style to match
             decoration: BoxDecoration(
@@ -347,7 +370,7 @@ class ChatScreenState extends State<ChatScreen> {
         title: "Edit message",
         message: editingMessage!,
         onPressed: () { _scrollToMessage(editingMessage); },
-        styleGroup: context.styles.accent,
+        styleGroup: context.styles.basic,
       ),
       onCancel: () { setState(() { editingMessage = null; }); },
     );
@@ -362,7 +385,7 @@ class ChatScreenState extends State<ChatScreen> {
         title: "Reply to ${replyingMessage?.username}",
         message: replyingMessage!,
         onPressed: () { _scrollToMessage(replyingMessage); },
-        styleGroup: context.styles.accent,
+        styleGroup: context.styles.basic,
       ),
       onCancel: () { setState(() { replyingMessage = null; }); },
     );
@@ -397,12 +420,12 @@ class ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           
           // gets message and its date
-          final message = Message(_messages[index]);
+          final message = _messages[index];
           final dateLocal = message.dateLocal;
 
           // gets previous message and checks if has different date
           final prev = _messages.elementAtOrNull(index + 1);
-          final firstOfDay = (prev == null) || (Message(prev).dateLocal != dateLocal);
+          final firstOfDay = (prev == null) || (prev.dateLocal != dateLocal);
 
           return Column(children: [
 

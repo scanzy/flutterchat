@@ -70,9 +70,14 @@ class PocketBaseService {
 
 
   // loads previous messages
-  Future<List<RecordModel>> loadMessages() async {
-    return await _pb.collection('messages')
+  Future<List<Message>> loadMessages() async {
+
+    // loads data
+    final recordModels = await _pb.collection('messages')
         .getFullList(sort: '+created', expand: 'user,replyTo.user');
+
+    // builds message objects
+    return recordModels.map((record) => Message(record)).toList();
   }
 
 
@@ -81,7 +86,7 @@ class PocketBaseService {
     await _pb.collection('messages').create(body: {
       'user': userId,
       'message': message,
-      if (replyingMessage != null) 'replyTo': replyingMessage!.id,
+      'replyTo': replyingMessage?.id,
     },
     expand: 'replyTo',
     );
@@ -91,7 +96,11 @@ class PocketBaseService {
   // updates existing message text
   Future<void> updateMessage(String messageId, String newContent) async {
     await _pb.collection('messages').update(
-      messageId, body: {'message': newContent},
+      messageId,
+      body: {
+        'message': newContent,
+        'contentEditedAt': DateTime.now().toUtc().toString(),
+      },
     );
   }
 

@@ -56,8 +56,16 @@ extension StringCasingExtension on String {
   } 
 
   // generates color from string
-  Color generateColor() =>
-    HSLColor.fromAHSL(1.0, (hashCode % 360).toDouble(), 0.7, 0.5).toColor();
+  // optimizes color lightness to be visible on the background ot supplied styleGroup
+  Color generateColor(StyleGroup? styleGroup) {
+
+    // gets proper brightness
+    final backgroundColor = styleGroup?.backgroundColor ?? Colors.black;
+    final brightness = backgroundColor.computeLuminance() > 0.5 ? 0.4 : 0.5;
+
+    // generates color
+    return HSLColor.fromAHSL(1.0, (hashCode % 360).toDouble(), 0.8, brightness).toColor();
+  }
 }
 
 
@@ -74,7 +82,7 @@ Widget parseLinks(String text, {TextStyle? style}) {
       final url = match.group(0)!;
       spans.add(TextSpan(
         text: url,
-        style: (style ?? TextStyle()).copyWith(
+        style: TextStyle(
           color: Colors.blueAccent,
           decoration: TextDecoration.underline,
         ),
@@ -88,13 +96,13 @@ Widget parseLinks(String text, {TextStyle? style}) {
 
     // leaves other text untouched
     onNonMatch: (text) {
-      spans.add(TextSpan(text: text, style: style));
+      spans.add(TextSpan(text: text));
       return '';
     },
   );
 
   // composes text joining processed chuncks
-  return RichText(text: TextSpan(children: spans));
+  return Text.rich(TextSpan(children: spans), style: style);
 }
 
 
