@@ -7,7 +7,7 @@ import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/user/login.dart';
 import 'package:flutterchat/user/signup.dart';
 import 'package:flutterchat/room/list.dart';
-import 'package:flutterchat/room/pending.dart';
+import 'package:flutterchat/user/pending.dart';
 
 
 class AuthScreen extends StatefulWidget {

@@ -145,6 +145,17 @@ DBtype enDB = {
   "chat.pin.multi":
     "Can't pin message because another message is already pinned. "
     "Unpin the other message and try again.",
+
+  // pending account
+  "user.pending.title":     "Unverified account",
+  "user.pending.headline":  '🔒 Account Pending Verification',
+  "user.pending.refresh":   "Check again",
+  "user.pending.hint":
+    'Our team of highly trained verification hamsters is reviewing your details. This usually takes:\n\n'
+    '• 1-3 business days\n'
+    '• 2 coffee breaks\n'
+    '• 1.5 existential crises\n\n'
+    'Check back soon! 🐹',
 };
 
 
@@ -175,4 +186,16 @@ DBtype itDB = {
   "chat.pin.multi":
       "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
       "Rimuovi il messaggio già fissato in alto e riprova.",
+
+  // pending account
+  "user.pending.title":     "Account in verifica",
+  "user.pending.headline":  '🔒 Account in attesa di verifica',
+  "user.pending.refresh":   "Aggiorna",
+  "user.pending.hint":
+    'Il nostro team di verificatori altamente addestrati sta controllando i tuoi dati. '
+    'Solitamente questo ha bisogno di:\n\n'
+    '• 1-3 giorni lavorativi\n'
+    '• 2 pause caffè\n'
+    '• 1.5 crisi esistenziali\n\n'
+    "Riprova tra un po'! 🐹",
 };
