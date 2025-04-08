@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
-import 'package:flutterchat/utils/style.dart';
+import 'package:flutterchat/utils/colors.dart';
 import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/user/auth.dart';
@@ -16,6 +16,9 @@ import 'package:flutterchat/dev/localize.dart';
 
 // main entry point of the app
 void main() async {
+
+  // gets theme configuration
+  await ThemeController().setup();
 
   // sets up pocket base service, configuring auth store
   await PocketBaseService().setup();
@@ -34,8 +37,14 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => MyAppState();
 
+  // pages shown as fake rooms
+  static final Map<String, Widget> extraPages = {
+    'App styles and themes': StylesPage(),
+    // Add new extra pages here by simply adding new entries
+  };
+
+  // pages shown only in debug mode
   static final Map<String, Widget> debugPages = {
-    'App styles':  StylesPage(),
     'Chat test 2': ChatPageTest2(),
     'Localization': LocalizationPage(),
     // Add new debug or scouting pages here by simply adding new entries
@@ -45,12 +54,17 @@ class MyApp extends StatefulWidget {
 
 
 class MyAppState extends State<MyApp> {
+  String currentTheme = ThemeController.get();
 
   @override
   void initState() {
     super.initState();
     // on web, disable the browser's context menu
     if (kIsWeb) BrowserContextMenu.disableContextMenu();
+
+    // reloads app theme when changed
+    ThemeController.onThemeChanged = (newTheme) =>
+      setState(() { currentTheme = newTheme; });
   }
 
 
@@ -66,8 +80,28 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: localize("shared.title"), // title for web
-      theme: appTheme,
+
+      // we use light mode so that "theme" key is selected (not darkTheme)
+      themeMode: ThemeMode.light,
+      theme: getThemeData(currentTheme),
+
       home: const AuthScreen(),
     );
+  }
+
+
+  // gets theme data from name
+  ThemeData getThemeData(String themeName) {
+
+    // auto-detects theme from device settings
+    if (themeName == "auto") {
+      themeName = {
+        Brightness.light: "light",
+        Brightness.dark: "dark",
+      }[MediaQuery.platformBrightnessOf(context)] ?? "dark";
+    }
+
+    // accesses theme by name
+    return appThemes[themeName]!;
   }
 }

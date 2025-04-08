@@ -46,27 +46,16 @@ class RoomsListScreen extends StatelessWidget {
       unreadMessages: 10,
       onTap: (context) => navigateToPage(context, ChatScreen()),
     ),
-    Room(
-      name: "Branco del Nord",
-      type: "Locale",
-      lastMsgPreview: "user nordico: Uee uomini!",
-      lastCreated: DateTime.now(),
-      unreadMessages: 12,
-    ),
-    Room(
-      name: "Branco del Centro",
-      type: "Locale",
-      lastMsgPreview: "user centrale: daje uomini!",
-      lastCreated: DateTime.now(),
-      unreadMessages: 2,
-    ),
-    Room(
-      name: "Branco del Sud",
-      type: "Locale",
-      lastMsgPreview: "user: Weeeeee! Jamme ja",
-      lastCreated: DateTime.now(),
-      unreadMessages: 8,
-    ),
+
+    // adds extra pages
+    for (var page in MyApp.extraPages.entries) ...[
+      Room(
+        name: page.key,
+        type: "Extra",
+        icon: Icons.explore,
+        onTap: (context) => navigateToPage(context, page.value),
+      )
+    ],
 
     // adds debug pages (only in debug mode)
     if (kDebugMode)
@@ -113,14 +102,24 @@ class RoomsListScreen extends StatelessWidget {
         Container(
           padding: EdgeInsets.all(8),
           alignment: Alignment.center,
-          child: Text('Here all the rooms'),
+          child: Text(
+            'Here are all the rooms',
+            style: context.styles.background.txt(),
+          ),
         ),
         Expanded(
           child: ListView.separated(
             // controller: _scrollController,
             itemCount: rooms.length,
             itemBuilder: (context, index) => _buildRoomRow(context, rooms[index]),
-            separatorBuilder: (context, index) => Divider(thickness: 2),
+
+            // items separator
+            separatorBuilder: (context, index) => Divider(
+              indent: AppDimensions.H,
+              height: AppDimensions.line,
+              thickness: AppDimensions.line,
+              color: context.styles.background.fadedTextColor,
+            ),
           ),
         ),
       ]),
@@ -128,21 +127,38 @@ class RoomsListScreen extends StatelessWidget {
   }
 
 
-  Widget _buildRoomRow(BuildContext context, Room room) { 
+  // room list item
+  Widget _buildRoomRow(BuildContext context, Room room) {
+
+    // styles configurations
+    final avatarStyleGroup = context.styles.basic;
+    final tileStyleGroup   = context.styles.background;
+    final badgeStyleGroup  = context.styles.basic;
+    final unreadStyleGroup = context.styles.accent;
+
     return ListTile(
 
+      // room avatar
       leading: CircleAvatar(
-        child: (room.icon != null) ? Icon(room.icon) : Text(room.name[0]),
+        foregroundColor: avatarStyleGroup.normalTextColor,
+        backgroundColor: avatarStyleGroup.backgroundColor,
+        child: (room.icon != null) ? Icon(room.icon)
+          : Text(room.name[0], style: avatarStyleGroup.txt()),
       ),
+
+      // room title
       title: Row(
+        spacing: AppDimensions.M,
         children: [
-          Text(room.name),
-          SizedBox(width: 10),
+          Text(
+            room.name,
+            style: tileStyleGroup.txt(level: 3),
+          ),
           if (room.type != null)
             Badge(
-              label: Text(room.type!),
-              textColor: AppColors.normal(context),
-              backgroundColor: AppColors.text(context),
+              label: Text(room.type!, style: badgeStyleGroup.txt()),
+              backgroundColor: badgeStyleGroup.backgroundColor,
+              padding: EdgeInsets.symmetric(horizontal: 2 * AppDimensions.S),
             ),
         ],
       ),
@@ -150,16 +166,22 @@ class RoomsListScreen extends StatelessWidget {
         (room.lastMsgPreview == null) ? null :
         Text(
           room.lastMsgPreview!,
-          style: AppStyles.textFaded(context),
+          style: tileStyleGroup.txt(),
         ),
+
+      // unread messages count
       trailing:
         (room.unreadMessages ?? 0) == 0 ? null :
-        Container(
-          width: 25,
-          height: 25,
-          decoration: AppStyles.boxAccent(context),
-          child: Center(child: Text("${room.unreadMessages}")),
+        Badge.count(
+          count: room.unreadMessages!,
+          padding: EdgeInsets.all(AppDimensions.S),
+          largeSize: AppDimensions.M,
+          textStyle: unreadStyleGroup.txt(),
+          textColor: unreadStyleGroup.normalTextColor,
+          backgroundColor: unreadStyleGroup.backgroundColor,
         ),
+
+      // goes to corresponding room
       onTap: () => (room.onTap ?? notImplemented)(context),
     );
   }

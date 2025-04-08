@@ -84,7 +84,7 @@ class AuthScreenState extends State<AuthScreen> {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(
-            color: AppColors.accent(context),
+            color: context.styles.background.specialTextColor,
           )
         ),
       );

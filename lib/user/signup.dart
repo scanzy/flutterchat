@@ -70,10 +70,7 @@ class SignupFormState extends State<SignupForm> {
         // username field
         TextFormField(
           controller: _usernameController,
-          decoration: InputDecoration(
-            labelText: 'Username',
-            filled: true,
-          ),
+          decoration: InputDecoration(labelText: 'Username'),
           validator: (value) => value!.isEmpty ? 'Enter username' : null,
           textInputAction: TextInputAction.next,
         ),
@@ -81,10 +78,7 @@ class SignupFormState extends State<SignupForm> {
         // email field
         TextFormField(
           controller: _emailController,
-          decoration: InputDecoration(
-            labelText: 'Email',
-            filled: true,
-          ),
+          decoration: InputDecoration(labelText: 'Email'),
           validator: (value) => value!.contains('@') ? null : 'Invalid email',
           textInputAction: TextInputAction.next,
         ),
@@ -105,10 +99,7 @@ class SignupFormState extends State<SignupForm> {
         TextFormField(
           controller: _confirmController,
           obscureText: true,
-          decoration: InputDecoration(
-            labelText: 'Confirm Password',
-            filled: true,
-          ),
+          decoration: InputDecoration(labelText: 'Confirm Password'),
           validator: (value) => value == _passwordController.text ?
             null : "Password and confirm do not match.",
 

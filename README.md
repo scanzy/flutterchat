@@ -6,46 +6,16 @@ Main objective: provide a cross-platform self-hosted working alternative to Tele
 
 ## Code organization
 
-Documentation:
-- `README.md` (this file) with contributing guidelines and code style
-- [`doc/description.md`](doc/description.md) with the description of the app and its functionalities
-- [`doc/commands.md`](doc/commands.md) with useful commands to setup dev env, build and deploy app
-- [`doc/styles.md`](doc/styles.md) with a short guide to use app styles in dart code
-- [`doc/pocketbase.md`](doc/pocketbase.md) with pocketbase database structure description
-- [`doc/cheatsheet.md`](doc/cheatsheet.md) with useful code examples for dart and flutter
+Files are divided into these folders:
+- [`doc/`](doc/) for app documentation
+- [`lib/user/`](lib/user/) for account related code: login, register, profile, pending account, users list view, user tile widget
+- [`lib/room/`](lib/room/) for rooms related code: rooms list, room details & settings, create room page, room tile widget
+- [`lib/channel/`](lib/channel/) for channel related code: channels list, channel details & settings, create channel page, channel tile widget
+- [`lib/dev/`](lib/dev/) for scouting or interactive examples for devs
+- [`lib/util/`](lib/util/) for helpers: styles, navigation, translation, services, and shared widgets 
 
-User:
-- [`lib/user/auth.dart`](lib/user/auth.dart) for user authorization and loading screen
-- [`lib/user/signup.dart`](lib/user/signup.dart) for signup form
-- [`lib/user/login.dart`](lib/user/login.dart) for login form
-- [`lib/user/profile.dart`](lib/user/profile.dart) for user profile page
-
-Rooms:
-- [`lib/room/list.dart`](lib/room/list.dart) for all rooms list
-- [`lib/room/details.dart`](lib/room/details.dart) for chat room page details
-
-Chat:
-- [`lib/chat/screen.dart`](lib/chat/screen.dart) for chat page with messages list
-- [`lib/chat/input.dart`](lib/chat/input.dart) for the bottom bar of chat, to send messages
-- [`lib/chat/msg.dart`](lib/chat/msg.dart) for message bubble widget with avatar, and context menu
-- [`lib/chat/preview.dart`](lib/chat/preview.dart) for clickable message tile, used in replies, edit, pinned messages
-- [`lib/chat/extras.dart`](lib/chat/extras.dart) for various widgets like `DateTitle`, `UnreadMessageTitle`
-
-Development:
-- [`lib/dev/styles.dart`](lib/dev/styles.dart) with an example page that showcases app colors and styles
-- [`lib/dev/localize.dart`](lib/dev/localize.dart) with an example page that showcases text localization features
-- other debug pages (shown as fake rooms), for scouting or interactive examples for devs
-
-Other:
-- [`lib/util/style.dart`](lib/util/style.dart) for app theme colors and style
-- [`lib/util/localize.dart`](lib/util/localize.dart) for app localization functions
-- [`lib/util/form.dart`](lib/util/form.dart) with reusable form widget (used for login/signup)
-- [`lib/util/pb_service.dart`](lib/util/pb_service.dart) for pocketbase related functions 
-- [`lib/util/constants.dart`](lib/util/constants.dart) for app configuration, like locale and server urls
-- [`lib/util/misc.dart`](lib/util/misc.dart) for other utilities like `navigateToPage`
-- [`lib/main.dart`](lib/main.dart) for app entrypoint and debug pages registration
-
-If you add other files to the project, make sure to update the above list.
+See [`doc/files.md`](doc/files.md) for a complete list of files and their content.
+If you add new code files to the project, make sure to update the list.
 
 
 ## Contributing

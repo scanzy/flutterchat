@@ -34,7 +34,7 @@ class FormWidget extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     return Text(
       title!,
-      style: AppStyles.textNormal(context, size: 2),
+      style: context.styles.basic.txt(size: 2),
       textAlign: TextAlign.center,
     );
   }
@@ -44,7 +44,7 @@ class FormWidget extends StatelessWidget {
   Widget _buildSubmit(BuildContext context) {
     return ElevatedButton(
       onPressed: onSubmit,
-      style: AppStyles.btnSubmit(context),
+      style: context.styles.accent.btn(wide: true),
       child: Text(submitText!),
     );
   }
@@ -56,7 +56,7 @@ class FormWidget extends StatelessWidget {
       onPressed: onHintClick,
       child: Text(
         hintText!,
-        style: AppStyles.textAccent(context),
+        style: context.styles.basic.txt(level: 3),
         textAlign: TextAlign.center,
       ),
     );
@@ -70,7 +70,7 @@ class FormWidget extends StatelessWidget {
       width: 400,
       margin:  const EdgeInsets.all(24),
       padding: const EdgeInsets.all(24),
-      decoration: AppStyles.boxNormal(context),
+      decoration: context.styles.basic.box(rounded: true),
 
       child: Form(
         key: formKey,

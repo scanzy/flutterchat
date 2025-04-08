@@ -113,7 +113,7 @@ class ChatScreenState extends State<ChatScreen> {
   // sets up actions when something occurs with messages
   Future<void> _setupRealtime() async {
     _unsubscribe = await pb.client.collection('messages')
-      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user');
+      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user, replyTo.user');
   }
 
 
@@ -159,21 +159,19 @@ class ChatScreenState extends State<ChatScreen> {
     if (editingMessage != null) {
       _editMessage(editingMessage as Message, text);
     } else {
-      _sendMessage(text);
+      _sendMessage(text, replyingMessage);
     }
     setState(() { replyingMessage = null; });
   }
 
 
   // sends a new message to the server
-  Future<void> _sendMessage(String text) async {
+  Future<void> _sendMessage(String text, Message? replyingMessage) async {
     if (text.isEmpty) return;
-
-    // TODO: send also replyingMessage to pocketbase, together with message text
 
     try {
       // sends message
-      await PocketBaseService().sendMessage(text);
+      await PocketBaseService().sendMessage(text, replyingMessage);
       if (!mounted) return;
 
       // TODO: clear unread messages on server
@@ -305,9 +303,11 @@ class ChatScreenState extends State<ChatScreen> {
           // bottom bar with send message field
           Container(
             padding: const EdgeInsets.all(8),
+
+            // custom style to match
             decoration: BoxDecoration(
-              color: AppColors.normal(context),
-              boxShadow: AppStyles.shadow(context),
+              color: Theme.of(context).appBarTheme.backgroundColor,
+              boxShadow: context.styles.basic.shadow(),
             ),
             child: ChatInputBar(
               editingMessage: editingMessage,
@@ -323,13 +323,17 @@ class ChatScreenState extends State<ChatScreen> {
   // top bar to show pinned message
   Widget _buildPinnedMessageBar() {
     return MessagePreviewBar(
+      styleGroup: context.styles.accent,
       // leadingIcon: Icons.push_pin,
       preview: MessagePreview(
         title: "Pinned message by ${pinnedMessage?.username}",
         message: pinnedMessage as Message,
+        styleGroup: context.styles.accent,
         onPressed: () { _scrollToMessage(pinnedMessage); },
       ),
-      onCancel: PocketBaseService().isAdmin ? // only admins can pin/unpin
+
+      // only admins can pin/unpin
+      onCancel: PocketBaseService().isAdmin ?
         () { _handlePin(pinnedMessage as Message, unPin: true); } : null,
     );
   }
@@ -341,8 +345,9 @@ class ChatScreenState extends State<ChatScreen> {
       leadingIcon: Icons.edit,
       preview: MessagePreview(
         title: "Edit message",
-        message: editingMessage as Message,
+        message: editingMessage!,
         onPressed: () { _scrollToMessage(editingMessage); },
+        styleGroup: context.styles.accent,
       ),
       onCancel: () { setState(() { editingMessage = null; }); },
     );
@@ -355,8 +360,9 @@ class ChatScreenState extends State<ChatScreen> {
       leadingIcon: Icons.reply,
       preview: MessagePreview(
         title: "Reply to ${replyingMessage?.username}",
-        message: replyingMessage as Message,
+        message: replyingMessage!,
         onPressed: () { _scrollToMessage(replyingMessage); },
+        styleGroup: context.styles.accent,
       ),
       onCancel: () { setState(() { replyingMessage = null; }); },
     );
@@ -411,9 +417,10 @@ class ChatScreenState extends State<ChatScreen> {
             // displays message
             MessageBubble(
               msg: message,
-              handlePin:   () => _handlePin(message, unPin: message.pinned),
-              handleEdit:  () => _handleEdit(message),
-              handleReply: () => _handleReply(message),
+              handlePin:      () => _handlePin(message, unPin: message.pinned),
+              handleEdit:     () => _handleEdit(message),
+              handleReply:    () => _handleReply(message),
+              onReplyClicked: () => _scrollToMessage(message.repliedTo),
             ),
           ]);
         },
