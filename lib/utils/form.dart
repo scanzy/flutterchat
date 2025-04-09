@@ -68,8 +68,8 @@ class FormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 400,
-      margin:  const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(24),
+      margin:  EdgeInsets.all(AppDimensions.L),
+      padding: EdgeInsets.all(AppDimensions.L),
       decoration: context.styles.basic.box(rounded: true),
 
       child: Form(

@@ -136,15 +136,33 @@ DBtype enDB = {
   // words
   "today":      "today",
   "yesterday":  "yesterday",
+  "yes":        "yes",
+  "no":         "no",
+  "delete":     "delete",
 
   // shared
   "shared.title": "Realmen app",
 
   // chat screen
-  "chat.input.hint": "Message",
+  "chat.input.hint":    "message",
+  "chat.msg.editedAt":  "edited",
+  "chat.msg.deleted":   "deleted message",
   "chat.pin.multi":
     "Can't pin message because another message is already pinned. "
     "Unpin the other message and try again.",
+  "chat.delete.dialog":
+    "Are you sure to remove the message?",
+
+  // pending account
+  "user.pending.title":     "Unverified account",
+  "user.pending.headline":  '🔒 Account Pending Verification',
+  "user.pending.refresh":   "Check again",
+  "user.pending.hint":
+    'Our team of highly trained verification hamsters is reviewing your details. This usually takes:\n\n'
+    '• 1-3 business days\n'
+    '• 2 coffee breaks\n'
+    '• 1.5 existential crises\n\n'
+    'Check back soon! 🐹',
 };
 
 
@@ -166,13 +184,32 @@ DBtype itDB = {
   // words
   "today":      "oggi",
   "yesterday":  "ieri",
+  "yes":        "sì",
+  "no":         "no",
+  "delete":     "elimina",
 
   // shared
   "shared.title": "App Realmen",
 
   // chat screen
-  "chat.input.hint": "Messaggio",
+  "chat.input.hint":    "messaggio",
+  "chat.msg.editedAt":  "modificato",
+  "chat.msg.deleted":   "messaggio eliminato",
   "chat.pin.multi":
-      "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
-      "Rimuovi il messaggio già fissato in alto e riprova.",
+    "Impossibile fissare il messaggio perchè c'è già un altro messaggio fissato in alto. "
+    "Rimuovi il messaggio già fissato in alto e riprova.",
+  "chat.delete.dialog":
+    "Vuoi davvero eliminare questo messaggio?",
+
+  // pending account
+  "user.pending.title":     "Account in verifica",
+  "user.pending.headline":  '🔒 Account in attesa di verifica',
+  "user.pending.refresh":   "Aggiorna",
+  "user.pending.hint":
+    'Il nostro team di verificatori altamente addestrati sta controllando i tuoi dati. '
+    'Solitamente questo ha bisogno di:\n\n'
+    '• 1-3 giorni lavorativi\n'
+    '• 2 pause caffè\n'
+    '• 1.5 crisi esistenziali\n\n'
+    "Riprova tra un po'! 🐹",
 };

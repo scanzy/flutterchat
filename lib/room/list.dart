@@ -100,7 +100,7 @@ class RoomsListScreen extends StatelessWidget {
       body: Column(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsets.all(AppDimensions.M),
           alignment: Alignment.center,
           child: Text(
             'Here are all the rooms',

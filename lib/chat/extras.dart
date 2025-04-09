@@ -43,8 +43,8 @@ class DateTitle extends StatelessWidget {
     return Align(
       alignment: Alignment.topCenter,
       child: Container(
-        margin:  const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(8),
+        margin:  EdgeInsets.all(AppDimensions.L),
+        padding: EdgeInsets.all(2 * AppDimensions.S),
         decoration: context.styles.basic.box(rounded: true),
         child: Text(
           _formattedDate,
@@ -65,8 +65,8 @@ class UnreadMessagesTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: context.styles.basic.box(),
-      padding: EdgeInsets.symmetric(vertical: 8),
-      margin:  EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 2 * AppDimensions.S),
+      margin:  EdgeInsets.symmetric(vertical: AppDimensions.S),
       child: Center(
         child: Text(
           count != null ? "Unread messages" :

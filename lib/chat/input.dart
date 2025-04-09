@@ -44,21 +44,31 @@ class ChatInputBarState extends State<ChatInputBar> {
     widget.isEditing ? _editMessageController : _newMessageController;
 
 
+  @override
+  void didUpdateWidget(ChatInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // when editing message changes
+    if (widget.editingMessage != oldWidget.editingMessage) {
+
+      // prepares the edit field, filling the original message to edit
+      _editMessageController.text = widget.editingMessage?.text ?? "";
+    }
+  }
+
+
   // displays bottom bar with new message field
   @override
   Widget build(BuildContext context) {
 
-    // prepares the edit field, filling the original message to edit
-    _editMessageController.text = widget.editingMessage?.text ?? "";
-
     return Row(
-      spacing: 8,
+      spacing: 2 * AppDimensions.S,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
 
         // attach button
         IconButton(
-          iconSize: 32,
+          iconSize: AppDimensions.X,
           onPressed: () => notImplemented(context),
           icon: Icon(Icons.attach_file),
           color: context.styles.basic.normalTextColor,
@@ -82,22 +92,19 @@ class ChatInputBarState extends State<ChatInputBar> {
 
                 // hint shown only when field not focused
                 decoration: InputDecoration(
-                  hintText: _hasFocus ? '' : localize("chat.input.hint"),
+                  hintText: _hasFocus ? '' : localize("chat.input.hint").toCapitalized(),
 
                   // rounded sides
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppDimensions.L),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: AppDimensions.M,
-                    vertical: AppDimensions.M,
-                  ),
+                  contentPadding: EdgeInsets.all(AppDimensions.M),
                 ),
 
                 minLines: 1, // default height: single line
                 maxLines: 8, // expands to multiline, without exaggeration
-                onSubmitted: _onSubmit,
+                onSubmitted: (_) => _onSubmit(),
                 textInputAction: TextInputAction.send,
               ),
             ),
@@ -106,10 +113,10 @@ class ChatInputBarState extends State<ChatInputBar> {
 
         // send message (or confirm edit) icon
         IconButton(
-          iconSize: 32,
+          iconSize: AppDimensions.X,
           style: context.styles.accent.btn(),
           icon: Icon(widget.isEditing ? Icons.done : Icons.send),
-          onPressed: () => _onSubmit(_currentController.text),
+          onPressed: _onSubmit,
         ),
       ],
     );
@@ -118,8 +125,8 @@ class ChatInputBarState extends State<ChatInputBar> {
 
   // called on input submit
   // sends message, clears input, refocus it to write other messages
-  void _onSubmit(String text) {
-    widget.onSubmit(text.trim());
+  void _onSubmit() {
+    widget.onSubmit(_currentController.text.trim());
     _currentController.clear();
     _focusNode.requestFocus();
   }

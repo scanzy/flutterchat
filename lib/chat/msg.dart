@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
@@ -21,7 +22,11 @@ class Message {
   late final String username;
   late final bool   isOwn;
   late final DateTime createdUTC;
+  late final DateTime? editedUTC;
   late final Message? repliedTo;
+
+  // tracks message deletion to display "message deleted"
+  bool justDeleted = false;
 
   // gets data from message record
   Message(RecordModel record, {bool expandReply = true}) {
@@ -35,23 +40,13 @@ class Message {
       username = user.get<String?>('username') ?? 'Unknown';
       isOwn    = userId == PocketBaseService().userId;
       createdUTC = DateTime.parse(record.get<String>("created"));
+      editedUTC  = DateTime.tryParse(record.get<String>("contentEditedAt"));
 
       // gets data of the replied message, if any
       // does not expand reply of replies, to avoid nested messages
       repliedTo = (replyToRecord != null && expandReply)
         ? Message(replyToRecord, expandReply: false) : null;
   }
-
-  // private constructor for replies
-  Message._fromReply(RecordModel replyRecord, {required RecordModel user}) :
-    id = replyRecord.id,
-    text = replyRecord.get<String?>('message') ?? '',
-    pinned = replyRecord.get<bool?>('pinned') ?? false,
-    userId = replyRecord.get<RecordModel>("expand.user").id,
-    username = replyRecord.get<RecordModel>("expand.user").get<String?>('username') ?? 'Unknown',
-    isOwn = replyRecord.get<RecordModel>("expand.user").id == PocketBaseService().userId,
-    createdUTC = DateTime.parse(replyRecord.get<String>("created")),
-    repliedTo = null;  // prevent infinite recursion for nested replies
 
   // gets date in local timezone
   DateTime get dateLocal => createdUTC.utcToAppTz.date;
@@ -78,6 +73,7 @@ class MessageBubble extends StatefulWidget {
   @override
   State<MessageBubble> createState() => MessageBubbleState();
 
+  // basic message data
   String get messageId  => msg.id;
   String get text       => msg.text;
   String get userId     => msg.userId;
@@ -85,10 +81,23 @@ class MessageBubble extends StatefulWidget {
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
 
-  DateTime  get createdUTC => msg.createdUTC;
-
   // checks if current user is admin (and can delete/pin messages)
   bool get isAdmin => PocketBaseService().isAdmin;
+
+
+  // message timestamps
+  DateTime  get createdUTC => msg.createdUTC;
+  DateTime? get editedUTC  => msg.editedUTC;
+
+  // builds timestamp text, with "edited"
+  String get timeText =>
+    createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm) +
+    (editedUTC == null ? "" :
+      ", ${localize('chat.msg.editedAt')} "
+
+      // we chose not to display edit time,
+      // "${editedUTC?.utcToAppTz.formatLocalized(DateFormat.Hm)}"
+    );
 }
 
 
@@ -97,7 +106,18 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // flag to show context menu with action buttons
   bool _showActions = false;
-  void toggleShowActions() { _showActions = !_showActions; }
+
+  void toggleShowActions() {
+    // context menu deactivated for deleted messages
+    // TODO: maybe add restore functionality
+    if (widget.msg.justDeleted) {
+      _showActions = false;
+      return;
+    }
+
+    // shows/hides context menu
+    _showActions = !_showActions;
+  }
 
 
   @override
@@ -116,7 +136,6 @@ class MessageBubbleState extends State<MessageBubble> {
 
   @override
   Widget build(BuildContext context) {
-
     return MouseRegion(
       onExit: _isDesktop ? (_) { setState(() => _showActions = false); } : null,
       child: GestureDetector(
@@ -135,11 +154,14 @@ class MessageBubbleState extends State<MessageBubble> {
 
                 // message width: 90% of parent
                 constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.9),
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                margin: EdgeInsets.symmetric(
+                  vertical: AppDimensions.S,
+                  horizontal: AppDimensions.M,
+                ),
 
                 // message group: avatar (only other users) + bubble
                 child: Row(
-                  spacing: 8,
+                  spacing: AppDimensions.S,
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     if (!widget.isOwn)
@@ -154,8 +176,8 @@ class MessageBubbleState extends State<MessageBubble> {
               ),
             ),
 
-            // shows context menu overlay
-            if (_showActions) _buildContextMenu(context),
+            // shows context menu overlay, if message not deleted
+            if (_showActions && !widget.msg.justDeleted) _buildContextMenu(context),
           ],
         ),
       ),
@@ -181,64 +203,83 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // builds the bubble
   Widget _buildBubble(BuildContext context) {
+
+    // shows "message deleted" placeholder, if needed
+    if (widget.msg.justDeleted) {
+      return Container(
+        padding: EdgeInsets.all(AppDimensions.M),
+        child: Text(
+          localize("chat.msg.deleted").toCapitalized(),
+          style: context.styles.background.txt(),
+        ),
+      );
+    }
+
+    // shows normal bubble
     return Container(
       decoration: styleGroup.box(rounded: true),
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(AppDimensions.M),
 
       child: Column(
         spacing: AppDimensions.S,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          // shows clickable reply, if any
-          if (widget.msg.repliedTo != null)
-            MessagePreview(
-              message: widget.msg.repliedTo!,
-              onPressed: widget.onReplyClicked,
-              styleGroup: styleGroup,
-            ),
-
-          // username with generated color (only for others' message)
-          if (!widget.isOwn)
-            _buildClickableUsername(context, styleGroup),
-
-          // Message text with URL detection
-          parseLinks(widget.text, style: styleGroup.txt()),
-
-          Row(
-            spacing: AppDimensions.S,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              // timestamp
-              Text(
-                widget.createdUTC.utcToAppTz.formatLocalized(DateFormat.Hm),
-                style: styleGroup.txt(level: 1),
-              ),
-
-              // TODO: "edited at"
-
-              // pin icon (for pinned messages)
-              if (widget.pinned)
-                Icon(
-                  Icons.push_pin,
-                  size: AppDimensions.M,
-                  color: styleGroup.fadedTextColor,
-                ),
-            ],
-          ),
-        ],
+        children: _buildBubbleContent(context),
       ),
     );
   }
 
 
+  // bubble content
+  List<Widget> _buildBubbleContent(BuildContext context) {
+    return [
+
+      // shows clickable reply, if any
+      if (widget.msg.repliedTo != null) ...[
+        MessagePreview(
+          message: widget.msg.repliedTo!,
+          onPressed: widget.onReplyClicked,
+          styleGroup: styleGroup,
+        ),
+        SizedBox(height: AppDimensions.S),
+      ],
+
+      // username with generated color (only for others' message)
+      if (!widget.isOwn)
+        _buildClickableUsername(context),
+
+      // Message text with URL detection
+      parseLinks(widget.text, style: styleGroup.txt()),
+
+      Row(
+        spacing: AppDimensions.S,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          // timestamp, with "edited" if needed
+          Text(
+            widget.timeText,
+            style: styleGroup.txt(level: 1),
+          ),
+
+          // pin icon (for pinned messages)
+          if (widget.pinned)
+            Icon(
+              Icons.push_pin,
+              size: AppDimensions.M,
+              color: styleGroup.fadedTextColor,
+            ),
+        ],
+      ),
+    ];
+  }
+
+
   // clickable username for messages
-  Widget _buildClickableUsername(BuildContext context, StyleGroup styleGroup) {
+  Widget _buildClickableUsername(BuildContext context) {
 
     // color for username (based on username)
     final usernameColor = widget.isOwn ?
-      styleGroup.normalTextColor : widget.username.generateColor();
+      styleGroup.normalTextColor : widget.username.generateColor(styleGroup);
 
     // opens profile page on username click
     return MouseRegion(
@@ -263,7 +304,7 @@ class MessageBubbleState extends State<MessageBubble> {
       top: 0,
       // handle the position depending on the MessageBubble
       right: widget.isOwn ? 20 : null,
-      left:  widget.isOwn ? null : 20,
+      left:  widget.isOwn ? null : 60,
       child: ActionButtonsMenu(
 
         // hides menu on selection
@@ -324,13 +365,51 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // called when delete to message is selected
   Future<void> _handleDelete() async {
-    // TODO: ask confirmation (with dialog)
 
-    try {
-      await PocketBaseService().deleteMessage(widget.messageId);
-    } catch (e) {
-      if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
-    }
+    // shows confirmation dialog
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return CupertinoAlertDialog(
+          title: Text(localize("delete").toCapitalized()),
+          content: Text(localize("chat.delete.dialog")),
+          actions: [
+
+            // Yes button
+            CupertinoDialogAction(
+              onPressed: () async {
+                try {
+
+                  // deletes message
+                  await PocketBaseService().deleteMessage(widget.messageId);
+
+                  // updates ui
+                  setState(() {});
+
+                // handles errors
+                } catch (e) {
+                  if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
+                }
+
+                // closes dialog
+                if (mounted) Navigator.of(context).pop();
+              },
+              isDefaultAction: true,
+              isDestructiveAction: true,
+              child: Text(localize("yes").toCapitalized()),
+            ),
+
+            // No button
+            CupertinoDialogAction(
+              onPressed: Navigator.of(context).pop,
+              isDefaultAction: false,
+              isDestructiveAction: false,
+              child: Text(localize("no").toCapitalized()),
+            )
+          ],
+        );
+      }
+    );
   }
 }
 
@@ -367,7 +446,6 @@ class ActionButtonsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: context.styles.basic.box(rounded: true, shadow: true),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
 
         // builds one button for every action
@@ -375,7 +453,7 @@ class ActionButtonsMenu extends StatelessWidget {
           Tooltip(
             message: action.text,
             child: IconButton(
-              icon: Icon(action.icon, size: 18),
+              icon: Icon(action.icon, size: AppDimensions.L),
 
               // accent style if highlighted
               style: action.highlight ?
