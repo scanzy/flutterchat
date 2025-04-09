@@ -6,6 +6,7 @@ import 'package:flutterchat/utils/style.dart';
 
 import 'package:flutterchat/user/login.dart';
 import 'package:flutterchat/user/signup.dart';
+import 'package:flutterchat/user/pending.dart';
 import 'package:flutterchat/room/list.dart';
 
 
@@ -15,10 +16,19 @@ class AuthScreen extends StatefulWidget {
   @override
   AuthScreenState createState() => AuthScreenState();
 
-
-  // called when user is authenticated: shows rooms list
+  // called when user is authenticated: goes to the right page
   void onAuth(BuildContext context) {
-    navigateToPage(context, RoomsListScreen(), replace: true);
+  
+      // checks if user is verified or not
+      final user = PocketBaseService().currentUser;
+      final isVerified = user?.data['verified'] ?? false;
+
+      // unverified users go to waiting page, rooms list otherwise
+      navigateToPage(
+        context,
+        isVerified ? RoomsListScreen() : PendingPage(),
+        replace: true,
+      );
   }
 
 
@@ -52,7 +62,7 @@ class AuthScreenState extends State<AuthScreen> {
       if (await PocketBaseService().autoLogin()) {
         if (!mounted) return;
 
-        // goes to home page
+        // Triggering the verification check through onAuth
         widget.onAuth(context);
         return;
       }

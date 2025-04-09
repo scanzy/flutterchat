@@ -139,11 +139,11 @@ class StyleGroup {
 
 // database for app dimensions
 class AppDimensions {
-  static final double S = 4;
-  static final double M = 16; // base dimension for text
-  static final double L = 24;
-  static final double X = 32;
-  static final double H = 64;
+  static const double S = 4;
+  static const double M = 16; // base dimension for text
+  static const double L = 24;
+  static const double X = 32;
+  static const double H = 64;
 
 
   // gets text size
@@ -156,7 +156,7 @@ class AppDimensions {
 
 
   // line thickness for borders and separators
-  static double get line => 1.5;
+  static const line = 1.5;
 
   // border radius for boxes
   static BorderRadius get radius => BorderRadius.circular(AppDimensions.M);

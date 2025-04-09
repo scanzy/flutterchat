@@ -87,8 +87,11 @@ class SignupFormState extends State<SignupForm> {
         TextFormField(
           controller: _passwordController,
           obscureText: true,
-          decoration: InputDecoration(labelText: 'Password'),
-          validator: (value) => value!.length >= 5 ? null : "Password is too short.",
+          decoration: InputDecoration(
+            labelText: 'Password',
+            filled: true,
+          ),
+          validator: (value) => value!.length >= 9 ? null : "Password is too short.",
           textInputAction: TextInputAction.next,
         ),
 
