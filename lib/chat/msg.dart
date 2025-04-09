@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/pb_service.dart';
@@ -364,13 +365,51 @@ class MessageBubbleState extends State<MessageBubble> {
 
   // called when delete to message is selected
   Future<void> _handleDelete() async {
-    // TODO: ask confirmation (with dialog)
 
-    try {
-      await PocketBaseService().deleteMessage(widget.messageId);
-    } catch (e) {
-      if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
-    }
+    // shows confirmation dialog
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return CupertinoAlertDialog(
+          title: Text(localize("delete").toCapitalized()),
+          content: Text(localize("chat.delete.dialog")),
+          actions: [
+
+            // Yes button
+            CupertinoDialogAction(
+              onPressed: () async {
+                try {
+
+                  // deletes message
+                  await PocketBaseService().deleteMessage(widget.messageId);
+
+                  // updates ui
+                  setState(() {});
+
+                // handles errors
+                } catch (e) {
+                  if (mounted) snackBarText(context, 'Delete failed: ${e.toString()}');
+                }
+
+                // closes dialog
+                if (mounted) Navigator.of(context).pop();
+              },
+              isDefaultAction: true,
+              isDestructiveAction: true,
+              child: Text(localize("yes").toCapitalized()),
+            ),
+
+            // No button
+            CupertinoDialogAction(
+              onPressed: Navigator.of(context).pop,
+              isDefaultAction: false,
+              isDestructiveAction: false,
+              child: Text(localize("no").toCapitalized()),
+            )
+          ],
+        );
+      }
+    );
   }
 }
 
