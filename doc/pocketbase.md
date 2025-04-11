@@ -25,8 +25,8 @@ This collection contains auth info for users, it is compiled at registration and
 | `email`            | email    |
 | `emailVisibility`  | bool     |
 | `verified`         | bool     |
-| `name`             | string   |
-| `avatar`           | image    |
+| `data` (TODO)      | json     |
+| `avatar`           | file     |
 | `username`         | string   |
 | `admin`            | bool     |
 | `created`          | datetime |
@@ -38,7 +38,7 @@ This collection contains auth info for users, it is compiled at registration and
 - TODO: allow delete only own profile, or by admins
 
 
-### `regions`
+### `regions` (TODO)
 
 This collection contains the italian regions, used to group channels.
 
@@ -52,7 +52,7 @@ This collection contains the italian regions, used to group channels.
 - TODO: allow only read access to regions
 
 
-### `channels`
+### `channels` (TODO)
 
 This collection contains the channels, which are used to group users and rooms.
 
@@ -60,17 +60,17 @@ This collection contains the channels, which are used to group users and rooms.
 |--------------------|----------|
 | `id`               | string   |
 | `name`             | string   |
-| `region`           | single relation to regions |
+| `region`           | multiple relation to regions |
 | `data`             | json     |
 | `created`          | datetime |
-| `creator`          | single relation to users |
+| `createdBy`        | single relation to users |
 
 **API rules**:
 - TODO: allow edit only for admins and local admins
 - TODO: allow create and delete only for admins
 
 
-### `channelsMembers`
+### `channelsMembers` (TODO)
 
 This collection contains the members of the channels.
 
@@ -79,19 +79,21 @@ This collection contains the members of the channels.
 | `id`               | string   |
 | `user`             | single relation to users |
 | `channel`          | single relation to channels |
+| `admin`            | bool     |
 | `proposedAt`       | datetime |
 | `joinedAt`         | datetime |
-| `approvedAt`       | datetime     |
+| `approvedAt`       | datetime |
 | `removedAt`        | datetime |
-| `admin`            | bool     |
+| `admittedBy`       | single relation to users   |
 | `approvedBy`       | multiple relation to users |
+| `removedBy`        | multiple relation to users |
 
 **API rules**
 - TODO: allow create/edit only for admins and local admins
 - TODO: allow delete only for admins
 
 
-### `rooms`
+### `rooms` (TODO)
 
 This collection contains the rooms, which are used to group messages and users.
 
@@ -99,19 +101,26 @@ This collection contains the rooms, which are used to group messages and users.
 |--------------------|----------|
 | `id`               | string   |
 | `name`             | string   |
-| `private`          | bool     |
-| `image`            | image    |
-| `data`             | string   |
+| `type`             | select   |
+| `image`            | file     |
+| `data`             | json     |
 | `channel`          | single relation to channels |
-| `creator`          | single relation to users |
 | `created`          | datetime |
+| `createdBy`        | single relation to users |
+
+Available values for type:
+- `generic`: main room of channel, only one per channel
+- `journal`: only admin can write
+- `topic`: secondary room of the channel
+- `private`: no access to old messages for new users
+- `custom`: room without channel
 
 **API rules**
 - TODO: access rooms based on membership
 - TODO: edit/delete rooms only for admins
 
 
-### `roomsMembers`
+### `roomsMembers` (TODO)
 
 This collection contains the members of the rooms.
 
@@ -121,9 +130,10 @@ This collection contains the members of the rooms.
 | `user`             | single relation to users |
 | `room`             | single relation to rooms |
 | `admin`            | bool     |
-| `addedBy`          | single relation to users |
 | `addedAt`          | datetime |
 | `removedAt`        | datetime |
+| `addedBy`          | single relation to users |
+| `removedBy`        | single relation to users |
 
 **API rules**:
 - TODO: allow create/edit/delete only for room admins
@@ -137,12 +147,14 @@ This collection contains the messages sent in the chat, which can be text, image
 |--------------------|----------|
 | `id`               | string   |
 | `message`          | string   |
-| `media`            | file (?) |
+| `media`            | file     |
 | `room`             | single relation to rooms |
 | `user`             | single relation to users |
 | `replyTo`          | single relation to messages |
 | `reactions`        | multiple relation to reactions |
 | `pinned`           | bool     |
+| `pinnedBy` (TODO)  | single relation to messages |
+| `pinnedAt` (TODO)  | datetime |
 | `created`          | datetime |
 | `updated`          | datetime |
 | `contentEditedAt`  | datetime |
@@ -159,7 +171,7 @@ Note: `contentEditedAt` is null by default, but it is set to the current datetim
 TODO: access messages based on room membership and type!
 
 
-### `reactions`
+### `reactions` (TODO)
 
 | Field              | Type     |
 |--------------------|----------|
