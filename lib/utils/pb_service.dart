@@ -1,6 +1,8 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:flutterchat/chat/msg.dart';
+import 'package:flutterchat/room/model.dart';
 
 
 // This file handles authentication using PocketBase
@@ -118,3 +120,15 @@ class PocketBaseService {
     await _pb.collection('messages').delete(messageId);
   }
 }
+
+
+// stores names of pocketbase records
+const Map<Type, String> collectionNames = {
+  Room: "rooms",
+  //User: "users",
+};
+
+
+// accesses pocketbase collection from model type
+RecordService collection(Type modelType) =>
+  PocketBaseService().client.collection(collectionNames[modelType]!);

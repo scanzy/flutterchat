@@ -38,7 +38,7 @@ Other:
 - [`lib/util/style.dart`](lib/util/style.dart) for app theme colors and style
 - [`lib/util/localize.dart`](lib/util/localize.dart) for app localization functions
 - [`lib/util/form.dart`](lib/util/form.dart) with reusable form widget (used for login/signup)
-- [`lib/util/pb_service.dart`](lib/util/pb_service.dart) for pocketbase related functions 
-- [`lib/util/constants.dart`](lib/util/constants.dart) for app configuration, like locale and server urls
+- [`lib/util/pb_service.dart`](lib/util/pb_service.dart) for pocketbase related functions
+- [`lib/util/model.dart`](lib/util/model.dart) with base classes for data objects and factories
 - [`lib/util/misc.dart`](lib/util/misc.dart) for other utilities like `navigateToPage`
 - [`lib/main.dart`](lib/main.dart) for app entrypoint and debug pages registration
