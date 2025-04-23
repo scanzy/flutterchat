@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:pocketbase/pocketbase.dart';
+
+import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
+
+import 'package:flutterchat/user/model.dart';
 
 
 class ProfileScreen extends StatelessWidget {
-  final String userId;
-  const ProfileScreen({super.key, required this.userId});
+  final User user;
+  const ProfileScreen({super.key, required this.user});
 
   // TODO: load user data from pocketbase
 
@@ -14,8 +18,25 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: Center(
-        child: Text("User id: $userId"),
+      body: ScrollableCenterPage(
+        child: Column(
+          spacing: AppDimensions.L,
+          children: [
+
+            // username
+            Text(
+              user.username,
+              style: context.styles.background.txt(level: 3, size: 2),
+            ),
+
+            Text(
+              user.email,
+              style: context.styles.background.txt(),
+            ),
+
+            // TODO: other user details
+          ],
+        )
       ),
     );
   }

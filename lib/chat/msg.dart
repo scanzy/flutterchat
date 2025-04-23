@@ -7,11 +7,13 @@ import 'package:flutterchat/utils/pb_service.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
+import 'package:flutterchat/widgets/rich.dart';
 
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/preview.dart';
+
+import 'package:flutterchat/user/model.dart';
 import 'package:flutterchat/user/profile.dart';
-import 'package:flutterchat/widgets/rich.dart';
 
 
 // object for messages
@@ -19,27 +21,27 @@ class Message {
   late final String id;
   late final String text;
   late final bool   pinned;
-  late final String userId;
-  late final String username;
+  late final User user;
   late final bool   isOwn;
   late final DateTime createdUTC;
   late final DateTime? editedUTC;
   late final Message? repliedTo;
+
+  String get username => user.username;
 
   // tracks message deletion to display "message deleted"
   bool justDeleted = false;
 
   // gets data from message record
   Message(RecordModel record, {bool expandReply = true}) {
-      final user = record.get<RecordModel>("expand.user");
+      final userRecord = record.get<RecordModel>("expand.user");
       final replyToRecord = record.get<RecordModel?>('expand.replyTo');
 
       id       = record.id;
       text     = record.get<String?>('message') ?? '';
       pinned   = record.get<bool?>('pinned') ?? false;
-      userId   = user.id;
-      username = user.get<String?>('username') ?? 'Unknown';
-      isOwn    = userId == PocketBaseService().userId;
+      user     = UserFactory().fromRecord(userRecord);
+      isOwn    = user.id == PocketBaseService().user?.id;
       createdUTC = DateTime.parse(record.get<String>("created"));
       editedUTC  = DateTime.tryParse(record.get<String>("contentEditedAt"));
 
@@ -77,7 +79,7 @@ class MessageBubble extends StatefulWidget {
   // basic message data
   String get messageId  => msg.id;
   String get text       => msg.text;
-  String get userId     => msg.userId;
+  User   get user       => msg.user;
   bool   get pinned     => msg.pinned;
   String get username   => msg.username;
   bool   get isOwn      => msg.isOwn;
@@ -286,7 +288,7 @@ class MessageBubbleState extends State<MessageBubble> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => navigateToPage(context, ProfileScreen(userId: widget.userId)),
+        onTap: () => navigateToPage(context, ProfileScreen(user: widget.user)),
 
         child: Text(
           widget.username,
@@ -337,7 +339,7 @@ class MessageBubbleState extends State<MessageBubble> {
           text: "Show profile",
           icon: Icons.person,
           onPressed: () => navigateToPage(
-            context, ProfileScreen(userId: widget.userId)),
+            context, ProfileScreen(user: widget.user)),
         ),
 
         if (widget.isOwn || widget.isAdmin)
@@ -382,7 +384,7 @@ class MessageBubbleState extends State<MessageBubble> {
                 try {
 
                   // deletes message
-                  await PocketBaseService().deleteMessage(widget.messageId);
+                  await PocketBaseService().deleteMessage(widget.msg.id);
 
                   // updates ui
                   setState(() {});

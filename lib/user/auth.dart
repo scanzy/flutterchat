@@ -20,8 +20,7 @@ class AuthScreen extends StatefulWidget {
   void onAuth(BuildContext context) {
   
       // checks if user is verified or not
-      final user = PocketBaseService().currentUser;
-      final isVerified = user?.data['verified'] ?? false;
+      final isVerified = PocketBaseService().user?.isVerified ?? false;
 
       // unverified users go to waiting page, rooms list otherwise
       navigateToPage(

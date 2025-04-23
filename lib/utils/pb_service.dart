@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutterchat/chat/msg.dart';
 import 'package:flutterchat/room/model.dart';
+import 'package:flutterchat/user/model.dart';
 
 
 // This file handles authentication using PocketBase
@@ -16,22 +17,35 @@ import 'package:flutterchat/room/model.dart';
 final pocketbaseURL = 'https://branco.realmen.it';
 
 class PocketBaseService {
+
+  // private field with public getter
   late final PocketBase _pb;
+  PocketBase get client => _pb;
+
 
   // singleton pattern
   static final PocketBaseService _instance = PocketBaseService._setup();
   factory PocketBaseService() => _instance; // factory method
   PocketBaseService._setup(); // private constructor
 
-  // public properties
-  PocketBase    get client      => _pb;
-  bool          get isLoggedIn  => _pb.authStore.isValid;
-  RecordModel?  get currentUser => _pb.authStore.record;
-  String?       get userId      => _pb.authStore.record?.id;
+
+
+  // AUTH
+
+  // checks stored credentials
+  bool get isLoggedIn => _pb.authStore.isValid;
+
+
+  // gets current user model
+  User? get user {
+    return _pb.authStore.record != null
+      ? UserFactory().fromRecord(_pb.authStore.record!) : null;
+  }
+
 
   // checks if the current user is admin
   bool get isAdmin => _pb.authStore.record?.getBoolValue("admin") ?? false;
-  
+
 
   // initializes the auth store, reading from SharedPrefs
   Future<void> setup() async {
@@ -51,7 +65,7 @@ class PocketBaseService {
   Future<bool> autoLogin() async {
 
     // nothing to do if no stored info
-    if (!client.authStore.isValid) return false;
+    if (!isLoggedIn) return false;
 
     // tries auth with stored credentials
     // what happens if invalid credentials? does it throw exception?
@@ -71,6 +85,9 @@ class PocketBaseService {
   void logout() => _pb.authStore.clear();
 
 
+
+  // MESSAGES
+
   // loads previous messages
   Future<List<Message>> loadMessages(Room room) async {
 
@@ -89,7 +106,7 @@ class PocketBaseService {
   // sends message
   Future<void> sendMessage(Room room, String message, Message? replyingMessage) async {
     await collection(Message).create(body: {
-      'user': userId,
+      'user': user?.id,
       'room': room.id,
       'message': message,
       'replyTo': replyingMessage?.id,
@@ -130,7 +147,7 @@ class PocketBaseService {
 const Map<Type, String> collectionNames = {
   Room:    "rooms",
   Message: "roomsMessages",
-  //User: "users",
+  User:    "users",
 };
 
 

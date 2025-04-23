@@ -7,6 +7,8 @@ import 'package:flutterchat/utils/colors.dart';
 import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/user/auth.dart';
+import 'package:flutterchat/user/profile.dart';
+
 import 'package:flutterchat/dev/styles.dart';
 import 'package:flutterchat/dev/scouting2.dart';
 import 'package:flutterchat/dev/localize.dart';
@@ -39,6 +41,7 @@ class MyApp extends StatefulWidget {
 
   // pages shown as fake rooms
   static final Map<String, Widget> extraPages = {
+    'My profile': ProfileScreen(user: PocketBaseService().user!),
     'App styles and themes': StylesPage(),
     // Add new extra pages here by simply adding new entries
   };
