@@ -34,7 +34,7 @@ The pocketbase server has these collections:
 - `channelsMembers`: members of channels, with status
 - `rooms`: name, type and other data of rooms
 - `roomsMembers`: members of rooms, with joining date
-- `messages`: messages sent in the chat
+- `roomsMessages`: messages sent in chat rooms
 - `reactions`: reactions to messages
 
 Note: datetime fields are in UTC timezone, so they need to be converted to local time when displaying them.
@@ -174,15 +174,16 @@ This collection contains the members of the rooms.
 - TODO: allow create/edit/delete only for room admins
 
 
-### `messages`
+### `roomsMessages`
+(formerly `messages`, used by old single-room versions of the app)
 
-This collection contains the messages sent in the chat, which can be text, images or files.
+This collection contains the messages sent in the chat rooms, which can be text, images or files.
 
 | Field              | Type     |
 |--------------------|----------|
 | `id`               | string*  |
 | `message`          | string   |
-| `media`            | file     |
+| `media`            | single file |
 | `room`             | single relation to rooms* (cascade delete) |
 | `user`             | single relation to users* |
 | `replyTo`          | single relation to messages |
@@ -204,7 +205,7 @@ Note: `contentEditedAt` is null by default, but it is set to the current datetim
 - delete: @request.auth.admin = true || @request.auth.id = user
 
 - TODO: access messages based on room membership and type!
-- TODO: allow replyTo messages on same room
+- TODO: allow replyTo messages only on same room (for now)
 
 
 ### `reactions`

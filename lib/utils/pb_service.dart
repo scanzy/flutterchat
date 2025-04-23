@@ -72,11 +72,14 @@ class PocketBaseService {
 
 
   // loads previous messages
-  Future<List<Message>> loadMessages() async {
+  Future<List<Message>> loadMessages(Room room) async {
 
     // loads data
-    final recordModels = await _pb.collection('messages')
-        .getFullList(sort: '+created', expand: 'user,replyTo.user');
+    final recordModels = await collection(Message)
+      .getFullList(
+        sort: '+created', expand: 'user,replyTo.user',
+        filter: 'room = "${room.id}"',
+      );
 
     // builds message objects
     return recordModels.map((record) => Message(record)).toList();
@@ -84,9 +87,10 @@ class PocketBaseService {
 
 
   // sends message
-  Future<void> sendMessage(String message, Message? replyingMessage) async {
-    await _pb.collection('messages').create(body: {
+  Future<void> sendMessage(Room room, String message, Message? replyingMessage) async {
+    await collection(Message).create(body: {
       'user': userId,
+      'room': room.id,
       'message': message,
       'replyTo': replyingMessage?.id,
     },
@@ -97,7 +101,7 @@ class PocketBaseService {
 
   // updates existing message text
   Future<void> updateMessage(String messageId, String newContent) async {
-    await _pb.collection('messages').update(
+    await collection(Message).update(
       messageId,
       body: {
         'message': newContent,
@@ -109,7 +113,7 @@ class PocketBaseService {
 
   // pins/unpins existing message
   Future<void> pinMessage(String messageId, bool pinned) async {
-    await _pb.collection('messages').update(
+    await collection(Message).update(
       messageId, body: {'pinned': pinned},
     );
   }
@@ -117,14 +121,15 @@ class PocketBaseService {
 
   // deletes existing message
   Future<void> deleteMessage(String messageId) async {
-    await _pb.collection('messages').delete(messageId);
+    await collection(Message).delete(messageId);
   }
 }
 
 
 // stores names of pocketbase records
 const Map<Type, String> collectionNames = {
-  Room: "rooms",
+  Room:    "rooms",
+  Message: "roomsMessages",
   //User: "users",
 };
 

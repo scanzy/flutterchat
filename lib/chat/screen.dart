@@ -8,7 +8,9 @@ import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
 
+import 'package:flutterchat/room/model.dart';
 import 'package:flutterchat/room/details.dart';
+
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/msg.dart';
 import 'package:flutterchat/chat/preview.dart';
@@ -16,9 +18,10 @@ import 'package:flutterchat/chat/extras.dart';
 
 
 
-// screen with chat history, and new message field
+// screen with chat history of a specific room, and new message field
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final Room room;
+  const ChatScreen({super.key, required this.room});
 
   @override
   ChatScreenState createState() => ChatScreenState();
@@ -88,7 +91,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   // loads messages and shows them in the list view
   Future<void> _loadMessages() async {
-    final messages = await pb.loadMessages();
+    final messages = await pb.loadMessages(widget.room);
     if (!mounted) return;
     setState(() {
       _messages.addAll(messages.reversed);
@@ -116,9 +119,14 @@ class ChatScreenState extends State<ChatScreen> {
 
 
   // sets up actions when something occurs with messages
+  // TODO: move this to model
   Future<void> _setupRealtime() async {
-    _unsubscribe = await pb.client.collection('messages')
-      .subscribe('*', (e) => _handleMessage(e.record, e.action), expand: 'user, replyTo.user');
+    _unsubscribe = await collection(Message)
+      .subscribe('*',
+      (e) => _handleMessage(e.record, e.action),
+      filter: 'room = "${widget.room.id}"', // only in this room
+      expand: 'user, replyTo.user',
+    );
   }
 
 
@@ -180,21 +188,21 @@ class ChatScreenState extends State<ChatScreen> {
   // called when send button is pressed
   void _onSubmit(String text) {
     if (editingMessage != null) {
-      _editMessage(editingMessage as Message, text);
+      _editMessage(editingMessage!, text);
     } else {
-      _sendMessage(text, replyingMessage);
+      _sendMessage(widget.room, text, replyingMessage);
     }
     setState(() { replyingMessage = null; });
   }
 
 
   // sends a new message to the server
-  Future<void> _sendMessage(String text, Message? replyingMessage) async {
+  Future<void> _sendMessage(Room room, String text, Message? replyingMessage) async {
     if (text.isEmpty) return;
 
     try {
       // sends message
-      await PocketBaseService().sendMessage(text, replyingMessage);
+      await PocketBaseService().sendMessage(room, text, replyingMessage);
       if (!mounted) return;
 
       // TODO: clear unread messages on server

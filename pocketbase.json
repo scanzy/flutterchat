@@ -1114,33 +1114,6 @@
                 "type": "text"
             },
             {
-                "hidden": false,
-                "id": "file1781309708",
-                "maxSelect": 1,
-                "maxSize": 0,
-                "mimeTypes": [],
-                "name": "media",
-                "presentable": false,
-                "protected": false,
-                "required": false,
-                "system": false,
-                "thumbs": [],
-                "type": "file"
-            },
-            {
-                "cascadeDelete": true,
-                "collectionId": "pbc_3085411453",
-                "hidden": false,
-                "id": "relation1923043739",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "room",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "relation"
-            },
-            {
                 "cascadeDelete": false,
                 "collectionId": "_pb_users_auth_",
                 "hidden": false,
@@ -1205,19 +1178,6 @@
                 "required": false,
                 "system": false,
                 "type": "date"
-            },
-            {
-                "cascadeDelete": false,
-                "collectionId": "pbc_1549310251",
-                "hidden": false,
-                "id": "relation947093427",
-                "maxSelect": 999,
-                "minSelect": 0,
-                "name": "reactions",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "relation"
             }
         ],
         "indexes": [],
@@ -1378,118 +1338,6 @@
         "system": false
     },
     {
-        "id": "pbc_3264342357",
-        "listRule": null,
-        "viewRule": null,
-        "createRule": null,
-        "updateRule": null,
-        "deleteRule": null,
-        "name": "roomMembers",
-        "type": "base",
-        "fields": [
-            {
-                "autogeneratePattern": "[a-z0-9]{15}",
-                "hidden": false,
-                "id": "text3208210256",
-                "max": 15,
-                "min": 15,
-                "name": "id",
-                "pattern": "^[a-z0-9]+$",
-                "presentable": false,
-                "primaryKey": true,
-                "required": true,
-                "system": true,
-                "type": "text"
-            },
-            {
-                "cascadeDelete": true,
-                "collectionId": "_pb_users_auth_",
-                "hidden": false,
-                "id": "relation2375276105",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "user",
-                "presentable": false,
-                "required": true,
-                "system": false,
-                "type": "relation"
-            },
-            {
-                "cascadeDelete": false,
-                "collectionId": "pbc_3085411453",
-                "hidden": false,
-                "id": "relation1923043739",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "room",
-                "presentable": false,
-                "required": true,
-                "system": false,
-                "type": "relation"
-            },
-            {
-                "hidden": false,
-                "id": "bool2282622326",
-                "name": "admin",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "bool"
-            },
-            {
-                "hidden": false,
-                "id": "autodate2990389176",
-                "name": "addedAt",
-                "onCreate": true,
-                "onUpdate": false,
-                "presentable": false,
-                "system": false,
-                "type": "autodate"
-            },
-            {
-                "hidden": false,
-                "id": "date942308171",
-                "max": "",
-                "min": "",
-                "name": "removedAt",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "date"
-            },
-            {
-                "cascadeDelete": false,
-                "collectionId": "_pb_users_auth_",
-                "hidden": false,
-                "id": "relation3888809020",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "addedBy",
-                "presentable": false,
-                "required": true,
-                "system": false,
-                "type": "relation"
-            },
-            {
-                "cascadeDelete": false,
-                "collectionId": "_pb_users_auth_",
-                "hidden": false,
-                "id": "relation1840665653",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "removedBy",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "relation"
-            }
-        ],
-        "indexes": [
-            "CREATE UNIQUE INDEX `idx_gd6mOQZGSl` ON `roomMembers` (\n  `user`,\n  `room`\n)"
-        ],
-        "system": false
-    },
-    {
         "id": "pbc_3085411453",
         "listRule": "",
         "viewRule": "",
@@ -1626,6 +1474,266 @@
                 "required": false,
                 "system": false,
                 "type": "relation"
+            }
+        ],
+        "indexes": [],
+        "system": false
+    },
+    {
+        "id": "pbc_3264342357",
+        "listRule": null,
+        "viewRule": null,
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "name": "roomsMembers",
+        "type": "base",
+        "fields": [
+            {
+                "autogeneratePattern": "[a-z0-9]{15}",
+                "hidden": false,
+                "id": "text3208210256",
+                "max": 15,
+                "min": 15,
+                "name": "id",
+                "pattern": "^[a-z0-9]+$",
+                "presentable": false,
+                "primaryKey": true,
+                "required": true,
+                "system": true,
+                "type": "text"
+            },
+            {
+                "cascadeDelete": true,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "id": "relation2375276105",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "user",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "pbc_3085411453",
+                "hidden": false,
+                "id": "relation1923043739",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "room",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "hidden": false,
+                "id": "bool2282622326",
+                "name": "admin",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "bool"
+            },
+            {
+                "hidden": false,
+                "id": "autodate2990389176",
+                "name": "addedAt",
+                "onCreate": true,
+                "onUpdate": false,
+                "presentable": false,
+                "system": false,
+                "type": "autodate"
+            },
+            {
+                "hidden": false,
+                "id": "date942308171",
+                "max": "",
+                "min": "",
+                "name": "removedAt",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "date"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "id": "relation3888809020",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "addedBy",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "id": "relation1840665653",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "removedBy",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "relation"
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX `idx_gd6mOQZGSl` ON `roomsMembers` (\n  `user`,\n  `room`\n)"
+        ],
+        "system": false
+    },
+    {
+        "id": "pbc_258207938",
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\" && @request.auth.id = user",
+        "updateRule": "@request.auth.admin = true || @request.auth.id = user",
+        "deleteRule": "@request.auth.admin = true || @request.auth.id = user",
+        "name": "roomsMessages",
+        "type": "base",
+        "fields": [
+            {
+                "autogeneratePattern": "[a-z0-9]{15}",
+                "hidden": false,
+                "id": "text3208210256",
+                "max": 15,
+                "min": 15,
+                "name": "id",
+                "pattern": "^[a-z0-9]+$",
+                "presentable": false,
+                "primaryKey": true,
+                "required": true,
+                "system": true,
+                "type": "text"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "id": "text3065852031",
+                "max": 0,
+                "min": 0,
+                "name": "message",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": false,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "hidden": false,
+                "id": "file1781309708",
+                "maxSelect": 1,
+                "maxSize": 0,
+                "mimeTypes": [],
+                "name": "media",
+                "presentable": false,
+                "protected": false,
+                "required": false,
+                "system": false,
+                "thumbs": [],
+                "type": "file"
+            },
+            {
+                "cascadeDelete": true,
+                "collectionId": "pbc_3085411453",
+                "hidden": false,
+                "id": "relation1923043739",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "room",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "id": "relation2375276105",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "user",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "pbc_2605467279",
+                "hidden": false,
+                "id": "relation1853530023",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "replyTo",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "pbc_1549310251",
+                "hidden": false,
+                "id": "relation947093427",
+                "maxSelect": 999,
+                "minSelect": 0,
+                "name": "reactions",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "hidden": false,
+                "id": "bool3844597223",
+                "name": "pinned",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "bool"
+            },
+            {
+                "hidden": false,
+                "id": "autodate2990389176",
+                "name": "created",
+                "onCreate": true,
+                "onUpdate": false,
+                "presentable": false,
+                "system": false,
+                "type": "autodate"
+            },
+            {
+                "hidden": false,
+                "id": "autodate3332085495",
+                "name": "updated",
+                "onCreate": true,
+                "onUpdate": true,
+                "presentable": false,
+                "system": false,
+                "type": "autodate"
+            },
+            {
+                "hidden": false,
+                "id": "date241431785",
+                "max": "",
+                "min": "",
+                "name": "contentEditedAt",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "date"
             }
         ],
         "indexes": [],
