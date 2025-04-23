@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutterchat/room/model.dart';
 import 'package:flutterchat/utils/misc.dart';
+import 'package:flutterchat/utils/style.dart';
 
 
 class RoomDetailsScreen extends StatelessWidget {
-  const RoomDetailsScreen({super.key});
+  final Room room;
+  const RoomDetailsScreen({super.key, required this.room});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +19,24 @@ class RoomDetailsScreen extends StatelessWidget {
           debugBannerSpace(),
         ]
       ),
-      body: Center(
-        child: Text("Details here"),
+      body: ScrollableCenterPage(
+        child: Column(
+          spacing: AppDimensions.L,
+          children: [
+
+            // room name
+            Text(
+              room.name,
+              style: context.styles.background.txt(level: 3, size: 2),
+            ),
+
+            // room description
+            Text(
+              room.description ?? "",
+              style: context.styles.background.txt(),
+            ),
+          ],
+        ),
       ),
     );
   }

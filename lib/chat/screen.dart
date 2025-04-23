@@ -282,9 +282,11 @@ class ChatScreenState extends State<ChatScreen> {
 
       // topbar with title and logout button
       appBar: AppBar(
+
+        // tapping title shows room details
         title: GestureDetector(
-          onTap: () => navigateToPage(context, RoomDetailsScreen()),
-          child: Text('La forza del lupo è il Branco'),
+          onTap: () => navigateToPage(context, RoomDetailsScreen(room: widget.room)),
+          child: Text(widget.room.name),
         ),
         actions: [
 
