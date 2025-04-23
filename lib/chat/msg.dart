@@ -11,6 +11,7 @@ import 'package:flutterchat/utils/localize.dart';
 import 'package:flutterchat/chat/input.dart';
 import 'package:flutterchat/chat/preview.dart';
 import 'package:flutterchat/user/profile.dart';
+import 'package:flutterchat/widgets/rich.dart';
 
 
 // object for messages

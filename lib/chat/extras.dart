@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
+import 'package:flutterchat/widgets/rich.dart';
 
 
 // title with date for messages list

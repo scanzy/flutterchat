@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/colors.dart';
+import 'package:flutterchat/widgets/rich.dart';
 
 
 // screen to show app colors and styles

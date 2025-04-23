@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/pb_service.dart';
-import 'package:flutterchat/utils/form.dart';
+import 'package:flutterchat/widgets/form.dart';
 
 
 class LoginForm extends StatefulWidget {

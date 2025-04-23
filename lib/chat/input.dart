@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutterchat/utils/misc.dart';
 import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
+import 'package:flutterchat/widgets/rich.dart';
 import 'package:flutterchat/chat/msg.dart';
 
 

@@ -34,10 +34,13 @@ Development:
 - [`lib/dev/localize.dart`](lib/dev/localize.dart) with an example page that showcases text localization features
 - other debug pages (shown as fake rooms), for scouting or interactive examples for devs
 
+Shared widgets (easily reusable for other projects):
+- [`lib/widgets/form.dart`](lib/widgets/form.dart) with reusable form widget (used for login/signup)
+- [`lib/widgets/rich.dart`](lib/widgets/rich.dart) with reusable text widget with markdown support
+
 Other:
 - [`lib/util/style.dart`](lib/util/style.dart) for app theme colors and style
 - [`lib/util/localize.dart`](lib/util/localize.dart) for app localization functions
-- [`lib/util/form.dart`](lib/util/form.dart) with reusable form widget (used for login/signup)
 - [`lib/util/pb_service.dart`](lib/util/pb_service.dart) for pocketbase related functions
 - [`lib/util/model.dart`](lib/util/model.dart) with base classes for data objects and factories
 - [`lib/util/misc.dart`](lib/util/misc.dart) for other utilities like `navigateToPage`

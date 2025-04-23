@@ -10,9 +10,11 @@ Files are divided into these folders:
 - [`doc/`](doc/) for app documentation
 - [`lib/user/`](lib/user/) for account related code: login, register, profile, pending account, users list view, user tile widget
 - [`lib/room/`](lib/room/) for rooms related code: rooms list, room details & settings, create room page, room tile widget
+- [`lib/chat/`](lib/chat/) for chat related code: messages list, message bubble, input bar for message writing
 - [`lib/channel/`](lib/channel/) for channel related code: channels list, channel details & settings, create channel page, channel tile widget
 - [`lib/dev/`](lib/dev/) for scouting or interactive examples for devs
-- [`lib/util/`](lib/util/) for helpers: styles, navigation, translation, services, and shared widgets 
+- [`lib/utils/`](lib/utils/) for helpers: styles, navigation, translation, services
+- [`lib/widgets/](lib/widgets/) for shared widgets: forms and rich text (reusable for other projects)
 
 See [`doc/files.md`](doc/files.md) for a complete list of files and their content.
 If you add new code files to the project, make sure to update the list.
