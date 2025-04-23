@@ -7,68 +7,89 @@ import 'package:flutterchat/utils/style.dart';
 import 'package:flutterchat/utils/localize.dart';
 
 import 'package:flutterchat/main.dart';
+import 'package:flutterchat/room/model.dart';
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
 
 
-class Room {
-  final String name;
-  final IconData? icon;
-  final String? type;
-  final String? lastMsgPreview;
-  final DateTime? lastCreated;
-  final int? unreadMessages;
-  final Function(BuildContext)? onTap;
+class FakeRoom implements RoomBase{
 
-  Room({
+  // fixed room data
+  @override String name;
+  @override int? iconCode;
+  @override String? type;
+  @override final String? lastMsgPreview;
+  @override final DateTime? lastUpdate;
+  @override final int? unreadMessages;
+
+  // page to open on room list item tap
+  final Widget page;
+
+  FakeRoom({
     required this.name,
-    this.icon,
+    this.iconCode,
     this.type,
     this.lastMsgPreview,
-    this.lastCreated,
+    this.lastUpdate,
     this.unreadMessages,
-    this.onTap,
+    required this.page,
   });
 }
 
 
-// rooms list
-class RoomsListScreen extends StatelessWidget {
-  RoomsListScreen({super.key});
+final List<FakeRoom> fakeRooms = [
 
-  final List<Room> rooms = [
-    Room(
-      name: "Branco",
-      type: "Generale",
-      icon: Icons.public,
-      lastMsgPreview: "user: Ciao uomini!",
-      lastCreated: DateTime.now(),
-      unreadMessages: 10,
-      onTap: (context) => navigateToPage(context, ChatScreen()),
-    ),
+  // adds extra pages
+  for (var entry in MyApp.extraPages.entries) ...[
+    FakeRoom(
+      name: entry.key,
+      type: "Extra",
+      iconCode: Icons.explore.codePoint,
+      page: entry.value,
+    )
+  ],
 
-    // adds extra pages
-    for (var page in MyApp.extraPages.entries) ...[
-      Room(
-        name: page.key,
-        type: "Extra",
-        icon: Icons.explore,
-        onTap: (context) => navigateToPage(context, page.value),
+  // adds debug pages (only in debug mode)
+  if (kDebugMode)
+    for (var entry in MyApp.debugPages.entries) ...[
+      FakeRoom(
+        name: entry.key,
+        type: "Debug",
+        iconCode: Icons.code.codePoint,
+        page: entry.value,
       )
     ],
+];
 
-    // adds debug pages (only in debug mode)
-    if (kDebugMode)
-      for (var page in MyApp.debugPages.entries) ...[
-        Room(
-          name: page.key,
-          type: "Debug",
-          icon: Icons.code,
-          onTap: (context) => navigateToPage(context, page.value),
-        )
-      ],
-  ];
 
+// rooms list
+class RoomsListScreen extends StatefulWidget {
+  const RoomsListScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => RoomsListScreenState();
+}
+
+
+class RoomsListScreenState extends State<RoomsListScreen> {
+
+  final List<RoomBase> _rooms = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadRooms();
+  }
+
+  Future<void> loadRooms() async {
+    final allRooms = await RoomFactory().all();
+    if (!mounted) return;
+    setState(() {
+      _rooms.clear();
+      _rooms.addAll(allRooms);
+      _rooms.addAll(fakeRooms);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,11 +128,13 @@ class RoomsListScreen extends StatelessWidget {
             style: context.styles.background.txt(),
           ),
         ),
+
+        // rooms
         Expanded(
           child: ListView.separated(
             // controller: _scrollController,
-            itemCount: rooms.length,
-            itemBuilder: (context, index) => _buildRoomRow(context, rooms[index]),
+            itemCount: _rooms.length,
+            itemBuilder: (context, index) => _buildRoomRow(context, _rooms[index]),
 
             // items separator
             separatorBuilder: (context, index) => Divider(
@@ -128,7 +151,12 @@ class RoomsListScreen extends StatelessWidget {
 
 
   // room list item
-  Widget _buildRoomRow(BuildContext context, Room room) {
+  Widget _buildRoomRow(BuildContext context, RoomBase room) {
+
+    // gets the page to navigate to, on room tap
+    late final Widget? page;
+    if (room is Room)     page = ChatScreen(room: room);
+    if (room is FakeRoom) page = room.page;
 
     // styles configurations
     final avatarStyleGroup = context.styles.basic;
@@ -142,7 +170,10 @@ class RoomsListScreen extends StatelessWidget {
       leading: CircleAvatar(
         foregroundColor: avatarStyleGroup.normalTextColor,
         backgroundColor: avatarStyleGroup.backgroundColor,
-        child: (room.icon != null) ? Icon(room.icon)
+
+        // icon or first letter of room name
+        child: (room.iconCode != null)
+          ? Icon(IconData(room.iconCode!, fontFamily: "MaterialIcons"))
           : Text(room.name[0], style: avatarStyleGroup.txt()),
       ),
 
@@ -182,7 +213,7 @@ class RoomsListScreen extends StatelessWidget {
         ),
 
       // goes to corresponding room
-      onTap: () => (room.onTap ?? notImplemented)(context),
+      onTap: () { if (page != null) navigateToPage(context, page); },
     );
   }
 
