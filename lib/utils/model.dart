@@ -99,3 +99,15 @@ abstract class ModelFactory<M extends Model> {
     ).toList();
   }
 }
+
+
+
+// helper to load data from json
+extension JsonHelper on RecordModel {
+  RecordModel getJson(String fieldName) {
+
+    // gets json and converts to mapping, then creates record
+    final jsonData = get<Map<String, dynamic>?>("data") ?? {};
+    return RecordModel.fromJson(jsonData);
+  }
+}

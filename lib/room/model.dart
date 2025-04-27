@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:pocketbase/pocketbase.dart';
 
 import 'package:flutterchat/utils/model.dart';
@@ -45,11 +43,10 @@ class Room extends Model with RoomBase {
 
     // TODO: load other data
 
-    // loads json data
-    final jsonData = record.get<String?>("data") ?? "{}";
-    final parsedData = RecordModel.fromJson((jsonData.isNotEmpty ? jsonDecode(jsonData) : null) ?? {});
-    iconCode    = parsedData.get<int?>("iconCode", null);
-    description = parsedData.get<String?>("description", null);
+    // loads extra data from json
+    final data  = record.getJson("data");
+    iconCode    = data.get<int?>("iconCode", null);
+    description = data.get<String?>("description", null);
   }
 
 
