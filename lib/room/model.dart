@@ -80,6 +80,9 @@ class RoomFactory extends ModelFactory<Room> {
       // builds message preview
       final lastMsg = Message(msgs.items[0]);
       room.lastMsgPreview = "${lastMsg.username}: ${lastMsg.text}";
+
+      // shows last message date/time
+      room.lastUpdate = lastMsg.editedUTC;
     }
 
     return rooms;

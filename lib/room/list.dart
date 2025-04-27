@@ -137,7 +137,7 @@ class RoomsListScreenState extends State<RoomsListScreen> {
 
             // items separator
             separatorBuilder: (context, index) => Divider(
-              indent: AppDimensions.H,
+              indent: 2 * (AppDimensions.L + AppDimensions.M), // 2 * (avatar radius and padding)
               height: AppDimensions.line,
               thickness: AppDimensions.line,
               color: context.styles.background.fadedTextColor,
@@ -172,6 +172,7 @@ class RoomsListScreenState extends State<RoomsListScreen> {
 
       // room avatar
       leading: CircleAvatar(
+        radius: AppDimensions.L,
         foregroundColor: avatarStyleGroup.normalTextColor,
         backgroundColor: avatarStyleGroup.backgroundColor,
 
@@ -181,40 +182,63 @@ class RoomsListScreenState extends State<RoomsListScreen> {
           : Text(room.name[0], style: avatarStyleGroup.txt()),
       ),
 
-      // room title
+      // first row
       title: Row(
         spacing: AppDimensions.M,
         children: [
+          Expanded(child: Row(
+            spacing: AppDimensions.M,
+            children: [
+
+              // room title
+              Text(room.name, style: tileStyleGroup.txt(level: 3)),
+
+              // room type badge
+              if (room.type != null)
+                Badge(
+                  label: Text(room.type!, style: badgeStyleGroup.txt()),
+                  backgroundColor: badgeStyleGroup.backgroundColor,
+                  padding: EdgeInsets.symmetric(horizontal: 2 * AppDimensions.S),
+                ),
+            ],
+          )),
+
+          // last updated time or date
+          room.lastUpdate == null ? SizedBox() :
           Text(
-            room.name,
-            style: tileStyleGroup.txt(level: 3),
+            room.lastUpdate!.prettyFormat(time: true),
+            style: tileStyleGroup.txt(level: 1),
           ),
-          if (room.type != null)
-            Badge(
-              label: Text(room.type!, style: badgeStyleGroup.txt()),
-              backgroundColor: badgeStyleGroup.backgroundColor,
-              padding: EdgeInsets.symmetric(horizontal: 2 * AppDimensions.S),
-            ),
         ],
       ),
-      subtitle:
-        (room.lastMsgPreview == null) ? null :
-        Text(
-          room.lastMsgPreview!,
-          style: tileStyleGroup.txt(),
-        ),
 
-      // unread messages count
-      trailing:
-        (room.unreadMessages ?? 0) == 0 ? null :
-        Badge.count(
-          count: room.unreadMessages!,
-          padding: EdgeInsets.all(AppDimensions.S),
-          largeSize: AppDimensions.M,
-          textStyle: unreadStyleGroup.txt(),
-          textColor: unreadStyleGroup.normalTextColor,
-          backgroundColor: unreadStyleGroup.backgroundColor,
-        ),
+      // second row
+      subtitle: Row(
+        spacing: AppDimensions.M,
+        children: [
+
+          // message prewiew (if any)
+          Expanded(child:
+            (room.lastMsgPreview == null) ? Text("\n") :
+            Text(
+              "${room.lastMsgPreview!}\n",
+              style: tileStyleGroup.txt(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+
+        // unread messages count
+          (room.unreadMessages ?? 0) == 0 ? SizedBox() :
+          Badge.count(
+            count: room.unreadMessages!,
+            padding: EdgeInsets.all(AppDimensions.S),
+            textStyle: unreadStyleGroup.txt(size: 1),
+            textColor: unreadStyleGroup.normalTextColor,
+            backgroundColor: unreadStyleGroup.backgroundColor,
+          ),
+        ],
+      ),
 
       // goes to corresponding room
       onTap: () { if (page != null) navigateToPage(context, page); },
