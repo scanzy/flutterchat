@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:timezone/timezone.dart';
 import 'package:timezone/data/latest.dart';
-import 'package:logging/logging.dart';
+
+import 'package:flutterchat/widgets/rich.dart';
 
 
 // localization utilities
@@ -16,10 +19,37 @@ String? localizeSafe(String? key) => (key == null) ? null : localize(key);
 // datetime utilities (localization and formatting)
 extension DateTimeExtension on DateTime {
 
+  // formats date using days of week (e.g. "yesterday" or "monday")
+  // for today, returns HH:mm time (if time = true) or "today" (if time = false)
+  String prettyFormat({required bool time}) {
+
+    // calculates the number of days ago
+    final now = DateTime.timestamp().utcToAppTz;
+    final pastDays = now.difference(this).inDays;
+
+    // checks today and yesterday
+    if (pastDays == 0) {
+      return time ? formatLocalized(DateFormat.Hm) : localize("today").toCapitalized();
+    }
+    if (pastDays == 1) {
+      return localize("yesterday").toCapitalized();
+    }
+
+    // writes the day of week (e.g. Monday)
+    if (pastDays < 7) {
+      return formatLocalized(DateFormat.EEEE).toCapitalized();
+    }
+
+    // formats date normally
+    return formatLocalized(DateFormat.yMMMMd);
+  }
+
+
   // formats a local date (with time, if you want), without timezone conversion
-  // example: formatDateTime(DateFormat.dMMMMy, myDateTime); // gives "1 Gennaio 2025"
+  // example: myDateTime.formatLocalized(DateFormat.dMMMMy); // gives "1 Gennaio 2025"
   String formatLocalized(DateFormat Function(dynamic) format) =>
     format(AppLocalization._currentLocale).format(this);
+
 
   // converts from UTC to app timezone
   DateTime get utcToAppTz => TZDateTime.from(this, UTC).toLocal();
