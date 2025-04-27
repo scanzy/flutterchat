@@ -10,6 +10,7 @@ import 'package:flutterchat/main.dart';
 import 'package:flutterchat/room/model.dart';
 import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
+// import 'package:flutterchat/widgets/list.dart';
 
 
 class FakeRoom with RoomBase {
@@ -163,6 +164,11 @@ class RoomsListScreenState extends State<RoomsListScreen> {
     final unreadStyleGroup = context.styles.accent;
 
     return ListTile(
+
+    // use this for easier configuration
+    // return CustomListTile(
+      //paddingX: AppDimensions.M,
+      //paddingY: AppDimensions.S,
 
       // room avatar
       leading: CircleAvatar(
