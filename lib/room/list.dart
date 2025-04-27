@@ -12,28 +12,23 @@ import 'package:flutterchat/user/auth.dart';
 import 'package:flutterchat/chat/screen.dart';
 
 
-class FakeRoom implements RoomBase{
-
-  // fixed room data
-  @override String name;
-  @override int? iconCode;
-  @override String? type;
-  @override final String? lastMsgPreview;
-  @override final DateTime? lastUpdate;
-  @override final int? unreadMessages;
+class FakeRoom with RoomBase {
 
   // page to open on room list item tap
   final Widget page;
 
   FakeRoom({
-    required this.name,
-    this.iconCode,
-    this.type,
-    this.lastMsgPreview,
-    this.lastUpdate,
-    this.unreadMessages,
+    required name,
+    iconCode,
+    type,
+    description,
     required this.page,
-  });
+  }) {
+    this.name = name;
+    this.iconCode = iconCode;
+    this.type = type;
+    lastMsgPreview = description;
+  }
 }
 
 
@@ -81,6 +76,8 @@ class RoomsListScreenState extends State<RoomsListScreen> {
     loadRooms();
   }
 
+
+  // loads rooms data
   Future<void> loadRooms() async {
     final allRooms = await RoomFactory().all();
     if (!mounted) return;
@@ -90,6 +87,7 @@ class RoomsListScreenState extends State<RoomsListScreen> {
       _rooms.addAll(fakeRooms);
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
