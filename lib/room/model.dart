@@ -82,9 +82,11 @@ class RoomFactory extends ModelFactory<Room> {
       room.lastMsgPreview = "${lastMsg.username}: ${lastMsg.text}";
 
       // shows last message date/time
-      room.lastUpdate = lastMsg.editedUTC;
+      room.lastUpdate = lastMsg.editedUTC ?? lastMsg.createdUTC;
     }
 
+    // sorts rooms by last message
+    rooms.sort((room1, room2) => room2.lastUpdate!.compareTo(room1.lastUpdate!));
     return rooms;
   }
 }
