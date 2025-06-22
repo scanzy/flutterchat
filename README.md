@@ -7,16 +7,16 @@ Main objective: provide a cross-platform self-hosted working alternative to Tele
 ## Code organization
 
 Files are divided into these folders:
-- [`doc/`](doc/) for app documentation
-- [`lib/user/`](lib/user/) for account related code: login, register, profile, pending account, users list view, user tile widget
-- [`lib/room/`](lib/room/) for rooms related code: rooms list, room details & settings, create room page, room tile widget
-- [`lib/chat/`](lib/chat/) for chat related code: messages list, message bubble, input bar for message writing
-- [`lib/channel/`](lib/channel/) for channel related code: channels list, channel details & settings, create channel page, channel tile widget
-- [`lib/dev/`](lib/dev/) for scouting or interactive examples for devs
-- [`lib/utils/`](lib/utils/) for helpers: styles, navigation, translation, services
-- [`lib/widgets/](lib/widgets/) for shared widgets: forms and rich text (reusable for other projects)
+- [`doc/`](/doc/) for app documentation
+- [`lib/user/`](/lib/user/) for account related code: login, register, profile, pending account, users list view, user tile widget
+- [`lib/room/`](/lib/room/) for rooms related code: rooms list, room details & settings, create room page, room tile widget
+- [`lib/chat/`](/lib/chat/) for chat related code: messages list, message bubble, input bar for message writing
+- [`lib/channel/`](/lib/channel/) for channel related code: channels list, channel details & settings, create channel page, channel tile widget
+- [`lib/dev/`](/lib/dev/) for scouting or interactive examples for devs
+- [`lib/utils/`](/lib/utils/) for helpers: styles, navigation, translation, services
+- [`lib/widgets/](/lib/widgets/) for shared widgets: forms and rich text (reusable for other projects)
 
-See [`doc/files.md`](doc/files.md) for a complete list of files and their content.
+See [`doc/files.md`](/doc/files.md) for a complete list of files and their content.
 If you add new code files to the project, make sure to update the list.
 
 
@@ -28,9 +28,9 @@ To contribute to the project, follow the steps below:
 1. **Look at tasks**: visit [this project](https://github.com/users/scanzy/projects/1) to see the board with all issues (development tasks), divided into groups.
 2. **Choose priority**: choose one of the issues in the "Next" group (priority) assign it to yourself, and move it in the "In progress" group.
 3. **Investigate** about the task and comment the issue describing how you think to solve the issue, including helpful links, resources and code snippets.
-4. **Launch the environment** starting Gitpod or Docker. This may take some minutes, especially on the first time. For more info on dev env setup, visit [this page](doc/commands.md).
+4. **Launch the environment** starting Gitpod or Docker. This may take some minutes, especially on the first time. For more info on dev env setup, visit [this page](/doc/commands.md).
 5. **Create branch** with short but clear name, with issue number at the end (e.g. `action-buttons-9` for issue #9), separating words with hyphens. Make sure to link the branch to the issue, clicking on "Development" title, at the bottom right of issue page.
-6. **Update app version** in [`pubspec.yaml`](pubspec.yaml), replacing the last number with issue number (e.g. `1.0.9` for issue #9).
+6. **Update app version** in [`pubspec.yaml`](/pubspec.yaml), replacing the last number with issue number (e.g. `1.0.9` for issue #9).
 7. **Edit code and test it** until the issue is solved, making one or more commits with short but clear description of the edits. Push changes to avoid to loose unsaved code.
 8. **Write updates** for the team into the issue, including screenshots of the new feature, if applicable.
 9. **Close & Pull**: once the new feature is implemented (or the bug solved), close the issue and create a pull request for the branch. Make sure to link the pull request to the issue, as on step 5.
